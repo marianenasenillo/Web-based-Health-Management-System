@@ -8,14 +8,22 @@
     <!-- MAIN CONTENT -->
     <v-main class="main-no-scroll">
       <v-container fluid>
-        <v-row class="fill-height d-flex align-center justify-center">
+        <v-row class="fill-height d-flex align-center justify-center" >
           <!-- LEFT SIDE (Logo Card) -->
           <v-col cols="12" md="7">
             <v-card
-              class="pa-7 rounded-xl flex-grow-1 d-flex align-center justify-center"
+              class=" pa-7 flex-grow-1 d-flex align-center justify-center " 
               height="472"
               elevation="4"
               color="#fff9c4"
+              style="
+                border-top-left-radius: 16px;
+                border-bottom-left-radius: 16px;
+                border-top-right-radius: 0;
+                border-bottom-right-radius: 0;
+                margin-right: -18px;
+              "
+              
             >
               <v-img src="/images/logo.png" contain />
             </v-card>
@@ -24,9 +32,15 @@
           <!-- RIGHT SIDE (Login Form Card) -->
           <v-col cols="12" md="4" class="d-flex justify-center">
             <v-card
-              class="rounded-xl d-flex flex-column justify-center flex-grow-1"
+              class="flex-grow-1 d-flex flex-column justify-center "
               elevation="4"
               color="#fff9c4"
+              style="
+                border-top-right-radius: 16px;
+                border-bottom-right-radius: 16px;
+                border-top-left-radius: 0;
+                border-bottom-left-radius: 0;
+              "
             >
               <!-- Title -->
               <h3
