@@ -1,32 +1,29 @@
-<script setup>
-  import { ref } from 'vue'
-
-  const theme = ref('light')
-
-  function onClick () {
-    theme.value = theme.value === 'light' ? 'dark' : 'light'
-  }
-</script>
+<script setup></script>
 
 <template>
-  <v-responsive class="border rounded" max-height="300">
-    <v-app :theme="theme">
-      <v-app-bar class="px-3">
-        <v-spacer></v-spacer>
+  <v-app class="yellow-background">
+   
+    <v-app-bar app color="#5b841e" height="90" class="d-flex align-center"> </v-app-bar>
 
-        <v-btn
-          :prepend-icon="theme === 'light' ? 'mdi-weather-sunny' : 'mdi-weather-night'"
-          text="Toggle Theme"
-          slim
-          @click="onClick"
-        ></v-btn>
-      </v-app-bar>
 
-      <v-main>
-        <v-container>
-          <h1>Main Content</h1>
-        </v-container>
-      </v-main>
-    </v-app>
-  </v-responsive>
+    <v-main>
+      <v-container>
+        
+      </v-container>
+    </v-main>
+
+  
+    <v-footer app color="#5b841e" height="80" class="d-flex align-center justify-center">
+      <span class="text-white text-decoration-underline">2025 All Rights Reserved</span>
+    </v-footer>
+  </v-app>
 </template>
+
+<style>
+
+.yellow-background {
+  background-color: #ffeb3b; /* yellow */
+  min-height: 100vh; /* ensures the background covers the full viewport */
+}
+
+</style>
