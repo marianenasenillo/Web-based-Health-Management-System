@@ -107,7 +107,7 @@
 
               <!-- Forgot Password -->
               <p class="text-center mt-2">
-                <a href="#" style="color: blue; text-decoration: underline">Forgot password?</a>
+                <a href="#" style="color: black; text-decoration: underline">Forgot password?</a>
               </p>
 
               <!-- Separator line -->
