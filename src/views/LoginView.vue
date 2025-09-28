@@ -8,11 +8,11 @@
     <!-- MAIN CONTENT -->
     <v-main class="main-no-scroll">
       <v-container fluid>
-        <v-row class="fill-height d-flex align-center justify-center" >
+        <v-row class="fill-height d-flex align-center justify-center">
           <!-- LEFT SIDE (Logo Card) -->
           <v-col cols="12" md="7">
             <v-card
-              class=" pa-7 flex-grow-1 d-flex align-center justify-center " 
+              class="pa-7 flex-grow-1 d-flex align-center justify-center"
               height="472"
               elevation="4"
               color="#fff9c4"
@@ -23,7 +23,6 @@
                 border-bottom-right-radius: 0;
                 margin-right: -18px;
               "
-              
             >
               <v-img src="/images/logo.png" contain />
             </v-card>
@@ -32,7 +31,7 @@
           <!-- RIGHT SIDE (Login Form Card) -->
           <v-col cols="12" md="4" class="d-flex justify-center">
             <v-card
-              class="flex-grow-1 d-flex flex-column justify-center "
+              class="flex-grow-1 d-flex flex-column justify-center"
               elevation="4"
               color="#fff9c4"
               style="
@@ -56,20 +55,24 @@
               <!-- Username -->
               <v-text-field
                 label="Username:"
-                variant="outlined"
-                color="green"
+                variant="filled"
+                bg-color="#5b841e"
+                color="white"
                 density="comfortable"
-                class="mx-12"
+                class="mx-12 text-white"
+                style="--v-theme-on-surface: white"
               />
 
               <!-- Password -->
               <v-text-field
                 label="Password:"
                 type="password"
-                variant="outlined"
-                color="green"
+                variant="filled"
+                bg-color="#5b841e"
+                color="white"
                 density="comfortable"
-                class="mx-12"
+                class="mx-12 text-white"
+                style="--v-theme-on-surface: white"
               />
 
               <!-- Role + Assigned Purok -->
@@ -78,18 +81,24 @@
                   <v-select
                     label="Role"
                     :items="['BHW', 'Barangay Admin']"
-                    variant="outlined"
-                    color="green"
+                    variant="filled"
+                    bg-color="#5b841e"
+                    color="white"
                     density="comfortable"
+                    class="text-white"
+                    style="--v-theme-on-surface: white"
                   />
                 </v-col>
                 <v-col cols="6">
                   <v-select
                     label="Assigned Purok"
                     :items="['Purok 1', 'Purok 2', 'Purok 3']"
-                    variant="outlined"
-                    color="green"
+                    variant="filled"
+                    bg-color="#5b841e"
+                    color="white"
                     density="comfortable"
+                    class="text-white"
+                    style="--v-theme-on-surface: white"
                   />
                 </v-col>
               </v-row>
