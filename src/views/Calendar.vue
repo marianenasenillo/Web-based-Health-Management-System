@@ -1,7 +1,7 @@
 <script setup>
 import DashboardView from '@/components/DashboardView.vue';
 import { DayPilot, DayPilotMonth } from '@daypilot/daypilot-lite-vue'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 
 const monthRef = ref(null)
 const startDate = ref("2026-10-01")
@@ -14,23 +14,15 @@ const colors = {
   holiday: "#cc0000",
 }
 
-const onEventMoved = (args) => {
-  console.log("Event moved: " + args.e.text())
-}
-
-const onEventResized = (args) => {
-  console.log("Event resized: " + args.e.text())
-}
-
-const onEventClicked = async (args) => {
-  const form = [{ name: "Text", id: "text" }]
-  const modal = await DayPilot.Modal.form(form, args.e.data)
-  if (modal.canceled) return
-  monthRef.value.control.events.update(modal.result)
-}
+const onEventMoved = (args) => console.log("Event moved: " + args.e.text())
+const onEventResized = (args) => console.log("Event resized: " + args.e.text())
 
 const onTimeRangeSelected = async (args) => {
-  const modal = await DayPilot.Modal.prompt("Create a new event:", "Event 1")
+  const form = [
+    { name: "Title", id: "text", value: "New Event" },
+    { name: "Description", id: "description", value: "" }
+  ]
+  const modal = await DayPilot.Modal.form(form)
   const dp = args.control
   dp.clearSelection()
   if (modal.canceled) return
@@ -38,8 +30,20 @@ const onTimeRangeSelected = async (args) => {
     start: args.start,
     end: args.end,
     id: DayPilot.guid(),
-    text: modal.result,
+    text: modal.result.text,
+    description: modal.result.description,
+    type: "event",
   })
+}
+
+const onEventClicked = async (args) => {
+  const form = [
+    { name: "Title", id: "text" },
+    { name: "Description", id: "description" }
+  ]
+  const modal = await DayPilot.Modal.form(form, args.e.data)
+  if (modal.canceled) return
+  monthRef.value.control.events.update(modal.result)
 }
 
 const onBeforeEventRender = (args) => {
@@ -89,6 +93,7 @@ const onBeforeEventRender = (args) => {
   }
 }
 
+// --- CONTEXT MENU ---
 const contextMenu = new DayPilot.Menu({
   items: [
     { text: "Edit...", onClick: (args) => editEvent(args.source) },
@@ -107,21 +112,15 @@ const contextMenu = new DayPilot.Menu({
         { text: "Holiday", icon: "icon icon-red", onClick: (args) => updateEventType(args.source, "holiday") },
       ],
     },
-  ],
-  onShow: (args) => {
-    const e = args.source
-    const locked = e.data.locked
-    args.menu.items[2].text = locked ? "Unlock" : "Lock"
-    args.menu.items[0].disabled = locked
-    args.menu.items[1].disabled = locked
-    args.menu.items[5].disabled = locked
-    args.menu.items[7].disabled = locked
-  },
+  ]
 })
 
-// --- helpers used by menu/areas ---
+// --- HELPERS ---
 const editEvent = async (e) => {
-  const form = [{ name: "Text", id: "text" }]
+  const form = [
+    { name: "Title", id: "text" },
+    { name: "Description", id: "description" }
+  ]
   const modal = await DayPilot.Modal.form(form, e.data)
   if (modal.canceled) return
   monthRef.value.control.events.update(modal.result)
@@ -156,66 +155,92 @@ const toggleEventLock = (e) => {
 
 const loadEvents = () => {
   events.value = [
-    { id: 1, start: "2026-10-06T00:00:00", end: "2026-10-07T00:00:00", text: "Event 1", type: "event" },
-    { id: 2, start: "2026-10-07T00:00:00", end: "2026-10-08T00:00:00", text: "Reminder", type: "reminder" },
-    { id: 3, start: "2026-10-07T00:00:00", end: "2026-10-08T00:00:00", text: "Task 1", type: "task" },
-    { id: 4, start: "2026-10-13T00:00:00", end: "2026-10-14T00:00:00", text: "Holiday", type: "holiday", locked: true },
+    { id: 1, start: "2026-10-06T00:00:00", end: "2026-10-07T00:00:00", text: "Event 1", description: "Description for Event 1", type: "event" },
+    { id: 2, start: "2026-10-07T00:00:00", end: "2026-10-08T00:00:00", text: "Reminder", description: "Description for Reminder", type: "reminder" },
+    { id: 3, start: "2026-10-07T00:00:00", end: "2026-10-08T00:00:00", text: "Task 1", description: "Description for Task 1", type: "task" },
+    { id: 4, start: "2026-10-13T00:00:00", end: "2026-10-14T00:00:00", text: "Holiday", description: "Locked event", type: "holiday", locked: true },
   ]
 }
 
-onMounted(() => {
-  loadEvents()
-})
+const eventList = computed(() => events.value)
+
+onMounted(() => loadEvents())
 </script>
 
 <template>
-    <DashboardView>
+  <DashboardView>
+    <div class="calendar-bg">
+      <div class="calendar-box">
         <DayPilotMonth
-      ref="monthRef"
-      :startDate="startDate"
-      :eventHeight="36"
-      :cellHeight="80" 
-      :events="events"
-      :contextMenu="contextMenu"
-      @eventMoved="onEventMoved"
-      @eventResized="onEventResized"
-      @eventClicked="onEventClicked"
-      @timeRangeSelected="onTimeRangeSelected"
-      @beforeEventRender="onBeforeEventRender"
-  />
-    </DashboardView>
+          ref="monthRef"
+          :startDate="startDate"
+          :eventHeight="37"   
+          :cellHeight="70"    
+          :events="events"
+          :contextMenu="contextMenu"
+          @eventMoved="onEventMoved"
+          @eventResized="onEventResized"
+          @eventClicked="onEventClicked"
+          @timeRangeSelected="onTimeRangeSelected"
+          @beforeEventRender="onBeforeEventRender"
+        />
+      </div>
+
+      <!-- Event list sidebar -->
+      <div class="event-list-container" ref="scrollContainer">
+        <h3>Events</h3>
+        <div v-for="event in eventList" :key="event.id" class="event-item" :style="{ borderLeft: '6px solid ' + (colors[event.type] || '#3c78d8') }">
+          <strong :style="{ color: colors[event.type] || '#3c78d8' }">{{ event.text }}</strong><br/>
+          <span>{{ event.description }}</span>
+        </div>
+      </div>
+    </div>
+  </DashboardView>
 </template>
 
 <style>
+.calendar-bg {
+  display: flex;
+  gap: 2rem;
+  padding: 2rem;
+  background: url('/images/health.jpg') no-repeat center center;
+  background-size: cover;
+  min-height: calc(120vh - 319px);
+  align-items: flex-start;
+}
+
+.calendar-box {
+  width: 1000px;
+  padding: 20px;
+  border-radius: 12px;
+  background-color: #fff;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
+
+.event-list-container {
+  width: 400px;
+  height: 450px; 
+  padding: 20px;
+  border-radius: 12px;
+  background-color: #ffffffcc;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+  overflow-y: auto;
+}
+
+.event-item {
+  margin-bottom: 1rem;
+  padding: 8px;
+  border-bottom: 1px solid #ddd;
+}
+
 .month_default_event_inner {
-  border-radius: 20px;
-  padding-left: 35px;
-  white-space: nowrap;
+  border-radius: 18px;
+  padding-left: 25px;
+  font-size: 1rem;
 }
 
 .month_default_event_bar_inner {
-  width: 30px;
-  border-radius: 20px;
+  width: 20px;
+  border-radius: 16px;
 }
-
-.month_default_event svg:hover {
-  color: #000000;
-  cursor: pointer;
-}
-
-/* context menu icons */
-.icon:before {
-  position: absolute;
-  left: 0px;
-  margin-left: 8px;
-  margin-top: 3px;
-  width: 14px;
-  height: 14px;
-  content: '';
-}
-
-.icon-blue:before { background-color: #3c78d8; }
-.icon-green:before { background-color: #6aa84f; }
-.icon-yellow:before { background-color: #f1c232; }
-.icon-red:before { background-color: #cc0000; }
 </style>
