@@ -1,5 +1,13 @@
 <script setup>
 import DashboardView from '@/components/DashboardView.vue'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+const goNextPage = () => {
+  router.push('/next')
+}
 </script>
 
 <template>
@@ -17,6 +25,7 @@ import DashboardView from '@/components/DashboardView.vue'
           Learn More
         </button>
       </div>
+       <button class="arrow-btn next-btn" @click="goNextPage">❯</button>
     </div>
 
     <!-- Modal -->
@@ -129,7 +138,27 @@ import DashboardView from '@/components/DashboardView.vue'
   padding: 1.5rem;
   border-radius: 1rem;
 }
-
+.arrow-btn {
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  color: white;
+  font-size: 2.5rem;
+  font-weight: bold;
+  width: 65px;
+  height: 65px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s;
+}
+.arrow-btn:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+.next-btn {
+  position: absolute;
+  right: 20px;
+}
 .footer-btn {
   background-color: #5b841e;
   border-color: #5b841e;
