@@ -1,64 +1,20 @@
 <script setup>
 import DashboardView from '@/components/DashboardView.vue'
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const showRecords = ref(false)
 
-// list of record types (you can add more)
-const recordItems = ref([
-  { id: 'household', label: 'Household Profiling' },
-  { id: 'household_head', label: 'Household Head Profiling' }
-])
-
-// which menu is open (index), null = none
-const openMenuIndex = ref(null)
-
-const goPrevPage = () => router.push('/previous')
-const goNextPage = () => router.push('/next')
-const toggleRecords = () => (showRecords.value = !showRecords.value)
-
-function toggleMenu(index, e) {
-  // stop event so global listener won't immediately close it
-  if (e) e.stopPropagation()
-  openMenuIndex.value = openMenuIndex.value === index ? null : index
+const goPrevPage = () => {
+  router.push('/previous')
 }
-
-function closeMenus() {
-  openMenuIndex.value = null
+const goNextPage = () => {
+  router.push('/next')
 }
-
-// actions
-function fillIn(item) {
-  // example: navigate to a fill form route
-  // router.push(`/fill/${item.id}`)
-  console.log('Fill in', item)
-  closeMenus()
-  // optionally close overlay as well:
-  // showRecords.value = false
+const toggleRecords = () => {
+  showRecords.value = !showRecords.value
 }
-
-function viewRecord(item) {
-  // example: navigate to view records page
-  // router.push(`/records/${item.id}`)
-  console.log('View record', item)
-  closeMenus()
-}
-
-function onWindowClick(e) {
-  // if clicked outside any menu wrapper, close menus
-  if (!e.target.closest('.menu-btn-wrapper')) {
-    closeMenus()
-  }
-}
-
-onMounted(() => {
-  window.addEventListener('click', onWindowClick)
-})
-onBeforeUnmount(() => {
-  window.removeEventListener('click', onWindowClick)
-})
 </script>
 
 <template>
@@ -94,7 +50,7 @@ onBeforeUnmount(() => {
 
         <img src="/images/hpslogo.png" alt="Household Logo" class="hps-logo" />
 
-        <!-- Text + items with three-dot menus -->
+        <!-- Text + Buttons -->
         <div class="records-content">
           <p>
             <em>"Household Profiling"</em> in the Barangay Health Station aims to gather and
@@ -102,48 +58,16 @@ onBeforeUnmount(() => {
             planning, monitoring, and delivery of services.
           </p>
 
-          <!-- inside records-content -->
-<div class="record-list">
-  <div
-    v-for="(item, idx) in recordItems"
-    :key="item.id"
-    class="record-row d-flex align-items-center justify-content-between"
-  >
-    <div class="record-label">
-      {{ item.label }}
-    </div>
-
-    <div class="menu-btn-wrapper">
-      <button
-        class="dots-btn"
-        @click.stop="toggleMenu(idx, $event)"
-        :aria-expanded="openMenuIndex === idx ? 'true' : 'false'"
-        aria-haspopup="true"
-      >
-        ⋮
-      </button>
-
-      <div
-        v-if="openMenuIndex === idx"
-        class="menu"
-        role="menu"
-      >
-        <button class="menu-item" @click="fillIn(item)">Fill in</button>
-        <button class="menu-item" @click="viewRecord(item)">View record</button>
-      </div>
-    </div>
-  </div>
-</div>
-
+          <button class="record-btn">Household Profiling <span>⋮</span></button>
+          <button class="record-btn">Household Head Profiling <span>⋮</span></button>
         </div>
-
       </div>
     </div>
   </DashboardView>
 </template>
 
 <style scoped>
-/* kept your earlier layout styles (trimmed to relevant parts) */
+/* Background */
 .hps-bg {
   background: url('/images/householdprofiling.jpg') no-repeat center center;
   background-size: cover;
@@ -155,8 +79,9 @@ onBeforeUnmount(() => {
   padding: 0 4rem;
 }
 
+/* Overlay with transparent green */
 .overlay-content {
-  background: rgba(91, 132, 30, 0.85);
+  background: rgba(131, 189, 45, 0.65);
   padding: 2rem;
   border-radius: 1rem;
   max-width: 480px;
@@ -164,6 +89,15 @@ onBeforeUnmount(() => {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
 }
 
+/* Search bar */
+.search-box .form-control {
+  border-radius: 0.5rem 0 0 0.5rem;
+}
+.search-box .btn-light {
+  border-radius: 0 0.5rem 0.5rem 0;
+}
+
+/* View Records button */
 .view-btn {
   background-color: #ffcc00;
   color: #000;
@@ -174,8 +108,11 @@ onBeforeUnmount(() => {
   transition: 0.3s;
   width: 100%;
 }
-.view-btn:hover { background-color: #e6b800; }
+.view-btn:hover {
+  background-color: #e6b800;
+}
 
+/* Arrows */
 .arrow-btn {
   background: rgba(0, 0, 0, 0.5);
   border: none;
@@ -190,15 +127,26 @@ onBeforeUnmount(() => {
   justify-content: center;
   transition: background 0.3s;
 }
-.arrow-btn:hover { background: rgba(0, 0, 0, 0.8); }
-.prev-btn { position: absolute; left: 20px; }
-.next-btn { position: absolute; right: 20px; }
+.arrow-btn:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+.prev-btn {
+  position: absolute;
+  left: 20px;
+}
+.next-btn {
+  position: absolute;
+  right: 20px;
+}
 
-/* Records overlay */
+/* Records overlay (fullscreen) */
 .records-overlay {
   position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -206,21 +154,18 @@ onBeforeUnmount(() => {
   padding: 2rem;
 }
 
-/* Records box (single clean definition) */
+/* Records box */
 .records-box {
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  background: rgba(255, 255, 255, 0.95);
   padding: 3rem 4rem;
   border-radius: 1rem;
-  max-width: 1400px;
+  max-width: 1300px;
   width: 100%;
   position: relative;
   display: flex;
   align-items: center;
   gap: 4rem;
 }
-
 
 /* Back button */
 .back-btn {
@@ -236,61 +181,45 @@ onBeforeUnmount(() => {
   cursor: pointer;
   transition: transform 0.2s;
 }
-.back-btn:hover { transform: scale(1.1); }
+.back-btn:hover {
+  transform: scale(1.1);
+}
 
 /* Logo */
-.hps-logo { width: 500px; flex-shrink: 0; }
+.hps-logo {
+  width: 500px;
+  flex-shrink: 0;
+}
 
 /* Content */
-.records-content { flex: 1; display: flex; flex-direction: column; justify-content: center; }
-.records-content p { font-size: 1.15rem; line-height: 1.7; margin-bottom: 2rem; }
-
-/* record rows */
-.record-list { width: 100%; }
-.record-row { padding: 0.6rem 0; border-radius: 6px; }
-.record-label { font-weight: 600; color: #222; }
-
-/* three-dot button */
-.menu-btn-wrapper { position: relative; display: inline-block; }
-.dots-btn {
-  background: transparent;
-  border: none;
-  font-size: 1.6rem;
-  color: #5b841e;
-  padding: 0.25rem 0.5rem;
-  cursor: pointer;
+.records-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
-.dots-btn:hover { transform: scale(1.05); }
+.records-content p {
+  font-size: 1.15rem;
+  line-height: 1.7;
+  margin-bottom: 2rem;
+}
 
-/* menu */
-.menu {
-  position: absolute;
-  right: 0;
-  top: calc(100% + 8px);
-  background: #fff;
+/* Buttons */
+.record-btn {
+  background-color: #5b841e;
+  color: #fff;
+  font-weight: 600;
+  padding: 1rem 1.3rem;
   border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-  min-width: 160px;
-  overflow: hidden;
-  z-index: 3000;
-}
-.menu-item {
-  display: block;
   width: 100%;
-  padding: 0.6rem 1rem;
-  border: none;
-  background: transparent;
+  margin-bottom: 1rem;
   text-align: left;
-  cursor: pointer;
-  font-size: 0.98rem;
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.1rem;
+  transition: 0.3s;
 }
-.menu-item:hover { background: #f4f4f4; }
-
-/* small responsiveness */
-@media (max-width: 900px) {
-  .hps-bg { padding: 0 2rem; }
-  .overlay-content { margin-left: 1.5rem; max-width: 360px; }
-  .hps-logo { width: 260px; }
-  .records-box { gap: 1.2rem; padding: 2rem; max-width: 980px; }
+.record-btn:hover {
+  background-color: #4a6d18;
 }
 </style>
