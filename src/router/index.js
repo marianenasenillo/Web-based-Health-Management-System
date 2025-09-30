@@ -8,6 +8,7 @@ import Childcare from '@/views/Childcare.vue'
 import Familyplanning from '@/views/Familyplanning.vue'
 import Phs from '@/views/Phs.vue'
 import Calendar from '@/views/Calendar.vue'
+import Inventory from '@/views/Inventory.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -56,6 +57,11 @@ const router = createRouter({
       path: '/calendar',
       name: 'calendar',
       component: Calendar,
+    },
+    {
+      path: '/inventory',
+      name: 'inventory',
+      component: Inventory,
     },
   ],
 })
