@@ -5,38 +5,51 @@ import DashboardView from '@/components/DashboardView.vue'
 <template>
   <DashboardView>
     <!-- FULL BACKGROUND WRAPPER -->
-    <div class="home-bg text-center text-white flex-column">
-      <div class="overlay-content mb-3">
+    <div class="home-bg d-flex align-items-center justify-content-start">
+      <div class="overlay-content text-white mb-3 text-start ms-5">
         <h1>Buenavista Health Sync</h1>
         <p>Securing Health Data, Transforming Healthcare for All</p>
+        <button 
+          class="btn footer-btn mt-2" 
+          data-bs-toggle="modal" 
+          data-bs-target="#learnMoreModal"
+        >
+          Learn More
+        </button>
       </div>
-      <!-- Learn More Button -->
-      <button 
-        class="btn btn-primary"
-        data-bs-toggle="modal" 
-        data-bs-target="#learnMoreModal"
-      >
-        Learn More
-      </button>
     </div>
 
     <!-- Modal -->
-    <div class="modal fade" id="learnMoreModal" tabindex="-1" aria-labelledby="learnMoreLabel" aria-hidden="true">
+    <div
+      class="modal fade"
+      id="learnMoreModal"
+      tabindex="-1"
+      aria-labelledby="learnMoreLabel"
+      aria-hidden="true"
+    >
       <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content shadow-lg border-0 rounded-4">
-          <div class="modal-header bg-primary text-white rounded-top-4">
+          <!-- Custom Header -->
+          <div class="modal-header custom-modal-header text-white rounded-top-4">
             <h5 class="modal-title fw-bold" id="learnMoreLabel">Buenavista Health Sync</h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
           </div>
+
           <div class="modal-body p-4">
-            
             <!-- What is Section -->
             <section class="mb-4">
               <h5 class="fw-bold">What is Buenavista Health Sync?</h5>
               <p>
-                <strong>Buenavista Health Sync (BHS)</strong> is an innovative digital health platform aimed at transforming barangay healthcare services. 
-                It allows for the secure online input and storage of community health records while archiving past records for easy retrieval. 
-                Health workers gain real-time access to critical data, improving efficiency and the quality of care in the community.
+                <strong>Buenavista Health Sync (BHS)</strong> is an innovative digital health
+                platform aimed at transforming barangay healthcare services. It allows for the
+                secure online input and storage of community health records while archiving past
+                records for easy retrieval. Health workers gain real-time access to critical data,
+                improving efficiency and the quality of care in the community.
               </p>
             </section>
 
@@ -57,8 +70,16 @@ import DashboardView from '@/components/DashboardView.vue'
             <!-- Mission & Vision -->
             <section class="mb-4">
               <h5 class="fw-bold">Mission & Vision</h5>
-              <p><strong>Mission:</strong> To empower barangay healthcare workers with a secure, efficient platform for managing community health data and improving service delivery.</p>
-              <p><strong>Vision:</strong> To be the leading digital health platform for barangays, promoting data-driven, accessible, and sustainable healthcare through innovative technology.</p>
+              <p>
+                <strong>Mission:</strong> To empower barangay healthcare workers with a secure,
+                efficient platform for managing community health data and improving service
+                delivery.
+              </p>
+              <p>
+                <strong>Vision:</strong> To be the leading digital health platform for barangays,
+                promoting data-driven, accessible, and sustainable healthcare through innovative
+                technology.
+              </p>
             </section>
 
             <!-- Key Features -->
@@ -81,8 +102,8 @@ import DashboardView from '@/components/DashboardView.vue'
                 </div>
               </div>
             </section>
-
           </div>
+
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
           </div>
@@ -96,7 +117,7 @@ import DashboardView from '@/components/DashboardView.vue'
 .home-bg {
   background: url('/images/bg.jpg') no-repeat center center;
   background-size: cover;
-  min-height: calc(120vh - 319px); 
+  min-height: calc(120vh - 319px);
   width: 100%;
   display: flex;
   justify-content: center;
@@ -104,8 +125,26 @@ import DashboardView from '@/components/DashboardView.vue'
 }
 
 .overlay-content {
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
   padding: 1.5rem;
   border-radius: 1rem;
+}
+
+.footer-btn {
+  background-color: #5b841e;
+  border-color: #5b841e;
+  color: #fff;
+  font-weight: 500;
+}
+
+.footer-btn:hover {
+  background-color: #466a17; 
+  border-color: #466a17;
+  color: #fff;
+}
+
+/* Custom Modal Header */
+.custom-modal-header {
+  background-color: #5b841e; 
 }
 </style>
