@@ -6,7 +6,7 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 
 const goNextPage = () => {
-  router.push('/next')
+  router.push('/householdprofile')
 }
 </script>
 

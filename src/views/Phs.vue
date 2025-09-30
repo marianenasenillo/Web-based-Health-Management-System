@@ -7,11 +7,9 @@ const router = useRouter()
 const showRecords = ref(false)
 
 const goPrevPage = () => {
-  router.push('/previous')
+  router.push('/familyplanning')
 }
-const goNextPage = () => {
-  router.push('/next')
-}
+
 const toggleRecords = () => {
   showRecords.value = !showRecords.value
 }
@@ -38,8 +36,6 @@ const toggleRecords = () => {
         <button class="btn view-btn mt-3" @click="toggleRecords">View Records</button>
       </div>
 
-      <!-- Next Arrow -->
-      <button class="arrow-btn next-btn" @click="goNextPage">❯</button>
     </div>
 
     <!-- Records Overlay -->
@@ -136,10 +132,7 @@ const toggleRecords = () => {
   position: absolute;
   left: 20px;
 }
-.next-btn {
-  position: absolute;
-  right: 20px;
-}
+
 
 /* Records overlay (fullscreen) */
 .records-overlay {

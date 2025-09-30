@@ -7,10 +7,10 @@ const router = useRouter()
 const showRecords = ref(false)
 
 const goPrevPage = () => {
-  router.push('/previous')
+  router.push('/childcare')
 }
 const goNextPage = () => {
-  router.push('/next')
+  router.push('/preventivehealhservices')
 }
 const toggleRecords = () => {
   showRecords.value = !showRecords.value

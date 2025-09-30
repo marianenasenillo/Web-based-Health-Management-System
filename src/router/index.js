@@ -47,8 +47,8 @@ const router = createRouter({
       component: Familyplanning,
     },
     {
-      path: '/preventivehealservices',
-      name: 'preventivehealservices',
+      path: '/preventivehealhservices',
+      name: 'preventivehealhservices',
       component: Phs,
     },
   ],
