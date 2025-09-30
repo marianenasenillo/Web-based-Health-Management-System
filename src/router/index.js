@@ -6,6 +6,7 @@ import HpsView from '@/views/HpsView.vue'
 import Maternal from '@/views/Maternal.vue'
 import Childcare from '@/views/Childcare.vue'
 import Familyplanning from '@/views/Familyplanning.vue'
+import Phs from '@/views/Phs.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -44,6 +45,11 @@ const router = createRouter({
       path: '/familyplanning',
       name: 'familyplanning',
       component: Familyplanning,
+    },
+    {
+      path: '/preventivehealservices',
+      name: 'preventivehealservices',
+      component: Phs,
     },
   ],
 })
