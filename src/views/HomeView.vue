@@ -9,7 +9,11 @@ import DashboardView from '@/components/DashboardView.vue'
       <div class="overlay-content text-white mb-3 text-start ms-5">
         <h1>Buenavista Health Sync</h1>
         <p>Securing Health Data, Transforming Healthcare for All</p>
-        <button class="btn footer-btn mt-2" data-bs-toggle="modal" data-bs-target="#learnMoreModal">
+        <button 
+          class="btn footer-btn mt-2" 
+          data-bs-toggle="modal" 
+          data-bs-target="#learnMoreModal"
+        >
           Learn More
         </button>
       </div>
@@ -53,21 +57,13 @@ import DashboardView from '@/components/DashboardView.vue'
             <section class="mb-4">
               <h5 class="fw-bold">How It Works</h5>
               <ul class="list-group list-group-flush">
-                <li class="list-group-item">
-                  Sign Up & Access: Secure login with role-based permissions.
-                </li>
-                <li class="list-group-item">
-                  Easy Data Entry: Input through simple, accurate forms.
-                </li>
-                <li class="list-group-item">
-                  Real-Time Access: Instant availability of community data.
-                </li>
+                <li class="list-group-item">Sign Up & Access: Secure login with role-based permissions.</li>
+                <li class="list-group-item">Easy Data Entry: Input through simple, accurate forms.</li>
+                <li class="list-group-item">Real-Time Access: Instant availability of community data.</li>
                 <li class="list-group-item">Record Management: Easily update records.</li>
                 <li class="list-group-item">Archiving: Archived records for easy tracking.</li>
                 <li class="list-group-item">Reports: View and generate health insights.</li>
-                <li class="list-group-item">
-                  Privacy: Encrypted, compliant, secure data handling.
-                </li>
+                <li class="list-group-item">Privacy: Encrypted, compliant, secure data handling.</li>
               </ul>
             </section>
 
@@ -142,13 +138,13 @@ import DashboardView from '@/components/DashboardView.vue'
 }
 
 .footer-btn:hover {
-  background-color: #466a17;
+  background-color: #466a17; 
   border-color: #466a17;
   color: #fff;
 }
 
 /* Custom Modal Header */
 .custom-modal-header {
-  background-color: #5b841e;
+  background-color: #5b841e; 
 }
 </style>
