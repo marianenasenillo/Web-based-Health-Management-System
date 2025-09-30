@@ -5,11 +5,88 @@ import DashboardView from '@/components/DashboardView.vue'
 <template>
   <DashboardView>
     <!-- FULL BACKGROUND WRAPPER -->
-    <div class="home-bg">
-      <!-- Optional overlay content -->
-      <div class="overlay-content">
-        <h1>Welcome to Dashboard</h1>
-        <p>This is the home page with full background.</p>
+    <div class="home-bg text-center text-white flex-column">
+      <div class="overlay-content mb-3">
+        <h1>Buenavista Health Sync</h1>
+        <p>Securing Health Data, Transforming Healthcare for All</p>
+      </div>
+      <!-- Learn More Button -->
+      <button 
+        class="btn btn-primary"
+        data-bs-toggle="modal" 
+        data-bs-target="#learnMoreModal"
+      >
+        Learn More
+      </button>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="learnMoreModal" tabindex="-1" aria-labelledby="learnMoreLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content shadow-lg border-0 rounded-4">
+          <div class="modal-header bg-primary text-white rounded-top-4">
+            <h5 class="modal-title fw-bold" id="learnMoreLabel">Buenavista Health Sync</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body p-4">
+            
+            <!-- What is Section -->
+            <section class="mb-4">
+              <h5 class="fw-bold">What is Buenavista Health Sync?</h5>
+              <p>
+                <strong>Buenavista Health Sync (BHS)</strong> is an innovative digital health platform aimed at transforming barangay healthcare services. 
+                It allows for the secure online input and storage of community health records while archiving past records for easy retrieval. 
+                Health workers gain real-time access to critical data, improving efficiency and the quality of care in the community.
+              </p>
+            </section>
+
+            <!-- How It Works -->
+            <section class="mb-4">
+              <h5 class="fw-bold">How It Works</h5>
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item">Sign Up & Access: Secure login with role-based permissions.</li>
+                <li class="list-group-item">Easy Data Entry: Input through simple, accurate forms.</li>
+                <li class="list-group-item">Real-Time Access: Instant availability of community data.</li>
+                <li class="list-group-item">Record Management: Easily update records.</li>
+                <li class="list-group-item">Archiving: Archived records for easy tracking.</li>
+                <li class="list-group-item">Reports: View and generate health insights.</li>
+                <li class="list-group-item">Privacy: Encrypted, compliant, secure data handling.</li>
+              </ul>
+            </section>
+
+            <!-- Mission & Vision -->
+            <section class="mb-4">
+              <h5 class="fw-bold">Mission & Vision</h5>
+              <p><strong>Mission:</strong> To empower barangay healthcare workers with a secure, efficient platform for managing community health data and improving service delivery.</p>
+              <p><strong>Vision:</strong> To be the leading digital health platform for barangays, promoting data-driven, accessible, and sustainable healthcare through innovative technology.</p>
+            </section>
+
+            <!-- Key Features -->
+            <section>
+              <h5 class="fw-bold">Key Features</h5>
+              <div class="row">
+                <div class="col-md-6">
+                  <ul class="list-unstyled">
+                    <li>✅ Secure Data Entry</li>
+                    <li>✅ Digital Record Storage</li>
+                    <li>✅ Real-Time Access</li>
+                  </ul>
+                </div>
+                <div class="col-md-6">
+                  <ul class="list-unstyled">
+                    <li>✅ Smart Archiving</li>
+                    <li>✅ Reports & Analytics</li>
+                    <li>✅ Role-Based Access</li>
+                  </ul>
+                </div>
+              </div>
+            </section>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
       </div>
     </div>
   </DashboardView>
@@ -24,5 +101,11 @@ import DashboardView from '@/components/DashboardView.vue'
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.overlay-content {
+  background: rgba(0,0,0,0.5);
+  padding: 1.5rem;
+  border-radius: 1rem;
 }
 </style>
