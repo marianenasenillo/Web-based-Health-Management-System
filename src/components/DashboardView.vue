@@ -4,7 +4,7 @@ const router = useRouter()
 
 function logout() {
   // sample logout action
-  router.push('/login')
+  router.push('/')
 }
 </script>
 
