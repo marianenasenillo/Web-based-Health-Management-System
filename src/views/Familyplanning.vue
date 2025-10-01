@@ -6,6 +6,9 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 const showRecords = ref(false)
 
+// Dropdown menu state
+const activeMenu = ref('') // '' | 'responsible'
+
 const goPrevPage = () => {
   router.push('/childcare')
 }
@@ -14,6 +17,20 @@ const goNextPage = () => {
 }
 const toggleRecords = () => {
   showRecords.value = !showRecords.value
+}
+const openMenu = (type) => {
+  activeMenu.value = type
+}
+const closeMenu = () => {
+  activeMenu.value = ''
+}
+const fillIn = (type) => {
+  // Add navigation or logic for filling in records
+  closeMenu()
+}
+const viewRecords = (type) => {
+  // Add navigation or logic for viewing records
+  closeMenu()
 }
 </script>
 
@@ -58,10 +75,16 @@ const toggleRecords = () => {
             </em>
           </p>
 
-          <!-- Example button with ⋮ options -->
-          <button class="record-btn">
-            Responsible Parenthood and Planning <span>⋮</span>
-          </button>
+          <!-- Responsible Parenthood and Planning Button with Dropdown -->
+          <div class="dropdown-container">
+            <button class="record-btn" @click="openMenu('responsible')">
+              Responsible Parenthood and Planning <span>⋮</span>
+            </button>
+            <div v-if="activeMenu === 'responsible'" class="dropdown-menu">
+              <button @click="fillIn('responsible')">Fill In</button>
+              <button @click="viewRecords('responsible')">View Records</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -223,5 +246,39 @@ const toggleRecords = () => {
 }
 .record-btn:hover {
   background-color: #4a6d18;
+}
+
+/* Dropdown styles */
+.dropdown-container {
+  position: relative;
+  width: 100%;
+}
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  padding: 0.5rem 0.7rem;
+  min-width: 140px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.dropdown-menu button {
+  background: none;
+  border: none;
+  color: #5b841e;
+  font-weight: 600;
+  text-align: left;
+  padding: 0.5rem 0.7rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.dropdown-menu button:hover {
+  background: #e6f3d2;
 }
 </style>
