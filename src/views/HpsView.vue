@@ -9,6 +9,10 @@ const showRecords = ref(false)
 // Dropdown menu state
 const activeMenu = ref('') // '' | 'household' | 'head'
 
+// Modal state
+const showModal = ref(false)
+const modalType = ref('') // 'household' | 'head'
+
 const goPrevPage = () => {
   router.push('/home')
 }
@@ -25,12 +29,16 @@ const closeMenu = () => {
   activeMenu.value = ''
 }
 const fillIn = (type) => {
-  // Add navigation or logic for filling in records
+  modalType.value = type
+  showModal.value = true
   closeMenu()
 }
 const viewRecords = (type) => {
   // Add navigation or logic for viewing records
   closeMenu()
+}
+const closeModal = () => {
+  showModal.value = false
 }
 </script>
 
@@ -97,6 +105,112 @@ const viewRecords = (type) => {
             </div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Modal for Fill In Form -->
+    <div v-if="showModal" class="modal-overlay">
+      <div class="modal-box" style="max-width:700px; width:98vw; padding:1.2rem 1.5rem;">
+        <button class="modal-close" @click="closeModal" style="float:right;">✕</button>
+        <!-- Centered logos and header text -->
+        <div style="display: flex; align-items: center; justify-content: center; gap: 1.2rem; margin-bottom: 0.3rem;">
+          <img src="/images/agusanlogo.png" alt="Agusan Logo" style="height: 80px;" />
+          <div style="min-width:180px; flex:1; text-align: center;">
+            <h4 style="margin: 0; font-size: 0.9rem; font-weight: 600; line-height: 1.1;">
+              Republic of the Philippines<br />
+              Province of Agusan del Norte<br />
+              Municipality of Buenavista<br />
+              Barangay Poblacion ___
+            </h4>
+            <h2 style="margin: 0.2rem 0 0.1rem 0; font-size: 0.95rem; font-weight: 700;">
+              Household Profiling
+            </h2>
+          </div>
+          <img src="/images/barangaylogo.png" alt="Barangay Logo" style="height: 80px;" />
+        </div>
+        <hr />
+        <form style="display:flex; flex-direction:column; gap:0.15rem; margin-top:0.2rem;">
+          <div style="display: flex; gap: 0.15rem;">
+            <div style="flex:0.7;">
+              <label for="purok" style="font-weight:600; font-size:0.9rem;">Purok:</label>
+              <input id="purok" type="text" class="input-stroke" style="padding:0.15rem 0.4rem; font-size:0.9rem;" />
+            </div>
+            <div style="flex:1;">
+              <label for="lastname" style="font-weight:600; font-size:0.9rem;">Last Name:</label>
+              <input id="lastname" type="text" class="input-stroke" style="padding:0.15rem 0.4rem; font-size:0.9rem;" />
+            </div>
+            <div style="flex:1;">
+              <label for="firstname" style="font-weight:600; font-size:0.9rem;">First Name:</label>
+              <input id="firstname" type="text" class="input-stroke" style="padding:0.15rem 0.4rem; font-size:0.9rem;" />
+            </div>
+            <div style="flex:1;">
+              <label for="middlename" style="font-weight:600; font-size:0.9rem;">Middle Name:</label>
+              <input id="middlename" type="text" class="input-stroke" style="padding:0.15rem 0.4rem; font-size:0.9rem;" />
+            </div>
+            <div style="flex:0.7;">
+              <label for="suffix" style="font-weight:600; font-size:0.9rem;">Suffix:</label>
+              <input id="suffix" type="text" class="input-stroke" style="padding:0.15rem 0.4rem; font-size:0.9rem;" />
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.15rem;">
+            <div style="flex:0.5;">
+              <label for="age" style="font-weight:600; font-size:0.9rem;">Age:</label>
+              <input id="age" type="number" class="input-stroke" min="0" style="width:45px; padding:0.15rem 0.4rem; font-size:0.9rem;" />
+            </div>
+            <div style="flex:1;">
+              <label for="birthdate" style="font-weight:600; font-size:0.9rem;">Birthdate:</label>
+              <input id="birthdate" type="date" class="input-stroke" style="padding:0.15rem 0.4rem; font-size:0.9rem;" />
+            </div>
+            <div style="flex:1;">
+              <label for="seStatus" style="font-weight:600; font-size:0.9rem;">SE Status:</label>
+              <input id="seStatus" type="text" class="input-stroke" style="padding:0.15rem 0.4rem; font-size:0.9rem;" />
+            </div>
+            <div style="flex:1;">
+              <label for="civilStatus" style="font-weight:600; font-size:0.9rem;">Civil Status:</label>
+              <input id="civilStatus" type="text" class="input-stroke" style="padding:0.15rem 0.4rem; font-size:0.9rem;" />
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.15rem;">
+            <div style="flex:1;">
+              <label for="planoManganak" style="font-weight:600; font-size:0.9rem;">Nag plano manganak:</label>
+              <select id="planoManganak" class="input-stroke" style="padding:0.15rem 0.4rem; font-size:0.9rem;">
+                <option value="">--Pili--</option>
+                <option value="Oo">Oo</option>
+                <option value="Dili">Dili</option>
+              </select>
+            </div>
+            <div style="flex:2;">
+              <label style="font-weight:600; font-size:0.9rem;">Karun / Spacing / Limiting / Fecund / Infecund:</label>
+              <div style="display: flex; gap: 0.2rem;">
+                <label style="font-size:0.9rem;"><input type="checkbox" /> Karun</label>
+                <label style="font-size:0.9rem;"><input type="checkbox" /> Spacing</label>
+                <label style="font-size:0.9rem;"><input type="checkbox" /> Limiting</label>
+                <label style="font-size:0.9rem;"><input type="checkbox" /> Fecund</label>
+                <label style="font-size:0.9rem;"><input type="checkbox" /> Infecund</label>
+              </div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.15rem;">
+            <div>
+              <label style="font-weight:600; font-size:0.9rem;">FB method used:</label>
+              <input type="text" class="input-stroke" style="width:55px; padding:0.15rem 0.4rem; font-size:0.9rem;" />
+            </div>
+            <div>
+              <label style="font-weight:600; font-size:0.9rem;">Type:</label>
+              <input type="text" class="input-stroke" style="width:55px; padding:0.15rem 0.4rem; font-size:0.9rem;" />
+            </div>
+            <div>
+              <label style="font-weight:600; font-size:0.9rem;">Date:</label>
+              <input type="date" class="input-stroke" style="width:70px; padding:0.15rem 0.4rem; font-size:0.9rem;" />
+            </div>
+            <div>
+              <label style="font-weight:600; font-size:0.9rem;">Gusto mo balhin ug Method:</label>
+              <label style="font-size:0.9rem;"><input type="radio" name="changeMethod" /> Yes</label>
+              <label style="font-size:0.9rem;"><input type="radio" name="changeMethod" /> No</label>
+            </div>
+          </div>
+          <button type="submit" class="modal-btn" style="margin-top:0.2rem; font-size:0.95rem; padding:0.4rem 1rem;">Save</button>
+        </form>
       </div>
     </div>
   </DashboardView>
@@ -332,5 +446,23 @@ const viewRecords = (type) => {
 }
 .dropdown-menu button:hover {
   background: #e6f3d2;
+}
+
+/* Input styles */
+.input-stroke {
+  border: 2px solid #222;
+  border-radius: 6px;
+  padding: 0.5rem 0.8rem;
+  font-size: 1rem;
+  background: #fff;
+  color: #222;
+  outline: none;
+  margin-top: 0.2rem;
+  margin-bottom: 0.5rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+.input-stroke:focus {
+  border-color: #5b841e;
 }
 </style>
