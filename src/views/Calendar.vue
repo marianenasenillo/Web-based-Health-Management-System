@@ -6,6 +6,9 @@ import { ref, onMounted, computed } from 'vue'
 const monthRef = ref(null)
 const startDate = ref("2026-10-01")
 const events = ref([])
+const showEventModal = ref(false)
+const modalMode = ref('add') // 'add' or 'edit'
+const modalEvent = ref({ text: '', description: '', start: '', end: '' })
 
 const colors = {
   event: "#3c78d8",
@@ -18,32 +21,48 @@ const onEventMoved = (args) => console.log("Event moved: " + args.e.text())
 const onEventResized = (args) => console.log("Event resized: " + args.e.text())
 
 const onTimeRangeSelected = async (args) => {
-  const form = [
-    { name: "Title", id: "text", value: "New Event" },
-    { name: "Description", id: "description", value: "" }
-  ]
-  const modal = await DayPilot.Modal.form(form)
-  const dp = args.control
-  dp.clearSelection()
-  if (modal.canceled) return
-  dp.events.add({
-    start: args.start,
-    end: args.end,
-    id: DayPilot.guid(),
-    text: modal.result.text,
-    description: modal.result.description,
-    type: "event",
-  })
+  openAddEventModal(args.start, args.end)
+  args.control.clearSelection()
 }
 
 const onEventClicked = async (args) => {
-  const form = [
-    { name: "Title", id: "text" },
-    { name: "Description", id: "description" }
-  ]
-  const modal = await DayPilot.Modal.form(form, args.e.data)
-  if (modal.canceled) return
-  monthRef.value.control.events.update(modal.result)
+  openEditEventModal(args.e.data)
+}
+
+function openAddEventModal(start, end) {
+  modalMode.value = 'add'
+  modalEvent.value = { text: '', description: '', start, end }
+  showEventModal.value = true
+}
+
+function openEditEventModal(event) {
+  modalMode.value = 'edit'
+  modalEvent.value = { ...event }
+  showEventModal.value = true
+}
+
+function closeEventModal() {
+  showEventModal.value = false
+}
+
+function saveEventModal() {
+  if (modalMode.value === 'add') {
+    events.value.push({
+      id: DayPilot.guid(),
+      start: modalEvent.value.start,
+      end: modalEvent.value.end,
+      text: modalEvent.value.text,
+      description: modalEvent.value.description,
+      type: 'event'
+    })
+  } else {
+    // Find and update event
+    const idx = events.value.findIndex(e => e.id === modalEvent.value.id)
+    if (idx !== -1) {
+      events.value[idx] = { ...modalEvent.value }
+    }
+  }
+  closeEventModal()
 }
 
 const onBeforeEventRender = (args) => {
@@ -165,6 +184,7 @@ const loadEvents = () => {
 const eventList = computed(() => events.value)
 
 onMounted(() => loadEvents())
+
 </script>
 
 <template>
@@ -194,6 +214,26 @@ onMounted(() => loadEvents())
             <strong :style="{ color: colors[event.type] || '#3c78d8' }">{{ event.text }}</strong><br/>
             <span>{{ event.description }}</span>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modern Event Modal -->
+    <div v-if="showEventModal" class="modal-overlay">
+      <div class="modal-content">
+        <button class="modal-close" @click="closeEventModal">&times;</button>
+        <h3>{{ modalMode === 'add' ? 'Add Event' : 'Edit Event' }}</h3>
+        <label>
+          Title:
+          <input v-model="modalEvent.text" placeholder="Event Title" />
+        </label>
+        <label>
+          Description:
+          <textarea v-model="modalEvent.description" placeholder="Description"></textarea>
+        </label>
+        <div class="modal-actions">
+          <button @click="saveEventModal">{{ modalMode === 'add' ? 'Add' : 'Save' }}</button>
+          <button @click="closeEventModal">Cancel</button>
         </div>
       </div>
     </div>
@@ -298,5 +338,112 @@ onMounted(() => loadEvents())
 .month_default_event:hover .month_default_event_inner {
   background: #e0e7ef;
   box-shadow: 0 4px 16px rgba(30,41,59,0.10);
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(30, 41, 59, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.modal-content {
+  background: linear-gradient(135deg, #f8fafc 0%, #e6f4ea 100%);
+  border-radius: 18px;
+  min-width: 320px;
+  max-width: 95vw;
+  width: 100%;
+  box-shadow: 0 12px 32px rgba(30,41,59,0.18), 0 1.5px 6px rgba(30,41,59,0.10);
+  padding: 2.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+  position: relative;
+  animation: modalPop 0.3s;
+}
+@keyframes modalPop {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.modal-content h3 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 0.5rem;
+}
+.modal-content label {
+  display: flex;
+  flex-direction: column;
+  font-size: 1rem;
+  color: #475569;
+  gap: 0.3rem;
+}
+.modal-content input,
+.modal-content textarea {
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  font-size: 1rem;
+  background: #f1f5f9;
+  transition: border 0.2s;
+  outline: none;
+}
+.modal-content input:focus,
+.modal-content textarea:focus {
+  border: 1.5px solid #5b841e;
+  background: #fff;
+}
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
+.modal-actions button {
+  padding: 0.6rem 1.5rem;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.modal-actions button:first-child {
+  background: #5b841e;
+  color: #fff;
+}
+.modal-actions button:last-child {
+  background: #e2e8f0;
+  color: #334155;
+}
+.modal-actions button:hover {
+  opacity: 0.85;
+}
+.modal-close {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.2rem;
+  font-size: 1.3rem;
+  color: #64748b;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.modal-close:hover {
+  color: #5b841e;
+}
+@media (min-width: 500px) {
+  .modal-content {
+    max-width: 400px;
+  }
 }
 </style>
