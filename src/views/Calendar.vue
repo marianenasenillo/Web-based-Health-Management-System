@@ -207,14 +207,17 @@ onMounted(() => loadEvents())
   background-size: cover;
   min-height: calc(120vh - 319px);
   align-items: flex-start;
+  backdrop-filter: blur(2px);
 }
 
 .calendar-box {
   width: 1000px;
   padding: 20px;
   border-radius: 12px;
-  background-color: #fff;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+  background: linear-gradient(135deg, #f8fafc 0%, #e0e7ef 100%);
+  box-shadow: 0 12px 32px rgba(30,41,59,0.13), 0 1.5px 6px rgba(30,41,59,0.10);
+  border: 1px solid #e2e8f0;
+  font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
 }
 
 .event-list-container {
@@ -222,25 +225,64 @@ onMounted(() => loadEvents())
   height: 450px; 
   padding: 20px;
   border-radius: 12px;
-  background-color: #ffffffcc;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.1);
-  overflow-y: auto;
+  background: linear-gradient(135deg, #f8fafc 0%, #e0e7ef 100%);
+  box-shadow: 0 12px 32px rgba(30,41,59,0.10), 0 1.5px 6px rgba(30,41,59,0.08);
+  border: 1px solid #e2e8f0;
+  font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+}
+
+.event-list-container h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 1.2rem;
+  letter-spacing: 0.5px;
 }
 
 .event-item {
   margin-bottom: 1rem;
-  padding: 8px;
-  border-bottom: 1px solid #ddd;
+  padding: 12px 10px;
+  border-radius: 12px;
+  border-bottom: none;
+  background: #f1f5f9;
+  box-shadow: 0 2px 8px rgba(30,41,59,0.04);
+  transition: box-shadow 0.2s, background 0.2s;
+}
+
+.event-item:hover {
+  background: #e0e7ef;
+  box-shadow: 0 4px 16px rgba(30,41,59,0.08);
+}
+
+.event-item strong {
+  font-size: 1.08rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.event-item span {
+  color: #64748b;
+  font-size: 0.98rem;
 }
 
 .month_default_event_inner {
   border-radius: 18px;
   padding-left: 25px;
   font-size: 1rem;
+  font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+  background: #f1f5f9;
+  box-shadow: 0 2px 8px rgba(30,41,59,0.07);
 }
 
 .month_default_event_bar_inner {
   width: 20px;
   border-radius: 16px;
+  box-shadow: 0 1px 4px rgba(30,41,59,0.10);
+}
+
+/* Optional: subtle hover effect for calendar events */
+.month_default_event:hover .month_default_event_inner {
+  background: #e0e7ef;
+  box-shadow: 0 4px 16px rgba(30,41,59,0.10);
 }
 </style>
