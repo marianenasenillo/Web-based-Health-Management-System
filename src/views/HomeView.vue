@@ -134,9 +134,12 @@ const goNextPage = () => {
 }
 
 .overlay-content {
-  background: rgba(0, 0, 0, 0.5);
-  padding: 1.5rem;
+  background: rgba(131, 189, 45, 0.45);
+  padding: 2rem;
   border-radius: 1rem;
+  max-width: 480px;
+  margin-left: 6rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
 }
 .arrow-btn {
   background: rgba(0, 0, 0, 0.5);
