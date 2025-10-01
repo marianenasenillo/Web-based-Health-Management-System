@@ -5,6 +5,8 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const showRecords = ref(false)
+const showModal = ref(false)
+const selectedRecord = ref('')
 
 const goPrevPage = () => {
   router.push('/home')
@@ -14,6 +16,21 @@ const goNextPage = () => {
 }
 const toggleRecords = () => {
   showRecords.value = !showRecords.value
+}
+const openModal = (type) => {
+  selectedRecord.value = type
+  showModal.value = true
+}
+const closeModal = () => {
+  showModal.value = false
+}
+const fillIn = () => {
+  // Add navigation or logic for filling in records
+  closeModal()
+}
+const viewRecords = () => {
+  // Add navigation or logic for viewing records
+  closeModal()
 }
 </script>
 
@@ -58,9 +75,23 @@ const toggleRecords = () => {
             planning, monitoring, and delivery of services.
           </p>
 
-          <button class="record-btn">Household Profiling <span>⋮</span></button>
-          <button class="record-btn">Household Head Profiling <span>⋮</span></button>
+          <button class="record-btn" @click="openModal('Household Profiling')">
+            Household Profiling <span>⋮</span>
+          </button>
+          <button class="record-btn" @click="openModal('Household Head Profiling')">
+            Household Head Profiling <span>⋮</span>
+          </button>
         </div>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div v-if="showModal" class="modal-overlay">
+      <div class="modal-box">
+        <h3>{{ selectedRecord }}</h3>
+        <button class="modal-btn" @click="fillIn">Fill In</button>
+        <button class="modal-btn" @click="viewRecords">View Records</button>
+        <button class="modal-close" @click="closeModal">Close</button>
       </div>
     </div>
   </DashboardView>
@@ -221,5 +252,46 @@ const toggleRecords = () => {
 }
 .record-btn:hover {
   background-color: #4a6d18;
+}
+
+/* Modal styles */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 3000;
+}
+.modal-box {
+  background: #fff;
+  padding: 2rem 2.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+  min-width: 320px;
+  text-align: center;
+}
+.modal-btn {
+  background: #5b841e;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.7rem 1.5rem;
+  margin: 0.5rem 0;
+  font-weight: 600;
+  width: 100%;
+  font-size: 1rem;
+  transition: 0.3s;
+}
+.modal-btn:hover {
+  background: #4a6d18;
+}
+.modal-close {
+  background: transparent;
+  color: #333;
+  border: none;
+  margin-top: 1rem;
+  font-size: 1rem;
+  cursor: pointer;
 }
 </style>
