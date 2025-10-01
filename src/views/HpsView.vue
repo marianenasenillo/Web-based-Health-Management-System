@@ -5,8 +5,9 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const showRecords = ref(false)
-const showModal = ref(false)
-const selectedRecord = ref('')
+
+// Dropdown menu state
+const activeMenu = ref('') // '' | 'household' | 'head'
 
 const goPrevPage = () => {
   router.push('/home')
@@ -17,20 +18,19 @@ const goNextPage = () => {
 const toggleRecords = () => {
   showRecords.value = !showRecords.value
 }
-const openModal = (type) => {
-  selectedRecord.value = type
-  showModal.value = true
+const openMenu = (type) => {
+  activeMenu.value = type
 }
-const closeModal = () => {
-  showModal.value = false
+const closeMenu = () => {
+  activeMenu.value = ''
 }
-const fillIn = () => {
+const fillIn = (type) => {
   // Add navigation or logic for filling in records
-  closeModal()
+  closeMenu()
 }
-const viewRecords = () => {
+const viewRecords = (type) => {
   // Add navigation or logic for viewing records
-  closeModal()
+  closeMenu()
 }
 </script>
 
@@ -75,23 +75,28 @@ const viewRecords = () => {
             planning, monitoring, and delivery of services.
           </p>
 
-          <button class="record-btn" @click="openModal('Household Profiling')">
-            Household Profiling <span>⋮</span>
-          </button>
-          <button class="record-btn" @click="openModal('Household Head Profiling')">
-            Household Head Profiling <span>⋮</span>
-          </button>
-        </div>
-      </div>
-    </div>
+          <!-- Household Profiling Button with Dropdown -->
+          <div class="dropdown-container">
+            <button class="record-btn" @click="openMenu('household')">
+              Household Profiling <span>⋮</span>
+            </button>
+            <div v-if="activeMenu === 'household'" class="dropdown-menu">
+              <button @click="fillIn('household')">Fill In</button>
+              <button @click="viewRecords('household')">View Records</button>
+            </div>
+          </div>
 
-    <!-- Modal -->
-    <div v-if="showModal" class="modal-overlay">
-      <div class="modal-box">
-        <h3>{{ selectedRecord }}</h3>
-        <button class="modal-btn" @click="fillIn">Fill In</button>
-        <button class="modal-btn" @click="viewRecords">View Records</button>
-        <button class="modal-close" @click="closeModal">Close</button>
+          <!-- Household Head Profiling Button with Dropdown -->
+          <div class="dropdown-container">
+            <button class="record-btn" @click="openMenu('head')">
+              Household Head Profiling <span>⋮</span>
+            </button>
+            <div v-if="activeMenu === 'head'" class="dropdown-menu">
+              <button @click="fillIn('head')">Fill In</button>
+              <button @click="viewRecords('head')">View Records</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </DashboardView>
@@ -293,5 +298,39 @@ const viewRecords = () => {
   margin-top: 1rem;
   font-size: 1rem;
   cursor: pointer;
+}
+
+/* Dropdown styles */
+.dropdown-container {
+  position: relative;
+  width: 100%;
+}
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  padding: 0.5rem 0.7rem;
+  min-width: 140px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.dropdown-menu button {
+  background: none;
+  border: none;
+  color: #5b841e;
+  font-weight: 600;
+  text-align: left;
+  padding: 0.5rem 0.7rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.dropdown-menu button:hover {
+  background: #e6f3d2;
 }
 </style>
