@@ -189,9 +189,11 @@ onMounted(() => loadEvents())
       <!-- Event list sidebar -->
       <div class="event-list-container" ref="scrollContainer">
         <h3>Events</h3>
-        <div v-for="event in eventList" :key="event.id" class="event-item" :style="{ borderLeft: '6px solid ' + (colors[event.type] || '#3c78d8') }">
-          <strong :style="{ color: colors[event.type] || '#3c78d8' }">{{ event.text }}</strong><br/>
-          <span>{{ event.description }}</span>
+        <div class="event-list-scroll">
+          <div v-for="event in eventList" :key="event.id" class="event-item" :style="{ borderLeft: '6px solid ' + (colors[event.type] || '#3c78d8') }">
+            <strong :style="{ color: colors[event.type] || '#3c78d8' }">{{ event.text }}</strong><br/>
+            <span>{{ event.description }}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -212,23 +214,30 @@ onMounted(() => loadEvents())
 
 .calendar-box {
   width: 1000px;
+  height: 450px; /* fixed height */
   padding: 20px;
   border-radius: 12px;
   background: linear-gradient(135deg, #f8fafc 0%, #e0e7ef 100%);
   box-shadow: 0 12px 32px rgba(30,41,59,0.13), 0 1.5px 6px rgba(30,41,59,0.10);
   border: 1px solid #e2e8f0;
   font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+  overflow: auto; /* scrolls if content exceeds */
+  display: flex;
+  flex-direction: column;
 }
 
 .event-list-container {
   width: 400px;
-  height: 450px; 
+  height: 450px; /* fixed height */
   padding: 20px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #f8fafc 0%, #e0e7ef 100%);
+   background: linear-gradient(135deg, #f8fafc 0%, #e0e7ef 100%);
   box-shadow: 0 12px 32px rgba(30,41,59,0.10), 0 1.5px 6px rgba(30,41,59,0.08);
   border: 1px solid #e2e8f0;
   font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* prevents stretching */
 }
 
 .event-list-container h3 {
@@ -237,6 +246,11 @@ onMounted(() => loadEvents())
   color: #334155;
   margin-bottom: 1.2rem;
   letter-spacing: 0.5px;
+}
+
+.event-list-scroll {
+  flex: 1;
+  overflow-y: auto; /* makes event list scrollable */
 }
 
 .event-item {
