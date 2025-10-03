@@ -12,6 +12,8 @@ import Inventory from '@/views/Inventory.vue'
 import ReportView from '@/views/ReportView.vue'
 import HpsRecords from '@/views/HpsRecords.vue'
 import HhpsRecords from '@/views/HhpsRecords.vue'
+import MaternalWrarecords from '@/views/MaternalWrarecords.vue'
+import MaternalCcsrecords from '@/views/MaternalCcsrecords.vue'
 
 
 const router = createRouter({
@@ -81,6 +83,16 @@ const router = createRouter({
       path: '/hhpsrecords',
       name: 'hhpsrecords',
       component: HhpsRecords,
+    },
+    {
+      path: '/maternalwrarecords',
+      name: 'maternalwrarecords',
+      component: MaternalWrarecords,
+    },
+    {
+      path: '/maternalccsrecords',
+      name: 'maternalccsrecords',
+      component: MaternalCcsrecords,
     },
   ],
 })

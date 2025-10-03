@@ -61,7 +61,11 @@ const fillIn = (type) => {
   closeMenu()
 }
 const viewRecords = (type) => {
-  // Add navigation or logic for viewing records
+  if (type === 'wra') {
+    router.push('/maternalwrarecords')
+  } else if (type === 'cervical') {
+    router.push('/maternalccsrecords')
+  }
   closeMenu()
 }
 const closeModal = () => {
