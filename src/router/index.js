@@ -15,6 +15,7 @@ import HhpsRecords from '@/views/HhpsRecords.vue'
 import MaternalWrarecords from '@/views/MaternalWrarecords.vue'
 import MaternalCcsrecords from '@/views/MaternalCcsrecords.vue'
 import ChildcareRecords from '@/views/ChildcareRecords.vue'
+import FpsRecords from '@/views/FpsRecords.vue'
 
 
 const router = createRouter({
@@ -99,6 +100,11 @@ const router = createRouter({
       path: '/childcarerecords',
       name: 'childcarerecords',
       component: ChildcareRecords,
+    },
+    {
+      path: '/fpsrecords',
+      name: 'fpsrecords',
+      component: FpsRecords,
     },
   ],
 })
