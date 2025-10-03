@@ -10,6 +10,7 @@ import Phs from '@/views/Phs.vue'
 import Calendar from '@/views/Calendar.vue'
 import Inventory from '@/views/Inventory.vue'
 import ReportView from '@/views/ReportView.vue'
+import HpsRecords from '@/views/HpsRecords.vue'
 
 
 const router = createRouter({
@@ -69,6 +70,11 @@ const router = createRouter({
       path: '/reports',
       name: 'reports',
       component: ReportView,
+    },
+    {
+      path: '/hpsrecords',
+      name: 'hpsrecords',
+      component: HpsRecords,
     },
   ],
 })
