@@ -11,6 +11,7 @@ import Calendar from '@/views/Calendar.vue'
 import Inventory from '@/views/Inventory.vue'
 import ReportView from '@/views/ReportView.vue'
 import HpsRecords from '@/views/HpsRecords.vue'
+import HhpsRecords from '@/views/HhpsRecords.vue'
 
 
 const router = createRouter({
@@ -75,6 +76,11 @@ const router = createRouter({
       path: '/hpsrecords',
       name: 'hpsrecords',
       component: HpsRecords,
+    },
+    {
+      path: '/hhpsrecords',
+      name: 'hhpsrecords',
+      component: HhpsRecords,
     },
   ],
 })
