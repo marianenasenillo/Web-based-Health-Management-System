@@ -2,6 +2,12 @@
 // filepath: c:\Users\salar\OneDrive\Desktop\healths\src\views\HhpsRecords.vue
 import DashboardView from '@/components/DashboardView.vue'
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const goBack = () => {
+  router.back()
+}
 
 // Sample household head records
 const headRecords = ref([
@@ -37,7 +43,8 @@ const headRecords = ref([
 
 <template>
   <DashboardView>
-    <div class=" container my-4">
+    <div class="container my-4">
+      <button class="btn btn-outline-secondary mb-3" @click="goBack">← Back</button>
       <h2 class="mb-4">Household Head Profiling Records</h2>
       <div class="table-responsive">
         <table class="table table-bordered">
