@@ -42,6 +42,62 @@ const headPopulation = ref('')
 const headFemale = ref('')
 const headMale = ref('')
 
+// Additional fields
+const dateVisit = ref('')
+const householdNo = ref('')
+const relationship = ref('')
+const sex = ref('')
+const education = ref('')
+const religion = ref('')
+const ethnicity = ref('')
+const is4psMember = ref('')
+const householdId4ps = ref('')
+const philhealthId = ref('')
+const membershipType = ref('')
+const philhealthCategory = ref('')
+const medicalHistory = ref('')
+const ageGroup = ref('')
+const lmp = ref('')
+const usingFpMethod = ref('')
+const fpMethodUsed = ref('')
+const fpStatus = ref('')
+const waterSource = ref('')
+const toiletFacility = ref('')
+
+// For multiple members, you can use an array of objects
+const members = ref([
+  {
+    purok: '',
+    dateVisit: '',
+    householdNo: '',
+    lastname: '',
+    firstname: '',
+    middlename: '',
+    suffix: '',
+    relationship: '',
+    birthdate: '',
+    age: '',
+    sex: '',
+    civilStatus: '',
+    education: '',
+    religion: '',
+    ethnicity: '',
+    is4psMember: '',
+    householdId4ps: '',
+    philhealthId: '',
+    membershipType: '',
+    philhealthCategory: '',
+    medicalHistory: '',
+    ageGroup: '',
+    lmp: '',
+    usingFpMethod: '',
+    fpMethodUsed: '',
+    fpStatus: '',
+    waterSource: '',
+    toiletFacility: ''
+  }
+])
+
 const headFields = [
   { label: 'Purok:', model: 'headPurok', ref: headPurok, type: 'text' },
   { label: 'Last Name:', model: 'headLastname', ref: headLastname, type: 'text' },
@@ -159,10 +215,10 @@ const saveHead = () => {
 
     <!-- Modal for Fill In Form -->
     <div v-if="showModal" class="modal-overlay">
-      <div class="modal-box" style="max-width:700px; width:98vw; padding:1.2rem 1.5rem;">
+      <div class="modal-box wide-modal">
         <button class="modal-close" @click="closeModal" style="float:right;">✕</button>
-        <!-- Centered logos and header text -->
-        <div style="display: flex; align-items: center; justify-content: center; gap: 1.2rem; margin-bottom: 0.3rem;">
+       <!-- Centered logos and header text -->
+<div style="display: flex; align-items: center; justify-content: center; gap: 1.2rem; margin-bottom: 0.3rem;">
           <img src="/images/agusanlogo.png" alt="Agusan Logo" style="height: 80px;" />
           <div style="min-width:180px; flex:1; text-align: center;">
             <h4 style="margin: 0; font-size: 0.9rem; font-weight: 600; line-height: 1.1;">
@@ -179,89 +235,193 @@ const saveHead = () => {
         </div>
         <hr />
         <template v-if="modalType === 'household'">
-          <form @submit.prevent="saveHousehold" style="display:flex; flex-direction:column; gap:0.15rem; margin-top:0.2rem;">
-            <div style="display: flex; gap: 0.15rem;">
-              <div style="flex:0.7;">
-                <label for="purok" style="font-weight:600; font-size:0.9rem;">Purok:</label>
-                <input id="purok" v-model="purok" type="text" class="input-stroke" style="padding:0.15rem 0.4rem; font-size:0.9rem;" />
+          <form @submit.prevent="saveHousehold" class="household-form wide-form">
+            <div class="row-fields">
+              <div class="form-group">
+                <label>Date of Visit</label>
+                <input type="date" v-model="dateVisit" class="input-stroke" />
               </div>
-              <div style="flex:1;">
-                <label for="lastname" style="font-weight:600; font-size:0.9rem;">Last Name:</label>
-                <input id="lastname" v-model="lastname" type="text" class="input-stroke" style="padding:0.15rem 0.4rem; font-size:0.9rem;" />
+              <div class="form-group">
+                <label>Household No.</label>
+                <input type="text" v-model="householdNo" class="input-stroke" />
               </div>
-              <div style="flex:1;">
-                <label for="firstname" style="font-weight:600; font-size:0.9rem;">First Name:</label>
-                <input id="firstname" v-model="firstname" type="text" class="input-stroke" style="padding:0.15rem 0.4rem; font-size:0.9rem;" />
-              </div>
-              <div style="flex:1;">
-                <label for="middlename" style="font-weight:600; font-size:0.9rem;">Middle Name:</label>
-                <input id="middlename" v-model="middlename" type="text" class="input-stroke" style="padding:0.15rem 0.4rem; font-size:0.9rem;" />
-              </div>
-              <div style="flex:0.7;">
-                <label for="suffix" style="font-weight:600; font-size:0.9rem;">Suffix:</label>
-                <input id="suffix" v-model="suffix" type="text" class="input-stroke" style="padding:0.15rem 0.4rem; font-size:0.9rem;" />
+              <div class="form-group">
+                <label>Purok</label>
+                <input type="text" v-model="purok" class="input-stroke" />
               </div>
             </div>
-            <div style="display: flex; gap: 0.15rem;">
-              <div style="flex:0.5;">
-                <label for="age" style="font-weight:600; font-size:0.9rem;">Age:</label>
-                <input id="age" v-model="age" type="number" class="input-stroke" min="0" style="width:45px; padding:0.15rem 0.4rem; font-size:0.9rem;" />
+            <div class="row-fields">
+              <div class="form-group">
+                <label>Last Name</label>
+                <input type="text" v-model="lastname" class="input-stroke" />
               </div>
-              <div style="flex:1;">
-                <label for="birthdate" style="font-weight:600; font-size:0.9rem;">Birthdate:</label>
-                <input id="birthdate" v-model="birthdate" type="date" class="input-stroke" style="padding:0.15rem 0.4rem; font-size:0.9rem;" />
+              <div class="form-group">
+                <label>First Name</label>
+                <input type="text" v-model="firstname" class="input-stroke" />
               </div>
-              <div style="flex:1;">
-                <label for="seStatus" style="font-weight:600; font-size:0.9rem;">SE Status:</label>
-                <input id="seStatus" v-model="seStatus" type="text" class="input-stroke" style="padding:0.15rem 0.4rem; font-size:0.9rem;" />
+              <div class="form-group">
+                <label>Middle Name</label>
+                <input type="text" v-model="middlename" class="input-stroke" />
               </div>
-              <div style="flex:1;">
-                <label for="civilStatus" style="font-weight:600; font-size:0.9rem;">Civil Status:</label>
-                <input id="civilStatus" v-model="civilStatus" type="text" class="input-stroke" style="padding:0.15rem 0.4rem; font-size:0.9rem;" />
+              <div class="form-group">
+                <label>Suffix</label>
+                <input type="text" v-model="suffix" class="input-stroke" />
               </div>
             </div>
-            <div style="display: flex; gap: 0.15rem;">
-              <div style="flex:1;">
-                <label for="planoManganak" style="font-weight:600; font-size:0.9rem;">Nag plano manganak:</label>
-                <select id="planoManganak" v-model="planoManganak" class="input-stroke" style="padding:0.15rem 0.4rem; font-size:0.9rem;">
-                  <option value="">--Pili--</option>
-                  <option value="Oo">Oo</option>
-                  <option value="Dili">Dili</option>
+            <div class="row-fields">
+              <div class="form-group">
+                <label>Relationship to HH Head</label>
+                <select v-model="relationship" class="input-stroke">
+                  <option value="">Select</option>
+                  <option value="Spouse">Spouse</option>
+                  <option value="Son">Son</option>
+                  <option value="Daughter">Daughter</option>
+                  <option value="Other">Other</option>
                 </select>
               </div>
-              <div style="flex:2;">
-                <label style="font-weight:600; font-size:0.9rem;">Karun / Spacing / Limiting / Fecund / Infecund:</label>
-                <div style="display: flex; gap: 0.2rem;">
-                  <label style="font-size:0.9rem;"><input type="checkbox" v-model="karun" /> Karun</label>
-                  <label style="font-size:0.9rem;"><input type="checkbox" v-model="spacing" /> Spacing</label>
-                  <label style="font-size:0.9rem;"><input type="checkbox" v-model="limiting" /> Limiting</label>
-                  <label style="font-size:0.9rem;"><input type="checkbox" v-model="fecund" /> Fecund</label>
-                  <label style="font-size:0.9rem;"><input type="checkbox" v-model="infecund" /> Infecund</label>
-                </div>
+              <div class="form-group">
+                <label>Date of Birth</label>
+                <input type="date" v-model="birthdate" class="input-stroke" />
+              </div>
+              <div class="form-group">
+                <label>Age in years</label>
+                <input type="number" v-model="age" class="input-stroke" min="0" />
+              </div>
+              <div class="form-group">
+                <label>Sex</label>
+                <select v-model="sex" class="input-stroke">
+                  <option value="">Select</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Civil Status</label>
+                <select v-model="civilStatus" class="input-stroke">
+                  <option value="">Select</option>
+                  <option value="Single">Single</option>
+                  <option value="Married">Married</option>
+                  <option value="Widowed">Widowed</option>
+                  <option value="Separated">Separated</option>
+                </select>
               </div>
             </div>
-            <div style="display: flex; gap: 0.15rem;">
-              <div>
-                <label style="font-weight:600; font-size:0.9rem;">FB method used:</label>
-                <input type="text" v-model="fbMethod" class="input-stroke" style="width:55px; padding:0.15rem 0.4rem; font-size:0.9rem;" />
+            <div class="row-fields">
+              <div class="form-group">
+                <label>Education Attainment</label>
+                <select v-model="education" class="input-stroke">
+                  <option value="">Select</option>
+                  <option value="Elementary">Elementary</option>
+                  <option value="High School">High School</option>
+                  <option value="College">College</option>
+                  <option value="Vocational">Vocational</option>
+                  <option value="None">None</option>
+                </select>
               </div>
-              <div>
-                <label style="font-weight:600; font-size:0.9rem;">Type:</label>
-                <input type="text" v-model="fbType" class="input-stroke" style="width:55px; padding:0.15rem 0.4rem; font-size:0.9rem;" />
+              <div class="form-group">
+                <label>Religion</label>
+                <select v-model="religion" class="input-stroke">
+                  <option value="">Select</option>
+                  <option value="Catholic">Catholic</option>
+                  <option value="Islam">Islam</option>
+                  <option value="Protestant">Protestant</option>
+                  <option value="Other">Other</option>
+                </select>
               </div>
-              <div>
-                <label style="font-weight:600; font-size:0.9rem;">Date:</label>
-                <input type="date" v-model="fbDate" class="input-stroke" style="width:70px; padding:0.15rem 0.4rem; font-size:0.9rem;" />
+              <div class="form-group">
+                <label>Ethnicity</label>
+                <select v-model="ethnicity" class="input-stroke">
+                  <option value="">Select</option>
+                  <option value="IP">IP</option>
+                  <option value="Non-IP">Non-IP</option>
+                </select>
               </div>
-              <div>
-                <label style="font-weight:600; font-size:0.9rem;">Gusto mo balhin ug Method:</label>
-                <label style="font-size:0.9rem;"><input type="radio" value="Yes" v-model="changeMethod" name="changeMethod" /> Yes</label>
-                <label style="font-size:0.9rem;"><input type="radio" value="No" v-model="changeMethod" name="changeMethod" /> No</label>
+              <div class="form-group">
+                <label>4PS Member</label>
+                <select v-model="is4psMember" class="input-stroke">
+                  <option value="">Select</option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>4PS Household ID</label>
+                <input type="text" v-model="householdId4ps" class="input-stroke" />
+              </div>
+              <div class="form-group">
+                <label>Philhealth ID No</label>
+                <input type="text" v-model="philhealthId" class="input-stroke" />
               </div>
             </div>
-            <div style="display: flex; gap: 0.7rem; margin-top:0.5rem;">
-              <button type="button" class="modal-btn cancel-btn" @click="closeModal" style="font-size:0.95rem; padding:0.4rem 1rem;">Cancel</button>
-              <button type="submit" class="modal-btn" style="font-size:0.95rem; padding:0.4rem 1rem;">Save</button>
+            <div class="row-fields">
+              <div class="form-group">
+                <label>Membership Type</label>
+                <select v-model="membershipType" class="input-stroke">
+                  <option value="">Select</option>
+                  <option value="M-member">M-member</option>
+                  <option value="D-dependent">D-dependent</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Philhealth Category</label>
+                <select v-model="philhealthCategory" class="input-stroke">
+                  <option value="">Select</option>
+                  <option value="DC">Direct Contributor</option>
+                  <option value="IC">Indirect Contributor</option>
+                  <option value="U">Unknown</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Medical History</label>
+                <select v-model="medicalHistory" class="input-stroke">
+                  <option value="">Select</option>
+                  <option value="HPN">Hypertension</option>
+                  <option value="DM">Diabetes</option>
+                  <option value="TB">Tuberculosis</option>
+                  <option value="O">Others</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Classification by Age/Health Risk Group</label>
+                <input type="text" v-model="ageGroup" class="input-stroke" />
+              </div>
+            </div>
+            <div class="row-fields">
+              <div class="form-group">
+                <label>LMP (Last Menstrual Period)</label>
+                <input type="date" v-model="lmp" class="input-stroke" />
+              </div>
+              <div class="form-group">
+                <label>Using any FP Method?</label>
+                <select v-model="usingFpMethod" class="input-stroke">
+                  <option value="">Select</option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Family Planning Method Used</label>
+                <input type="text" v-model="fpMethodUsed" class="input-stroke" />
+              </div>
+              <div class="form-group">
+                <label>FP Status (if applicable)</label>
+                <input type="text" v-model="fpStatus" class="input-stroke" />
+              </div>
+            </div>
+            <div class="row-fields">
+              <div class="form-group">
+                <label>Type of Water Source</label>
+                <input type="text" v-model="waterSource" class="input-stroke" />
+              </div>
+              <div class="form-group">
+                <label>Type of Toilet Facility</label>
+                <input type="text" v-model="toiletFacility" class="input-stroke" />
+              </div>
+            </div>
+            <div class="form-actions-left">
+              <button type="button" class="modal-btn cancel-btn" @click="closeModal">Cancel</button>
+              <button type="submit" class="modal-btn">Save</button>
+              <button type="button" class="modal-btn" @click="addMember">+ Add new member</button>
             </div>
           </form>
         </template>
@@ -320,7 +480,7 @@ const saveHead = () => {
 </template>
 
 <style scoped>
-/* Background */
+/* Main background and overlay content */
 .hps-bg {
   background: url('/images/householdprofiling.jpg') no-repeat center center;
   background-size: cover;
@@ -331,8 +491,6 @@ const saveHead = () => {
   position: relative;
   padding: 0 4rem;
 }
-
-/* Overlay with transparent green */
 .overlay-content {
   background: rgba(131, 189, 45, 0.65);
   padding: 2rem;
@@ -397,8 +555,8 @@ const saveHead = () => {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   background: rgba(0, 0, 0, 0.4);
   display: flex;
   justify-content: center;
@@ -406,8 +564,6 @@ const saveHead = () => {
   z-index: 2000;
   padding: 2rem;
 }
-
-/* Records box */
 .records-box {
   background: rgba(255, 255, 255, 0.95);
   padding: 3rem 4rem;
@@ -419,8 +575,6 @@ const saveHead = () => {
   align-items: center;
   gap: 4rem;
 }
-
-/* Back button */
 .back-btn {
   position: absolute;
   top: 15px;
@@ -437,14 +591,11 @@ const saveHead = () => {
 .back-btn:hover {
   transform: scale(1.1);
 }
-
-/* Logo */
 .hps-logo {
   width: 500px;
+  max-width: 100%;
   flex-shrink: 0;
 }
-
-/* Content */
 .records-content {
   flex: 1;
   display: flex;
@@ -492,6 +643,99 @@ const saveHead = () => {
   box-shadow: 0 4px 24px rgba(0,0,0,0.2);
   min-width: 320px;
   text-align: center;
+  max-width: 1100px;
+  width: 98vw;
+  min-height: 320px;
+  max-height: 80vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2rem;
+  margin-bottom: 0.3rem;
+  flex-wrap: wrap;
+}
+.modal-logo-col {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-title-col {
+  flex: 1 1 300px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.modal-title-col h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.modal-title-col h2 {
+  margin: 0.2rem 0 0.1rem 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.wide-form {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.row-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+.form-group {
+  flex: 1 1 180px;
+  min-width: 140px;
+  display: flex;
+  flex-direction: column;
+}
+.form-group label {
+  font-weight: 600;
+  font-size: 0.97rem;
+  margin-bottom: 0.1rem;
+}
+.input-stroke {
+  font-size: 1rem;
+  padding: 0.35rem 0.7rem;
+  border: 2px solid #222;
+  border-radius: 6px;
+  background: #fff;
+  color: #222;
+  outline: none;
+  margin-top: 0.2rem;
+  margin-bottom: 0.5rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+.input-stroke:focus {
+  border-color: #5b841e;
+}
+.form-actions-left {
+  display: flex;
+  justify-content: flex-start;
+  gap: 0.7rem;
+  margin-top: 0.8rem;
+}
+.cancel-btn {
+  background: #888 !important;
+  color: #fff !important;
+}
+.cancel-btn:hover {
+  background: #555 !important;
 }
 .modal-btn {
   background: #5b841e;
@@ -551,128 +795,51 @@ const saveHead = () => {
   background: #e6f3d2;
 }
 
-/* Input styles */
-.input-stroke {
-  border: 2px solid #222;
-  border-radius: 6px;
-  padding: 0.5rem 0.8rem;
-  font-size: 1rem;
-  background: #fff;
-  color: #222;
-  outline: none;
-  margin-top: 0.2rem;
-  margin-bottom: 0.5rem;
-  width: 100%;
-  box-sizing: border-box;
-}
-.input-stroke:focus {
-  border-color: #5b841e;
-}
-
-.cancel-btn {
-  background: #888 !important;
-  color: #fff !important;
-}
-.cancel-btn:hover {
-  background: #555 !important;
-}
-
-.compact-head-form {
-  width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
-}
-.row-fields {
-  display: flex;
-  gap: 0.7rem;
-  justify-content: flex-start;
-  flex-wrap: wrap;
-}
-.form-group {
-  display: flex;
-  flex-direction: column;
-  min-width: 110px;
-  flex: 1 1 110px;
-}
-.form-group label {
-  font-weight: 600;
-  font-size: 0.97rem;
-  margin-bottom: 0.1rem;
-}
-.input-stroke {
-  font-size: 1rem;
-  padding: 0.35rem 0.7rem;
-}
-.form-actions-right {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 0.8rem;
-}
-@media (max-width: 900px) {
-  .modal-box {
-    padding: 1rem 0.5rem;
-    min-width: 0;
-    max-width: 98vw;
-  }
-  .form-row {
-    flex-direction: column;
-    gap: 0.3rem;
-  }
-  .form-group {
-    min-width: 0;
-    width: 100%;
-  }
-  .form-actions {
-    flex-direction: column;
-    gap: 0.4rem;
-    width: 100%;
-  }
-  .modal-btn {
-    width: 100%;
-  }
-  .records-box {
-    flex-direction: column;
-    gap: 2rem;
-    padding: 2rem 1rem;
-    max-width: 98vw;
-  }
-  .hps-logo {
-    width: 100%;
-    max-width: 300px;
-    margin-bottom: 1rem;
+/* Responsive for tablet and mobile */
+@media (max-width: 1100px) {
+  .hps-bg {
+    padding: 0 1rem;
   }
   .overlay-content {
-    margin-left: 0.5rem;
+    margin-left: 1rem;
     max-width: 98vw;
     padding: 1.2rem;
   }
-}
-@media (max-width: 600px) {
+  .records-box {
+    padding: 2rem 1rem;
+    gap: 2rem;
+    max-width: 98vw;
+  }
+  .hps-logo {
+    max-width: 300px;
+    width: 100%;
+  }
   .modal-box {
-    padding: 0.5rem 0.2rem;
-    min-width: 0;
+    max-width: 98vw;
+    padding: 1rem 0.5rem;
+  }
+  .wide-form {
+    max-width: 98vw;
+    padding: 0 0.2rem;
+  }
+  .row-fields {
+    gap: 0.4rem;
+  }
+}
+
+@media (max-width: 700px) {
+  .hps-bg {
+    padding: 0 0.2rem;
+    min-height: 100vh;
+    flex-direction: column;
+  }
+  .overlay-content {
+    margin-left: 0.2rem;
     max-width: 100vw;
+    padding: 0.7rem;
   }
-  .form-row {
-    flex-direction: column;
-    gap: 0.2rem;
-  }
-  .form-group {
-    min-width: 0;
-    width: 100%;
-  }
-  .form-actions {
-    flex-direction: column;
-    gap: 0.3rem;
-    width: 100%;
-  }
-  .modal-btn {
-    width: 100%;
-    font-size: 0.95rem;
-    padding: 0.5rem 0.7rem;
+  .records-overlay {
+    padding: 0.5rem;
   }
   .records-box {
     flex-direction: column;
@@ -681,18 +848,46 @@ const saveHead = () => {
     max-width: 100vw;
   }
   .hps-logo {
-    width: 100%;
     max-width: 180px;
+    width: 100%;
     margin-bottom: 1rem;
   }
-  .overlay-content {
-    margin-left: 0.2rem;
+  .modal-box {
     max-width: 100vw;
-    padding: 0.7rem;
+    padding: 0.5rem 0.2rem;
+    min-width: 0;
   }
-  .input-stroke {
+  .modal-header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  @media (max-width: 700px) {
+  .modal-logo {
+    height: 36px;
+    max-width: 44px;
+  }
+}
+  .wide-form {
+    max-width: 100vw;
+    padding: 0 0.1rem;
+  }
+  .row-fields {
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+  .form-group {
+    min-width: 0;
+    width: 100%;
+  }
+  .form-actions-left {
+    flex-direction: column;
+    gap: 0.3rem;
+    width: 100%;
+  }
+  .modal-btn {
+    width: 100%;
     font-size: 0.95rem;
-    padding: 0.4rem 0.5rem;
+    padding: 0.5rem 0.7rem;
   }
 }
 </style>
