@@ -9,6 +9,8 @@ import Familyplanning from '@/views/Familyplanning.vue'
 import Phs from '@/views/Phs.vue'
 import Calendar from '@/views/Calendar.vue'
 import Inventory from '@/views/Inventory.vue'
+import ReportView from '@/views/ReportView.vue'
+
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -62,6 +64,11 @@ const router = createRouter({
       path: '/inventory',
       name: 'inventory',
       component: Inventory,
+    },
+    {
+      path: '/reports',
+      name: 'reports',
+      component: ReportView,
     },
   ],
 })
