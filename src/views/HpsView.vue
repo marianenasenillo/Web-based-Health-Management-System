@@ -263,44 +263,50 @@ const saveHead = () => {
         </template>
         <template v-else-if="modalType === 'head'">
           <!-- Household Head Profiling Form (shortened and responsive) -->
-          <form @submit.prevent="saveHead" class="modal-form">
-            <div class="form-row">
-              <template v-for="field in headFields" :key="field.model">
-                <div class="form-group">
-                  <label :for="field.model">{{ field.label }}</label>
-                  <input
-                    :id="field.model"
-                    v-model="field.ref.value"
-                    :type="field.type"
-                    class="input-stroke"
-                    :min="field.type === 'number' ? 0 : undefined"
-                  />
-                </div>
-              </template>
-            </div>
-            <div class="form-row">
+          <form @submit.prevent="saveHead" class="compact-head-form">
+            <div class="row-fields">
               <div class="form-group">
-                <label for="head-familycount">No. of Family per Household:</label>
+                <label for="head-purok">Purok</label>
+                <input id="head-purok" v-model="headPurok" type="text" class="input-stroke" />
+              </div>
+              <div class="form-group">
+                <label for="head-lastname">Last Name</label>
+                <input id="head-lastname" v-model="headLastname" type="text" class="input-stroke" />
+              </div>
+              <div class="form-group">
+                <label for="head-firstname">First Name</label>
+                <input id="head-firstname" v-model="headFirstname" type="text" class="input-stroke" />
+              </div>
+              <div class="form-group">
+                <label for="head-middlename">Middle Name</label>
+                <input id="head-middlename" v-model="headMiddlename" type="text" class="input-stroke" />
+              </div>
+              <div class="form-group">
+                <label for="head-suffix">Suffix</label>
+                <input id="head-suffix" v-model="headSuffix" type="text" class="input-stroke" />
+              </div>
+            </div>
+            <div class="row-fields">
+              <div class="form-group">
+                <label for="head-familycount">No. of Family per Household</label>
                 <input id="head-familycount" v-model="headFamilyCount" type="number" class="input-stroke" min="0" />
               </div>
               <div class="form-group">
-                <label for="head-population">Population per Household:</label>
+                <label for="head-population">Population per Household</label>
                 <input id="head-population" v-model="headPopulation" type="number" class="input-stroke" min="0" />
               </div>
-            </div>
-            <div class="form-row">
               <div class="form-group">
-                <label for="head-female">No. of Female:</label>
+                <label for="head-female">No. of Female</label>
                 <input id="head-female" v-model="headFemale" type="number" class="input-stroke" min="0" />
               </div>
               <div class="form-group">
-                <label for="head-male">No. of Male:</label>
+                <label for="head-male">No. of Male</label>
                 <input id="head-male" v-model="headMale" type="number" class="input-stroke" min="0" />
               </div>
             </div>
-            <div class="form-actions">
-              <button type="button" class="modal-btn cancel-btn" @click="closeModal">Cancel</button>
-              <button type="submit" class="modal-btn">Save</button>
+            <div style="display: flex; gap: 0.7rem; margin-top:0.5rem;">
+              <button type="button" class="modal-btn cancel-btn" @click="closeModal" style="font-size:0.95rem; padding:0.4rem 1rem;">Cancel</button>
+              <button type="submit" class="modal-btn" style="font-size:0.95rem; padding:0.4rem 1rem;">Save</button>
             </div>
           </form>
         </template>
@@ -567,6 +573,40 @@ const saveHead = () => {
   background: #555 !important;
 }
 
+.compact-head-form {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.row-fields {
+  display: flex;
+  gap: 0.7rem;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+.form-group {
+  display: flex;
+  flex-direction: column;
+  min-width: 110px;
+  flex: 1 1 110px;
+}
+.form-group label {
+  font-weight: 600;
+  font-size: 0.97rem;
+  margin-bottom: 0.1rem;
+}
+.input-stroke {
+  font-size: 1rem;
+  padding: 0.35rem 0.7rem;
+}
+.form-actions-right {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.8rem;
+}
 @media (max-width: 900px) {
   .modal-box {
     padding: 1rem 0.5rem;
@@ -606,8 +646,6 @@ const saveHead = () => {
     padding: 1.2rem;
   }
 }
-
-/* Extra mobile tweaks */
 @media (max-width: 600px) {
   .modal-box {
     padding: 0.5rem 0.2rem;
