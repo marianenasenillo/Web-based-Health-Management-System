@@ -348,7 +348,7 @@ const saveWra = () => {
 </template>
 
 <style scoped>
-/* Background */
+/* Main background and overlay content */
 .maternal-bg {
   background: url('/images/maternal.jpg') no-repeat center center;
   background-size: cover;
@@ -359,8 +359,6 @@ const saveWra = () => {
   position: relative;
   padding: 0 4rem;
 }
-
-/* Overlay with transparent green */
 .overlay-content {
   background: rgba(131, 189, 45, 0.65);
   padding: 2rem;
@@ -425,8 +423,8 @@ const saveWra = () => {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   background: rgba(0, 0, 0, 0.4);
   display: flex;
   justify-content: center;
@@ -434,8 +432,6 @@ const saveWra = () => {
   z-index: 2000;
   padding: 2rem;
 }
-
-/* Records box */
 .records-box {
   background: rgba(255, 255, 255, 0.95);
   padding: 3rem 4rem;
@@ -447,8 +443,6 @@ const saveWra = () => {
   align-items: center;
   gap: 4rem;
 }
-
-/* Back button */
 .back-btn {
   position: absolute;
   top: 15px;
@@ -465,14 +459,11 @@ const saveWra = () => {
 .back-btn:hover {
   transform: scale(1.1);
 }
-
-/* Logo */
 .maternal-logo {
   width: 520px;
+  max-width: 100%;
   flex-shrink: 0;
 }
-
-/* Content */
 .records-content {
   flex: 1;
   display: flex;
@@ -538,7 +529,7 @@ const saveWra = () => {
   background: #e6f3d2;
 }
 
-/* Modal styles for WRA form */
+/* Modal styles for forms */
 .modal-overlay {
   position: fixed;
   top: 0; left: 0;
@@ -600,7 +591,8 @@ const saveWra = () => {
   max-width: 60px;
   width: 100%;
 }
-.wra-form {
+.wra-form,
+.cervical-form {
   width: 100%;
   max-width: 900px;
   margin: 0 auto;
@@ -682,22 +674,78 @@ const saveWra = () => {
   cursor: pointer;
 }
 
-/* Cervical form specific styles */
-.cervical-form {
-  width: 100%;
-  max-width: 900px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
-}
+/* Responsive for tablet and mobile */
 @media (max-width: 1100px) {
+  .maternal-bg {
+    padding: 0 1rem;
+  }
+  .overlay-content {
+    margin-left: 1rem;
+    max-width: 98vw;
+    padding: 1.2rem;
+  }
+  .records-box {
+    padding: 2rem 1rem;
+    gap: 2rem;
+    max-width: 98vw;
+  }
+  .maternal-logo {
+    max-width: 300px;
+    width: 100%;
+  }
+  .modal-box {
+    max-width: 98vw;
+    padding: 1rem 0.5rem;
+  }
+  .wra-form,
   .cervical-form {
     max-width: 98vw;
     padding: 0 0.2rem;
   }
+  .row-fields {
+    gap: 0.4rem;
+  }
 }
+
 @media (max-width: 700px) {
+  .maternal-bg {
+    padding: 0 0.2rem;
+    min-height: 100vh;
+    flex-direction: column;
+  }
+  .overlay-content {
+    margin-left: 0.2rem;
+    max-width: 100vw;
+    padding: 0.7rem;
+  }
+  .records-overlay {
+    padding: 0.5rem;
+  }
+  .records-box {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem 0.2rem;
+    max-width: 100vw;
+  }
+  .maternal-logo {
+    max-width: 180px;
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+  .modal-box {
+    max-width: 100vw;
+    padding: 0.5rem 0.2rem;
+    min-width: 0;
+  }
+  .modal-header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .modal-logo {
+    height: 36px;
+    max-width: 44px;
+  }
+  .wra-form,
   .cervical-form {
     max-width: 100vw;
     padding: 0 0.1rem;
