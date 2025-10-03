@@ -209,7 +209,10 @@ const closeModal = () => {
               <label style="font-size:0.9rem;"><input type="radio" name="changeMethod" /> No</label>
             </div>
           </div>
-          <button type="submit" class="modal-btn" style="margin-top:0.2rem; font-size:0.95rem; padding:0.4rem 1rem;">Save</button>
+          <div style="display: flex; gap: 0.7rem; margin-top:0.5rem;">
+            <button type="button" class="modal-btn cancel-btn" @click="closeModal" style="font-size:0.95rem; padding:0.4rem 1rem; background:#888; color:#fff;">Cancel</button>
+            <button type="submit" class="modal-btn" style="font-size:0.95rem; padding:0.4rem 1rem;">Save</button>
+          </div>
         </form>
       </div>
     </div>
@@ -464,5 +467,13 @@ const closeModal = () => {
 }
 .input-stroke:focus {
   border-color: #5b841e;
+}
+
+.cancel-btn {
+  background: #888 !important;
+  color: #fff !important;
+}
+.cancel-btn:hover {
+  background: #555 !important;
 }
 </style>
