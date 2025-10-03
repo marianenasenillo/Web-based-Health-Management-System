@@ -71,7 +71,11 @@ const fillIn = (type) => {
   closeMenu()
 }
 const viewRecords = (type) => {
-  // Add navigation or logic for viewing records
+  if (type === 'household') {
+    router.push('/hpsrecords')
+  } else if (type === 'head') {
+    router.push('/hhpsrecords')
+  }
   closeMenu()
 }
 const closeModal = () => {
