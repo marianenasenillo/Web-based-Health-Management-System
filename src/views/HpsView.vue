@@ -1,17 +1,54 @@
 <script setup>
+// filepath: c:\Users\salar\OneDrive\Desktop\healths\src\views\HpsView.vue
 import DashboardView from '@/components/DashboardView.vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const showRecords = ref(false)
-
-// Dropdown menu state
 const activeMenu = ref('') // '' | 'household' | 'head'
-
-// Modal state
 const showModal = ref(false)
 const modalType = ref('') // 'household' | 'head'
+
+// Household Profiling form fields
+const purok = ref('')
+const lastname = ref('')
+const firstname = ref('')
+const middlename = ref('')
+const suffix = ref('')
+const age = ref('')
+const birthdate = ref('')
+const seStatus = ref('')
+const civilStatus = ref('')
+const planoManganak = ref('')
+const karun = ref(false)
+const spacing = ref(false)
+const limiting = ref(false)
+const fecund = ref(false)
+const infecund = ref(false)
+const fbMethod = ref('')
+const fbType = ref('')
+const fbDate = ref('')
+const changeMethod = ref('')
+
+// Household Head Profiling form fields
+const headPurok = ref('')
+const headLastname = ref('')
+const headFirstname = ref('')
+const headMiddlename = ref('')
+const headSuffix = ref('')
+const headFamilyCount = ref('')
+const headPopulation = ref('')
+const headFemale = ref('')
+const headMale = ref('')
+
+const headFields = [
+  { label: 'Purok:', model: 'headPurok', ref: headPurok, type: 'text' },
+  { label: 'Last Name:', model: 'headLastname', ref: headLastname, type: 'text' },
+  { label: 'First Name:', model: 'headFirstname', ref: headFirstname, type: 'text' },
+  { label: 'Middle Name:', model: 'headMiddlename', ref: headMiddlename, type: 'text' },
+  { label: 'Suffix:', model: 'headSuffix', ref: headSuffix, type: 'text' },
+]
 
 const goPrevPage = () => {
   router.push('/home')
@@ -39,6 +76,14 @@ const viewRecords = (type) => {
 }
 const closeModal = () => {
   showModal.value = false
+}
+const saveHousehold = () => {
+  // Save logic for household profiling
+  closeModal()
+}
+const saveHead = () => {
+  // Save logic for household head profiling
+  closeModal()
 }
 </script>
 
@@ -123,97 +168,142 @@ const closeModal = () => {
               Barangay Poblacion ___
             </h4>
             <h2 style="margin: 0.2rem 0 0.1rem 0; font-size: 0.95rem; font-weight: 700;">
-              Household Profiling
+              {{ modalType === 'household' ? 'Household Profiling' : 'Household Head Profiling' }}
             </h2>
           </div>
           <img src="/images/barangaylogo.png" alt="Barangay Logo" style="height: 80px;" />
         </div>
         <hr />
-        <form style="display:flex; flex-direction:column; gap:0.15rem; margin-top:0.2rem;">
-          <div style="display: flex; gap: 0.15rem;">
-            <div style="flex:0.7;">
-              <label for="purok" style="font-weight:600; font-size:0.9rem;">Purok:</label>
-              <input id="purok" type="text" class="input-stroke" style="padding:0.15rem 0.4rem; font-size:0.9rem;" />
-            </div>
-            <div style="flex:1;">
-              <label for="lastname" style="font-weight:600; font-size:0.9rem;">Last Name:</label>
-              <input id="lastname" type="text" class="input-stroke" style="padding:0.15rem 0.4rem; font-size:0.9rem;" />
-            </div>
-            <div style="flex:1;">
-              <label for="firstname" style="font-weight:600; font-size:0.9rem;">First Name:</label>
-              <input id="firstname" type="text" class="input-stroke" style="padding:0.15rem 0.4rem; font-size:0.9rem;" />
-            </div>
-            <div style="flex:1;">
-              <label for="middlename" style="font-weight:600; font-size:0.9rem;">Middle Name:</label>
-              <input id="middlename" type="text" class="input-stroke" style="padding:0.15rem 0.4rem; font-size:0.9rem;" />
-            </div>
-            <div style="flex:0.7;">
-              <label for="suffix" style="font-weight:600; font-size:0.9rem;">Suffix:</label>
-              <input id="suffix" type="text" class="input-stroke" style="padding:0.15rem 0.4rem; font-size:0.9rem;" />
-            </div>
-          </div>
-          <div style="display: flex; gap: 0.15rem;">
-            <div style="flex:0.5;">
-              <label for="age" style="font-weight:600; font-size:0.9rem;">Age:</label>
-              <input id="age" type="number" class="input-stroke" min="0" style="width:45px; padding:0.15rem 0.4rem; font-size:0.9rem;" />
-            </div>
-            <div style="flex:1;">
-              <label for="birthdate" style="font-weight:600; font-size:0.9rem;">Birthdate:</label>
-              <input id="birthdate" type="date" class="input-stroke" style="padding:0.15rem 0.4rem; font-size:0.9rem;" />
-            </div>
-            <div style="flex:1;">
-              <label for="seStatus" style="font-weight:600; font-size:0.9rem;">SE Status:</label>
-              <input id="seStatus" type="text" class="input-stroke" style="padding:0.15rem 0.4rem; font-size:0.9rem;" />
-            </div>
-            <div style="flex:1;">
-              <label for="civilStatus" style="font-weight:600; font-size:0.9rem;">Civil Status:</label>
-              <input id="civilStatus" type="text" class="input-stroke" style="padding:0.15rem 0.4rem; font-size:0.9rem;" />
-            </div>
-          </div>
-          <div style="display: flex; gap: 0.15rem;">
-            <div style="flex:1;">
-              <label for="planoManganak" style="font-weight:600; font-size:0.9rem;">Nag plano manganak:</label>
-              <select id="planoManganak" class="input-stroke" style="padding:0.15rem 0.4rem; font-size:0.9rem;">
-                <option value="">--Pili--</option>
-                <option value="Oo">Oo</option>
-                <option value="Dili">Dili</option>
-              </select>
-            </div>
-            <div style="flex:2;">
-              <label style="font-weight:600; font-size:0.9rem;">Karun / Spacing / Limiting / Fecund / Infecund:</label>
-              <div style="display: flex; gap: 0.2rem;">
-                <label style="font-size:0.9rem;"><input type="checkbox" /> Karun</label>
-                <label style="font-size:0.9rem;"><input type="checkbox" /> Spacing</label>
-                <label style="font-size:0.9rem;"><input type="checkbox" /> Limiting</label>
-                <label style="font-size:0.9rem;"><input type="checkbox" /> Fecund</label>
-                <label style="font-size:0.9rem;"><input type="checkbox" /> Infecund</label>
+        <template v-if="modalType === 'household'">
+          <form @submit.prevent="saveHousehold" style="display:flex; flex-direction:column; gap:0.15rem; margin-top:0.2rem;">
+            <div style="display: flex; gap: 0.15rem;">
+              <div style="flex:0.7;">
+                <label for="purok" style="font-weight:600; font-size:0.9rem;">Purok:</label>
+                <input id="purok" v-model="purok" type="text" class="input-stroke" style="padding:0.15rem 0.4rem; font-size:0.9rem;" />
+              </div>
+              <div style="flex:1;">
+                <label for="lastname" style="font-weight:600; font-size:0.9rem;">Last Name:</label>
+                <input id="lastname" v-model="lastname" type="text" class="input-stroke" style="padding:0.15rem 0.4rem; font-size:0.9rem;" />
+              </div>
+              <div style="flex:1;">
+                <label for="firstname" style="font-weight:600; font-size:0.9rem;">First Name:</label>
+                <input id="firstname" v-model="firstname" type="text" class="input-stroke" style="padding:0.15rem 0.4rem; font-size:0.9rem;" />
+              </div>
+              <div style="flex:1;">
+                <label for="middlename" style="font-weight:600; font-size:0.9rem;">Middle Name:</label>
+                <input id="middlename" v-model="middlename" type="text" class="input-stroke" style="padding:0.15rem 0.4rem; font-size:0.9rem;" />
+              </div>
+              <div style="flex:0.7;">
+                <label for="suffix" style="font-weight:600; font-size:0.9rem;">Suffix:</label>
+                <input id="suffix" v-model="suffix" type="text" class="input-stroke" style="padding:0.15rem 0.4rem; font-size:0.9rem;" />
               </div>
             </div>
-          </div>
-          <div style="display: flex; gap: 0.15rem;">
-            <div>
-              <label style="font-weight:600; font-size:0.9rem;">FB method used:</label>
-              <input type="text" class="input-stroke" style="width:55px; padding:0.15rem 0.4rem; font-size:0.9rem;" />
+            <div style="display: flex; gap: 0.15rem;">
+              <div style="flex:0.5;">
+                <label for="age" style="font-weight:600; font-size:0.9rem;">Age:</label>
+                <input id="age" v-model="age" type="number" class="input-stroke" min="0" style="width:45px; padding:0.15rem 0.4rem; font-size:0.9rem;" />
+              </div>
+              <div style="flex:1;">
+                <label for="birthdate" style="font-weight:600; font-size:0.9rem;">Birthdate:</label>
+                <input id="birthdate" v-model="birthdate" type="date" class="input-stroke" style="padding:0.15rem 0.4rem; font-size:0.9rem;" />
+              </div>
+              <div style="flex:1;">
+                <label for="seStatus" style="font-weight:600; font-size:0.9rem;">SE Status:</label>
+                <input id="seStatus" v-model="seStatus" type="text" class="input-stroke" style="padding:0.15rem 0.4rem; font-size:0.9rem;" />
+              </div>
+              <div style="flex:1;">
+                <label for="civilStatus" style="font-weight:600; font-size:0.9rem;">Civil Status:</label>
+                <input id="civilStatus" v-model="civilStatus" type="text" class="input-stroke" style="padding:0.15rem 0.4rem; font-size:0.9rem;" />
+              </div>
             </div>
-            <div>
-              <label style="font-weight:600; font-size:0.9rem;">Type:</label>
-              <input type="text" class="input-stroke" style="width:55px; padding:0.15rem 0.4rem; font-size:0.9rem;" />
+            <div style="display: flex; gap: 0.15rem;">
+              <div style="flex:1;">
+                <label for="planoManganak" style="font-weight:600; font-size:0.9rem;">Nag plano manganak:</label>
+                <select id="planoManganak" v-model="planoManganak" class="input-stroke" style="padding:0.15rem 0.4rem; font-size:0.9rem;">
+                  <option value="">--Pili--</option>
+                  <option value="Oo">Oo</option>
+                  <option value="Dili">Dili</option>
+                </select>
+              </div>
+              <div style="flex:2;">
+                <label style="font-weight:600; font-size:0.9rem;">Karun / Spacing / Limiting / Fecund / Infecund:</label>
+                <div style="display: flex; gap: 0.2rem;">
+                  <label style="font-size:0.9rem;"><input type="checkbox" v-model="karun" /> Karun</label>
+                  <label style="font-size:0.9rem;"><input type="checkbox" v-model="spacing" /> Spacing</label>
+                  <label style="font-size:0.9rem;"><input type="checkbox" v-model="limiting" /> Limiting</label>
+                  <label style="font-size:0.9rem;"><input type="checkbox" v-model="fecund" /> Fecund</label>
+                  <label style="font-size:0.9rem;"><input type="checkbox" v-model="infecund" /> Infecund</label>
+                </div>
+              </div>
             </div>
-            <div>
-              <label style="font-weight:600; font-size:0.9rem;">Date:</label>
-              <input type="date" class="input-stroke" style="width:70px; padding:0.15rem 0.4rem; font-size:0.9rem;" />
+            <div style="display: flex; gap: 0.15rem;">
+              <div>
+                <label style="font-weight:600; font-size:0.9rem;">FB method used:</label>
+                <input type="text" v-model="fbMethod" class="input-stroke" style="width:55px; padding:0.15rem 0.4rem; font-size:0.9rem;" />
+              </div>
+              <div>
+                <label style="font-weight:600; font-size:0.9rem;">Type:</label>
+                <input type="text" v-model="fbType" class="input-stroke" style="width:55px; padding:0.15rem 0.4rem; font-size:0.9rem;" />
+              </div>
+              <div>
+                <label style="font-weight:600; font-size:0.9rem;">Date:</label>
+                <input type="date" v-model="fbDate" class="input-stroke" style="width:70px; padding:0.15rem 0.4rem; font-size:0.9rem;" />
+              </div>
+              <div>
+                <label style="font-weight:600; font-size:0.9rem;">Gusto mo balhin ug Method:</label>
+                <label style="font-size:0.9rem;"><input type="radio" value="Yes" v-model="changeMethod" name="changeMethod" /> Yes</label>
+                <label style="font-size:0.9rem;"><input type="radio" value="No" v-model="changeMethod" name="changeMethod" /> No</label>
+              </div>
             </div>
-            <div>
-              <label style="font-weight:600; font-size:0.9rem;">Gusto mo balhin ug Method:</label>
-              <label style="font-size:0.9rem;"><input type="radio" name="changeMethod" /> Yes</label>
-              <label style="font-size:0.9rem;"><input type="radio" name="changeMethod" /> No</label>
+            <div style="display: flex; gap: 0.7rem; margin-top:0.5rem;">
+              <button type="button" class="modal-btn cancel-btn" @click="closeModal" style="font-size:0.95rem; padding:0.4rem 1rem;">Cancel</button>
+              <button type="submit" class="modal-btn" style="font-size:0.95rem; padding:0.4rem 1rem;">Save</button>
             </div>
-          </div>
-          <div style="display: flex; gap: 0.7rem; margin-top:0.5rem;">
-            <button type="button" class="modal-btn cancel-btn" @click="closeModal" style="font-size:0.95rem; padding:0.4rem 1rem; background:#888; color:#fff;">Cancel</button>
-            <button type="submit" class="modal-btn" style="font-size:0.95rem; padding:0.4rem 1rem;">Save</button>
-          </div>
-        </form>
+          </form>
+        </template>
+        <template v-else-if="modalType === 'head'">
+          <!-- Household Head Profiling Form (shortened and responsive) -->
+          <form @submit.prevent="saveHead" class="modal-form">
+            <div class="form-row">
+              <template v-for="field in headFields" :key="field.model">
+                <div class="form-group">
+                  <label :for="field.model">{{ field.label }}</label>
+                  <input
+                    :id="field.model"
+                    v-model="field.ref.value"
+                    :type="field.type"
+                    class="input-stroke"
+                    :min="field.type === 'number' ? 0 : undefined"
+                  />
+                </div>
+              </template>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="head-familycount">No. of Family per Household:</label>
+                <input id="head-familycount" v-model="headFamilyCount" type="number" class="input-stroke" min="0" />
+              </div>
+              <div class="form-group">
+                <label for="head-population">Population per Household:</label>
+                <input id="head-population" v-model="headPopulation" type="number" class="input-stroke" min="0" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="head-female">No. of Female:</label>
+                <input id="head-female" v-model="headFemale" type="number" class="input-stroke" min="0" />
+              </div>
+              <div class="form-group">
+                <label for="head-male">No. of Male:</label>
+                <input id="head-male" v-model="headMale" type="number" class="input-stroke" min="0" />
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="modal-btn cancel-btn" @click="closeModal">Cancel</button>
+              <button type="submit" class="modal-btn">Save</button>
+            </div>
+          </form>
+        </template>
       </div>
     </div>
   </DashboardView>
@@ -475,5 +565,92 @@ const closeModal = () => {
 }
 .cancel-btn:hover {
   background: #555 !important;
+}
+
+@media (max-width: 900px) {
+  .modal-box {
+    padding: 1rem 0.5rem;
+    min-width: 0;
+    max-width: 98vw;
+  }
+  .form-row {
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  .form-group {
+    min-width: 0;
+    width: 100%;
+  }
+  .form-actions {
+    flex-direction: column;
+    gap: 0.4rem;
+    width: 100%;
+  }
+  .modal-btn {
+    width: 100%;
+  }
+  .records-box {
+    flex-direction: column;
+    gap: 2rem;
+    padding: 2rem 1rem;
+    max-width: 98vw;
+  }
+  .hps-logo {
+    width: 100%;
+    max-width: 300px;
+    margin-bottom: 1rem;
+  }
+  .overlay-content {
+    margin-left: 0.5rem;
+    max-width: 98vw;
+    padding: 1.2rem;
+  }
+}
+
+/* Extra mobile tweaks */
+@media (max-width: 600px) {
+  .modal-box {
+    padding: 0.5rem 0.2rem;
+    min-width: 0;
+    max-width: 100vw;
+  }
+  .form-row {
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+  .form-group {
+    min-width: 0;
+    width: 100%;
+  }
+  .form-actions {
+    flex-direction: column;
+    gap: 0.3rem;
+    width: 100%;
+  }
+  .modal-btn {
+    width: 100%;
+    font-size: 0.95rem;
+    padding: 0.5rem 0.7rem;
+  }
+  .records-box {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem 0.2rem;
+    max-width: 100vw;
+  }
+  .hps-logo {
+    width: 100%;
+    max-width: 180px;
+    margin-bottom: 1rem;
+  }
+  .overlay-content {
+    margin-left: 0.2rem;
+    max-width: 100vw;
+    padding: 0.7rem;
+  }
+  .input-stroke {
+    font-size: 0.95rem;
+    padding: 0.4rem 0.5rem;
+  }
 }
 </style>
