@@ -17,6 +17,7 @@ import MaternalCcsrecords from '@/views/MaternalCcsrecords.vue'
 import ChildcareRecords from '@/views/ChildcareRecords.vue'
 import FpsRecords from '@/views/FpsRecords.vue'
 import PhsRecords from '@/views/PhsRecords.vue'
+import RegisterView from '@/views/RegisterView.vue'
 
 
 const router = createRouter({
@@ -111,6 +112,11 @@ const router = createRouter({
       path: '/phsrecords',
       name: 'phsrecords',
       component: PhsRecords,
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: RegisterView,
     },
   ],
 })
