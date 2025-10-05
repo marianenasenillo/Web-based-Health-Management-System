@@ -56,6 +56,7 @@ const goBack = () => {
 
 <template>
   <DashboardView>
+    <div class="maternal-bg">
     <div class="container my-4">
       <button class="btn btn-outline-secondary mb-3" @click="goBack">← Back</button>
       <h2 class="mb-4">Women of Reproductive Age Records</h2>
@@ -110,10 +111,21 @@ const goBack = () => {
         </table>
       </div>
     </div>
+    </div>
   </DashboardView>
 </template>
 
 <style scoped>
+.maternal-bg {
+  background: url('/images/maternal.jpg') no-repeat center center;
+  background-size: cover;
+  min-height: calc(120vh - 319px);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding: 0 4rem;
+}
 .table-responsive {
   overflow-x: auto;
 }
