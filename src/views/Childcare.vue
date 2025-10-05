@@ -2,44 +2,26 @@
 import DashboardView from '@/components/DashboardView.vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { supabase } from '@/utils/supabase.js'
+
 
 const router = useRouter()
 const showRecords = ref(false)
-const activeMenu = ref('') // '' | 'vitamina'
+const activeMenu = ref('')
 const showModal = ref(false)
-const modalType = ref('') // 'vitamina'
+const modalType = ref('')
 
-const goPrevPage = () => {
-  router.push('/maternalservices')
-}
-const goNextPage = () => {
-  router.push('/familyplanning')
-}
-const toggleRecords = () => {
-  showRecords.value = !showRecords.value
-}
-const openMenu = (type) => {
-  activeMenu.value = type
-}
-const closeMenu = () => {
-  activeMenu.value = ''
-}
-const fillIn = (type) => {
-  modalType.value = type
-  showModal.value = true
-  closeMenu()
-}
-const viewRecords = (type) => {
-  if (type === 'vitamina') {
-    router.push('/childcarerecords')
-  }
-  closeMenu()
-}
-const closeModal = () => {
-  showModal.value = false
-}
+// Navigation
+const goPrevPage = () => router.push('/maternalservices')
+const goNextPage = () => router.push('/familyplanning')
+const toggleRecords = () => showRecords.value = !showRecords.value
+const openMenu = (type) => activeMenu.value = type
+const closeMenu = () => activeMenu.value = ''
+const fillIn = (type) => { modalType.value = type; showModal.value = true; closeMenu() }
+const viewRecords = (type) => { if (type === 'vitamina') router.push('/childcarerecords'); closeMenu() }
+const closeModal = () => showModal.value = false
 
-// Vitamin A Supplementation form fields (updated)
+// Vitamin A Supplementation form fields
 const purok = ref('')
 const lastname = ref('')
 const firstname = ref('')
@@ -49,7 +31,49 @@ const age = ref('')
 const birthdate = ref('')
 const gender = ref('')
 const motherName = ref('')
+
+// Function to save form to database
+const saveVitaminaRecord = async () => {
+  // Validation (simple)
+  if (!lastname.value || !firstname.value || !age.value || !birthdate.value || !gender.value || !motherName.value) {
+    alert('Please fill in all required fields.')
+    return
+  }
+
+  const { data, error } = await supabase
+    .from('childcare_vitamina_records')
+    .insert([{
+      purok: purok.value,
+      lastname: lastname.value,
+      firstname: firstname.value,
+      middlename: middlename.value,
+      suffix: suffix.value,
+      age: age.value,
+      birthdate: birthdate.value,
+      gender: gender.value,
+      mother_name: motherName.value
+    }])
+
+  if (error) {
+    console.error('Error saving record:', error)
+    alert('Failed to save record.')
+  } else {
+    alert('Record saved successfully!')
+    // Reset form
+    purok.value = ''
+    lastname.value = ''
+    firstname.value = ''
+    middlename.value = ''
+    suffix.value = ''
+    age.value = ''
+    birthdate.value = ''
+    gender.value = ''
+    motherName.value = ''
+    closeModal()
+  }
+}
 </script>
+
 
 <template>
   <DashboardView>
@@ -126,7 +150,7 @@ const motherName = ref('')
           <img src="/images/barangaylogo.png" alt="Barangay Logo" style="height: 80px;" />
         </div>
         <hr />
-        <form @submit.prevent="closeModal" class="vitamina-form">
+        <form @submit.prevent="saveVitaminaRecord" class="vitamina-form">
           <div class="row-fields">
             <div class="form-group">
               <label>Purok:</label>
@@ -176,8 +200,8 @@ const motherName = ref('')
             </div>
           </div>
           <div class="form-actions-left">
-            <button type="button" class="modal-btn cancel-btn" @click="closeModal">Cancel</button>
-            <button type="submit" class="modal-btn">Save</button>
+                <button type="button" class="modal-btn cancel-btn" @click="closeModal">Cancel</button>
+                <button type="submit" class="modal-btn">Save</button>
           </div>
         </form>
       </div>

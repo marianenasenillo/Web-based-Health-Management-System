@@ -1,33 +1,43 @@
 <script setup>
 import DashboardView from '@/components/DashboardView.vue'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { supabase } from '@/utils/supabase.js'
 
-// Sample Vitamin A Supplementation records
-const vitaminARecords = ref([
-  {
-    purok: '1',
-    lastname: 'Dela Cruz',
-    firstname: 'Juan',
-    middlename: 'Santos',
-    suffix: '',
-    age: 3,
-    birthdate: '2022-05-10',
-    gender: 'Male',
-    motherName: 'Maria Dela Cruz'
-  },
-  {
-    purok: '2',
-    lastname: 'Lopez',
-    firstname: 'Anna',
-    middlename: 'Reyes',
-    suffix: '',
-    age: 2,
-    birthdate: '2023-03-22',
-    gender: 'Female',
-    motherName: 'Luisa Lopez'
+
+// Records
+const vitaminARecords = ref([])
+
+// Fetch records from Supabase table
+const fetchVitaminARecords = async () => {
+  const { data, error } = await supabase
+    .from('childcare_vitamina_records')
+    .select('*')
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error('Error fetching records:', error)
+    return
   }
-])
+
+  vitaminARecords.value = data.map(record => ({
+    purok: record.purok,
+    lastname: record.lastname,
+    firstname: record.firstname,
+    middlename: record.middlename,
+    suffix: record.suffix,
+    age: record.age,
+    birthdate: record.birthdate ? record.birthdate.slice(0, 10) : '',
+    gender: record.gender,
+    motherName: record.mother_name
+  }))
+}
+
+// Fetch on page load
+onMounted(() => {
+  fetchVitaminARecords()
+})
 </script>
+
 
 <template>
   <DashboardView>
