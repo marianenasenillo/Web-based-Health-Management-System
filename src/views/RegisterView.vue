@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { supabase } from '@/utils/supabase'
 import {
   requiredValidator,
@@ -8,10 +9,12 @@ import {
   confirmedValidator,
 } from '@/utils/validators.js'
 
+const router = useRouter()
+
 const firstName = ref('')
 const lastName = ref('')
 const email = ref('')
-const role = ref('')
+const role = ref('BHW') // fixed role
 const barangay = ref('')
 const purok = ref('')
 const password = ref('')
@@ -21,7 +24,6 @@ const confirmPassword = ref('')
 const firstNameError = ref('')
 const lastNameError = ref('')
 const emailError = ref('')
-const roleError = ref('')
 const barangayError = ref('')
 const purokError = ref('')
 const passwordError = ref('')
@@ -32,7 +34,6 @@ const successMessage = ref('')
 const errorMessage = ref('')
 
 // options
-const roleOptions = ['BHW', 'Admin']
 const barangayOptions = ['Brgy. 5', 'Brgy. 6']
 const purokOptions = ['Purok 1', 'Purok 2', 'Purok 3']
 
@@ -46,7 +47,6 @@ const validateForm = () => {
     requiredValidator(email.value) === true
       ? emailValidator(email.value)
       : requiredValidator(email.value)
-  roleError.value = requiredValidator(role.value)
   barangayError.value = requiredValidator(barangay.value)
   purokError.value = requiredValidator(purok.value)
   passwordError.value =
@@ -59,7 +59,6 @@ const validateForm = () => {
     firstNameError.value,
     lastNameError.value,
     emailError.value,
-    roleError.value,
     barangayError.value,
     purokError.value,
     passwordError.value,
@@ -70,7 +69,7 @@ const validateForm = () => {
   return isValid
 }
 
-// handle register
+// handle register (BHW only)
 const handleRegister = async () => {
   successMessage.value = ''
   errorMessage.value = ''
@@ -80,22 +79,16 @@ const handleRegister = async () => {
     return
   }
 
-  // only allow Admin to register
-  if (role.value !== 'Admin') {
-    errorMessage.value = '❌ Only Admin accounts can be registered directly.'
-    return
-  }
-
   try {
     isLoading.value = true
 
-    const { data, error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signUp({
       email: email.value,
       password: password.value,
       options: {
         data: {
           full_name: `${firstName.value} ${lastName.value}`,
-          role: role.value,
+          role: 'BHW',
           barangay: barangay.value,
           purok: purok.value,
         },
@@ -104,8 +97,22 @@ const handleRegister = async () => {
 
     if (error) throw error
 
-    successMessage.value = '✅ Registration successful! Please check your email to confirm your account.'
-    firstName.value = lastName.value = email.value = role.value = barangay.value = purok.value = password.value = confirmPassword.value = ''
+    successMessage.value =
+      '✅ Registration successful! Please check your email to confirm your account.'
+
+    // reset fields
+    firstName.value = ''
+    lastName.value = ''
+    email.value = ''
+    barangay.value = ''
+    purok.value = ''
+    password.value = ''
+    confirmPassword.value = ''
+
+    // ⏳ wait 5 seconds, then redirect to '/'
+    setTimeout(() => {
+      router.push('/')
+    }, 5000)
   } catch (err) {
     console.error(err)
     errorMessage.value = err.message || 'Registration failed. Please try again.'
@@ -117,42 +124,153 @@ const handleRegister = async () => {
 
 <template>
   <v-app class="yellow-background">
-    <v-app-bar app color="#5b841e" height="90" class="d-flex align-center px-4"></v-app-bar>
+    <v-app-bar app color="#5b841e" height="90" class="d-flex align-center px-4" />
 
     <v-main class="main-no-scroll">
       <v-container fluid>
         <v-row class="fill-height d-flex align-center justify-center">
           <v-col cols="12" md="7" class="hide-on-mobile">
-            <v-card class="pa-7 flex-grow-1 d-flex align-center justify-center" height="472" elevation="4" color="#fff9c4">
+            <v-card
+              class="pa-7 flex-grow-1 d-flex align-center justify-center"
+              height="472"
+              elevation="4"
+              color="#fff9c4"
+            >
               <v-img src="/images/logo.png" contain max-width="700" />
             </v-card>
           </v-col>
 
           <v-col cols="12" md="4" class="d-flex justify-center">
-            <v-card class="flex-grow-1 d-flex flex-column justify-center" elevation="4" color="#fff9c4" height="472">
-              <h3 class="text-center font-weight-bold mt-4" style="text-decoration: underline; font-size: 28px; color: #2e4e1f">
+            <v-card
+              class="flex-grow-1 d-flex flex-column justify-center"
+              elevation="4"
+              color="#fff9c4"
+              height="472"
+            >
+              <h3
+                class="text-center font-weight-bold mt-4"
+                style="text-decoration: underline; font-size: 28px; color: #2e4e1f"
+              >
                 USER REGISTRATION
               </h3>
-              <p class="text-center mb-6" style="color: #2e4e1f">Create your Buenavista HealthSync account</p>
+              <p class="text-center mb-6" style="color: #2e4e1f">
+                Create your Buenavista HealthSync BHW account
+              </p>
 
               <v-row class="mx-4 d-flex justify-center">
                 <v-col cols="12" md="5">
-                  <v-text-field v-model="firstName" :error-messages="firstNameError !== true ? firstNameError : ''" label="First Name" variant="filled" bg-color="#5b841e" color="white" density="comfortable" class="text-white" style="--v-theme-on-surface: white" />
-                  <v-text-field v-model="email" :error-messages="emailError !== true ? emailError : ''" label="Email Address" type="email" variant="filled" bg-color="#5b841e" color="white" density="comfortable" class="text-white" style="--v-theme-on-surface: white" />
-                  <v-select v-model="barangay" :error-messages="barangayError !== true ? barangayError : ''" label="Barangay" :items="barangayOptions" variant="filled" bg-color="#5b841e" color="white" density="comfortable" class="text-white" style="--v-theme-on-surface: white" />
-                  <v-text-field v-model="password" :error-messages="passwordError !== true ? passwordError : ''" label="Password" type="password" variant="filled" bg-color="#5b841e" color="white" density="comfortable" class="text-white" style="--v-theme-on-surface: white" />
+                  <v-text-field
+                    v-model="firstName"
+                    :error-messages="firstNameError !== true ? firstNameError : ''"
+                    label="First Name"
+                    variant="filled"
+                    bg-color="#5b841e"
+                    color="white"
+                    density="comfortable"
+                    class="text-white"
+                    style="--v-theme-on-surface: white"
+                  />
+                  <v-text-field
+                    v-model="email"
+                    :error-messages="emailError !== true ? emailError : ''"
+                    label="Email Address"
+                    type="email"
+                    variant="filled"
+                    bg-color="#5b841e"
+                    color="white"
+                    density="comfortable"
+                    class="text-white"
+                    style="--v-theme-on-surface: white"
+                  />
+                  <v-select
+                    v-model="barangay"
+                    :error-messages="barangayError !== true ? barangayError : ''"
+                    label="Barangay"
+                    :items="barangayOptions"
+                    variant="filled"
+                    bg-color="#5b841e"
+                    color="white"
+                    density="comfortable"
+                    class="text-white"
+                    style="--v-theme-on-surface: white"
+                  />
+                  <v-text-field
+                    v-model="password"
+                    :error-messages="passwordError !== true ? passwordError : ''"
+                    label="Password"
+                    type="password"
+                    variant="filled"
+                    bg-color="#5b841e"
+                    color="white"
+                    density="comfortable"
+                    class="text-white"
+                    style="--v-theme-on-surface: white"
+                  />
                 </v-col>
 
                 <v-col cols="12" md="5">
-                  <v-text-field v-model="lastName" :error-messages="lastNameError !== true ? lastNameError : ''" label="Last Name" variant="filled" bg-color="#5b841e" color="white" density="comfortable" class="text-white" style="--v-theme-on-surface: white" />
-                  <v-select v-model="role" :error-messages="roleError !== true ? roleError : ''" label="Role" :items="roleOptions" variant="filled" bg-color="#5b841e" color="white" density="comfortable" class="text-white" style="--v-theme-on-surface: white" />
-                  <v-select v-model="purok" :error-messages="purokError !== true ? purokError : ''" label="Purok" :items="purokOptions" variant="filled" bg-color="#5b841e" color="white" density="comfortable" class="text-white" style="--v-theme-on-surface: white" />
-                  <v-text-field v-model="confirmPassword" :error-messages="confirmPasswordError !== true ? confirmPasswordError : ''" label="Confirm Password" type="password" variant="filled" bg-color="#5b841e" color="white" density="comfortable" class="text-white" style="--v-theme-on-surface: white" />
+                  <v-text-field
+                    v-model="lastName"
+                    :error-messages="lastNameError !== true ? lastNameError : ''"
+                    label="Last Name"
+                    variant="filled"
+                    bg-color="#5b841e"
+                    color="white"
+                    density="comfortable"
+                    class="text-white"
+                    style="--v-theme-on-surface: white"
+                  />
+
+                  <!-- Fixed BHW Role -->
+                  <v-text-field
+                    v-model="role"
+                    label="Role"
+                    readonly
+                    variant="filled"
+                    bg-color="#5b841e"
+                    color="white"
+                    density="comfortable"
+                    class="text-white"
+                    style="--v-theme-on-surface: white"
+                  />
+
+                  <v-select
+                    v-model="purok"
+                    :error-messages="purokError !== true ? purokError : ''"
+                    label="Purok"
+                    :items="purokOptions"
+                    variant="filled"
+                    bg-color="#5b841e"
+                    color="white"
+                    density="comfortable"
+                    class="text-white"
+                    style="--v-theme-on-surface: white"
+                  />
+                  <v-text-field
+                    v-model="confirmPassword"
+                    :error-messages="confirmPasswordError !== true ? confirmPasswordError : ''"
+                    label="Confirm Password"
+                    type="password"
+                    variant="filled"
+                    bg-color="#5b841e"
+                    color="white"
+                    density="comfortable"
+                    class="text-white"
+                    style="--v-theme-on-surface: white"
+                  />
                 </v-col>
               </v-row>
 
               <div class="mx-16 mb-5">
-                <v-btn block class="text-white text-lowercase font-weight-bold" style="background-color: #5b841e" :loading="isLoading" @click="handleRegister">register</v-btn>
+                <v-btn
+                  block
+                  class="text-white text-lowercase font-weight-bold"
+                  style="background-color: #5b841e"
+                  :loading="isLoading"
+                  @click="handleRegister"
+                >
+                  register
+                </v-btn>
 
                 <p v-if="errorMessage" class="text-red text-center mt-2">{{ errorMessage }}</p>
                 <p v-if="successMessage" class="text-green text-center mt-2">{{ successMessage }}</p>
