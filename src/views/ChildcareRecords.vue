@@ -31,6 +31,7 @@ const vitaminARecords = ref([
 
 <template>
   <DashboardView>
+    <div class="childcare-bg">
     <div class="container my-4">
       <button class="btn btn-outline-secondary mb-3" @click="$router.back()">← Back</button>
       <h2 class="mb-4">Vitamin A Supplementation Records</h2>
@@ -65,10 +66,21 @@ const vitaminARecords = ref([
         </table>
       </div>
     </div>
+    </div>
   </DashboardView>
 </template>
 
 <style scoped>
+.childcare-bg {
+  background: url('/images/childcare.jpg') no-repeat center center;
+  background-size: cover;
+  min-height: calc(120vh - 319px);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding: 0 4rem;
+}
 .table-responsive {
   overflow-x: auto;
 }
