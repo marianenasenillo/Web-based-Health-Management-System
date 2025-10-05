@@ -1,44 +1,77 @@
 <script setup>
 import { ref } from 'vue'
-import { requiredValidator, passwordValidator } from '@/utils/validators.js' 
+import { useRouter } from 'vue-router'
+import { supabase } from '@/utils/supabase.js'
+import { requiredValidator, passwordValidator, emailValidator } from '@/utils/validators.js'
 
 // form fields
-const username = ref('')
+const email = ref('')
 const password = ref('')
 const role = ref('')
 const purok = ref('')
 const barangay = ref('')
 
 // options
-const roleOptions = ['BHW', 'Barangay Admin']
+const roleOptions = ['BHW', 'Admin']
 const purokOptions = ['Purok 1', 'Purok 2', 'Purok 3']
 const barangayOptions = ['Brgy. 5', 'Brgy. 6']
 
-// validation rules (Vuetify expects arrays of rules)
-const usernameRules = [requiredValidator]
+// validation rules
+const emailRules = [requiredValidator, emailValidator]
 const passwordRules = [requiredValidator, passwordValidator]
 const roleRules = [requiredValidator]
 const purokRules = [requiredValidator]
 const barangayRules = [requiredValidator]
 
-// form ref
+// refs
 const form = ref(null)
+const loading = ref(false)
+const router = useRouter()
 
 // handle login
 const handleLogin = async () => {
   const { valid } = await form.value.validate()
   if (!valid) return
 
-  // Example login logic
-  console.log('Logging in with:', {
-    username: username.value,
-    password: password.value,
-    role: role.value,
-    purok: purok.value,
-    barangay: barangay.value,
-  })
+  loading.value = true
 
-  alert(`Welcome, ${username.value}!`)
+  try {
+    // 1️⃣ Try to sign in with Supabase Auth
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: email.value,
+      password: password.value,
+    })
+
+    if (error) throw error
+
+    // 2️⃣ Fetch user metadata to check role
+    const user = data.user
+    const userRole = user?.user_metadata?.role
+
+    console.log('User data:', user)
+
+    // 3️⃣ Validate role match (only allow correct role)
+    if (userRole !== role.value) {
+      alert('Invalid role for this account.')
+      await supabase.auth.signOut()
+      return
+    }
+
+    // 4️⃣ Redirect based on role
+    if (userRole === 'Admin') {
+      router.push('/home')
+    } else if (userRole === 'BHW') {
+      router.push('/home')
+    } else {
+      alert('Unknown role. Please contact admin.')
+    }
+
+  } catch (err) {
+    console.error(err)
+    alert(err.message || 'Login failed.')
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
@@ -77,19 +110,18 @@ const handleLogin = async () => {
                 Welcome to Buenavista HealthSync
               </p>
 
-              <!-- Vuetify form wrapper -->
               <v-form ref="form" validate-on="submit" @submit.prevent="handleLogin">
-                <!-- Username -->
+                <!-- Email -->
                 <v-text-field
-                  v-model="username"
-                  label="Username:"
+                  v-model="email"
+                  label="Email:"
                   variant="filled"
                   bg-color="#5b841e"
                   color="white"
                   density="comfortable"
                   class="mx-12 text-white"
                   style="--v-theme-on-surface: white"
-                  :rules="usernameRules"
+                  :rules="emailRules"
                 />
 
                 <!-- Password -->
@@ -158,6 +190,7 @@ const handleLogin = async () => {
                 <div class="mx-16">
                   <v-btn
                     type="submit"
+                    :loading="loading"
                     block
                     class="text-white text-lowercase font-weight-bold"
                     style="background-color: #5b841e"
