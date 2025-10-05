@@ -1,58 +1,53 @@
 <script setup>
 import DashboardView from '@/components/DashboardView.vue'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-// Sample records for Women of Reproductive Age
-const wraRecords = ref([
-  {
-    purok: '1',
-    lastname: 'Dela Cruz',
-    firstname: 'Maria',
-    middlename: 'Santos',
-    suffix: '',
-    age: 32,
-    birthdate: '1993-05-10',
-    seStatus: 'Active',
-    civilStatus: 'Married',
-    planoManganak: 'Oo',
-    karun: true,
-    spacing: false,
-    limiting: false,
-    fecund: true,
-    infecund: false,
-    fbMethod: 'Yes',
-    fbType: 'Pills',
-    fbDate: '2025-01-15',
-    changeMethod: 'No'
-  },
-  {
-    purok: '2',
-    lastname: 'Lopez',
-    firstname: 'Anna',
-    middlename: 'Reyes',
-    suffix: '',
-    age: 28,
-    birthdate: '1997-03-22',
-    seStatus: 'Inactive',
-    civilStatus: 'Single',
-    planoManganak: 'Dili',
-    karun: false,
-    spacing: true,
-    limiting: false,
-    fecund: false,
-    infecund: true,
-    fbMethod: 'No',
-    fbType: '',
-    fbDate: '',
-    changeMethod: 'Yes'
-  }
-])
+import { supabase } from '@/utils/supabase.js'
 
+
+
+const wraRecords = ref([])
 const router = useRouter()
-const goBack = () => {
-  router.back()
+const goBack = () => router.back()
+
+// Fetch WRA records from Supabase
+const fetchWraRecords = async () => {
+  const { data, error } = await supabase
+    .from('wra_records')
+    .select('*')
+    .order('lastname', { ascending: true })
+
+  if (error) {
+    console.error('Error fetching WRA records:', error.message)
+  } else {
+    // Map database fields to your table fields if needed
+    wraRecords.value = data.map(record => ({
+      purok: record.purok,
+      lastname: record.lastname,
+      firstname: record.firstname,
+      middlename: record.middlename,
+      suffix: record.suffix,
+      age: record.age,
+      birthdate: record.birthdate,
+      seStatus: record.se_status,
+      civilStatus: record.civil_status,
+      planoManganak: record.plano_manganak,
+      karun: record.karun,
+      spacing: record.spacing,
+      limiting: record.limiting,
+      fecund: record.fecund,
+      infecund: record.infecund,
+      fbMethod: record.fb_method,
+      fbType: record.fb_type,
+      fbDate: record.fb_date,
+      changeMethod: record.change_method
+    }))
+  }
 }
+
+onMounted(fetchWraRecords)
 </script>
+
 
 <template>
   <DashboardView>

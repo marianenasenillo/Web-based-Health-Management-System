@@ -2,12 +2,13 @@
 import DashboardView from '@/components/DashboardView.vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { supabase } from '@/utils/supabase.js'
 
 const router = useRouter()
 const showRecords = ref(false)
 const showModal = ref(false)
-const activeMenu = ref('') // '' | 'wra' | 'cervical'
-const modalType = ref('') // 'wra' | 'cervical'
+const activeMenu = ref('')
+const modalType = ref('')
 
 // WRA form fields
 const purok = ref('')
@@ -40,42 +41,124 @@ const cervicalAge = ref('')
 const cervicalBirthdate = ref('')
 const cervicalScreened = ref('')
 
-const goPrevPage = () => {
-  router.push('/householdprofile')
-}
-const goNextPage = () => {
-  router.push('/childcare')
-}
-const toggleRecords = () => {
-  showRecords.value = !showRecords.value
-}
-const openMenu = (type) => {
-  activeMenu.value = type
-}
-const closeMenu = () => {
-  activeMenu.value = ''
-}
+// Navigation
+const goPrevPage = () => router.push('/householdprofile')
+const goNextPage = () => router.push('/childcare')
+const toggleRecords = () => (showRecords.value = !showRecords.value)
+const openMenu = (type) => (activeMenu.value = type)
+const closeMenu = () => (activeMenu.value = '')
+const closeModal = () => (showModal.value = false)
+
 const fillIn = (type) => {
   modalType.value = type
   showModal.value = true
   closeMenu()
 }
+
 const viewRecords = (type) => {
-  if (type === 'wra') {
-    router.push('/maternalwrarecords')
-  } else if (type === 'cervical') {
-    router.push('/maternalccsrecords')
-  }
+  if (type === 'wra') router.push('/maternalwrarecords')
+  else if (type === 'cervical') router.push('/maternalccsrecords')
   closeMenu()
 }
-const closeModal = () => {
-  showModal.value = false
+
+// ✅ Save WRA Record to Supabase
+const saveWra = async () => {
+  try {
+    const { error } = await supabase.from('wra_records').insert([
+      {
+        purok: purok.value,
+        lastname: lastname.value,
+        firstname: firstname.value,
+        middlename: middlename.value,
+        suffix: suffix.value,
+        age: age.value,
+        birthdate: birthdate.value,
+        se_status: seStatus.value,
+        civil_status: civilStatus.value,
+        plano_manganak: planoManganak.value,
+        karun: karun.value,
+        spacing: spacing.value,
+        limiting: limiting.value,
+        fecund: fecund.value,
+        infecund: infecund.value,
+        fb_method: fbMethod.value,
+        fb_type: fbType.value,
+        fb_date: fbDate.value || null,
+        change_method: changeMethod.value,
+      },
+    ])
+
+    if (error) throw error
+    alert('WRA record saved successfully!')
+    closeModal()
+    resetWraForm()
+  } catch (err) {
+    console.error('Error saving WRA:', err.message)
+    alert('Failed to save WRA record.')
+  }
 }
-const saveWra = () => {
-  // Save logic for WRA form
-  closeModal()
+
+// ✅ Save Cervical Screening Record
+const saveCervical = async () => {
+  try {
+    const { error } = await supabase.from('cervical_screening_records').insert([
+      {
+        purok: cervicalPurok.value,
+        lastname: cervicalLastname.value,
+        firstname: cervicalFirstname.value,
+        middlename: cervicalMiddlename.value,
+        suffix: cervicalSuffix.value,
+        age: cervicalAge.value,
+        birthdate: cervicalBirthdate.value,
+        screened: cervicalScreened.value,
+      },
+    ])
+
+    if (error) throw error
+    alert('Cervical record saved successfully!')
+    closeModal()
+    resetCervicalForm()
+  } catch (err) {
+    console.error('Error saving Cervical:', err.message)
+    alert('Failed to save Cervical record.')
+  }
+}
+
+// ✅ Reset helper functions
+const resetWraForm = () => {
+  purok.value = ''
+  lastname.value = ''
+  firstname.value = ''
+  middlename.value = ''
+  suffix.value = ''
+  age.value = ''
+  birthdate.value = ''
+  seStatus.value = ''
+  civilStatus.value = ''
+  planoManganak.value = ''
+  karun.value = false
+  spacing.value = false
+  limiting.value = false
+  fecund.value = false
+  infecund.value = false
+  fbMethod.value = ''
+  fbType.value = ''
+  fbDate.value = ''
+  changeMethod.value = ''
+}
+
+const resetCervicalForm = () => {
+  cervicalPurok.value = ''
+  cervicalLastname.value = ''
+  cervicalFirstname.value = ''
+  cervicalMiddlename.value = ''
+  cervicalSuffix.value = ''
+  cervicalAge.value = ''
+  cervicalBirthdate.value = ''
+  cervicalScreened.value = ''
 }
 </script>
+
 
 <template>
   <DashboardView>
@@ -299,7 +382,7 @@ const saveWra = () => {
           <img src="/images/barangaylogo.png" alt="Barangay Logo" style="height: 80px;" />
         </div>
         <hr />
-        <form @submit.prevent="closeModal" class="cervical-form">
+        <form @submit.prevent="saveCervical" class="cervical-form">
           <div class="row-fields">
             <div class="form-group">
               <label>Purok:</label>

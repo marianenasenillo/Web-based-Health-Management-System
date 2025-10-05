@@ -1,37 +1,39 @@
 <script setup>
 import DashboardView from '@/components/DashboardView.vue'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { supabase } from '@/utils/supabase.js'
 
+const cervicalRecords = ref([])
 const router = useRouter()
-const goBack = () => {
-  router.back()
+const goBack = () => router.back()
+
+// Fetch cervical screening records from Supabase
+const fetchCervicalRecords = async () => {
+  const { data, error } = await supabase
+    .from('cervical_screening_records')
+    .select('*')
+    .order('lastname', { ascending: true })
+
+  if (error) {
+    console.error('Error fetching cervical records:', error.message)
+  } else {
+    cervicalRecords.value = data.map(record => ({
+      purok: record.purok,
+      lastname: record.lastname,
+      firstname: record.firstname,
+      middlename: record.middlename,
+      suffix: record.suffix,
+      age: record.age,
+      birthdate: record.birthdate,
+      screened: record.screened
+    }))
+  }
 }
 
-// Sample records for Cervical Cancer Screening
-const cervicalRecords = ref([
-  {
-    purok: '1',
-    lastname: 'Dela Cruz',
-    firstname: 'Maria',
-    middlename: 'Santos',
-    suffix: '',
-    age: 45,
-    birthdate: '1980-05-10',
-    screened: 'Yes'
-  },
-  {
-    purok: '2',
-    lastname: 'Lopez',
-    firstname: 'Anna',
-    middlename: 'Reyes',
-    suffix: '',
-    age: 38,
-    birthdate: '1987-03-22',
-    screened: 'No'
-  }
-])
+onMounted(fetchCervicalRecords)
 </script>
+
 
 <template>
   <DashboardView>
