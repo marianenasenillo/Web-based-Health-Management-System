@@ -18,6 +18,7 @@ import ChildcareRecords from '@/views/ChildcareRecords.vue'
 import FpsRecords from '@/views/FpsRecords.vue'
 import PhsRecords from '@/views/PhsRecords.vue'
 import RegisterView from '@/views/RegisterView.vue'
+import AdminDashboardview from '@/components/AdminDashboardview.vue'
 
 
 const router = createRouter({
@@ -117,6 +118,11 @@ const router = createRouter({
       path: '/register',
       name: 'register',
       component: RegisterView,
+    },
+    {
+      path: '/admindashboard',
+      name: 'admindashboard',
+      component: AdminDashboardview,
     },
   ],
 })
