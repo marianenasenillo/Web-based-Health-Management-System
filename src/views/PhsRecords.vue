@@ -1,26 +1,36 @@
 <script setup>
 import DashboardView from '@/components/DashboardView.vue'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { supabase } from '@/utils/supabase.js'
 
-// Sample Deworming records
-const dewormingRecords = ref([
-  {
-    firstname: 'Juan',
-    middlename: 'Santos',
-    motherName: 'Maria Dela Cruz',
-    sex: 'M',
-    birthday: '2010-05-10',
-    age: 15
-  },
-  {
-    firstname: 'Anna',
-    middlename: 'Reyes',
-    motherName: 'Luisa Lopez',
-    sex: 'F',
-    birthday: '2012-03-22',
-    age: 13
+const dewormingRecords = ref([])
+
+// Fetch records from Supabase
+const fetchRecords = async () => {
+  const { data, error } = await supabase
+    .from('deworming_records')
+    .select('*')
+    .order('created_at', { ascending: false })
+    
+  if (error) {
+    console.error('Error fetching deworming records:', error)
+  } else {
+    // Map field names for display if necessary
+    dewormingRecords.value = data.map(item => ({
+      firstname: item.firstname,
+      middlename: item.middlename,
+      motherName: item.mother_name,
+      sex: item.sex,
+      birthday: item.birthday,
+      age: item.age
+    }))
   }
-])
+}
+
+// Fetch on component mount
+onMounted(() => {
+  fetchRecords()
+})
 </script>
 
 <template>

@@ -1,13 +1,14 @@
 <script setup>
 import DashboardView from '@/components/DashboardView.vue'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { supabase } from '@/utils/supabase.js'
 
 const router = useRouter()
 const showRecords = ref(false)
-const activeMenu = ref('') // '' | 'deworming'
+const activeMenu = ref('')
 const showModal = ref(false)
-const modalType = ref('') // 'deworming'
+const modalType = ref('')
 
 // Form fields for Deworming
 const firstname = ref('')
@@ -16,6 +17,9 @@ const motherName = ref('')
 const sex = ref('')
 const birthday = ref('')
 const age = ref('')
+
+// Deworming records table
+const dewormingRecords = ref([])
 
 const goPrevPage = () => {
   router.push('/familyplanning')
@@ -42,8 +46,51 @@ const viewRecords = (type) => {
 }
 const closeModal = () => {
   showModal.value = false
+  resetForm()
+}
+
+// Fetch deworming records from Supabase
+const fetchRecords = async () => {
+  const { data, error } = await supabase
+    .from('deworming_records')
+    .select('*')
+    .order('created_at', { ascending: false })
+  if (error) return console.error('Error fetching records:', error)
+  dewormingRecords.value = data
+}
+
+// Insert a new record
+const saveRecord = async () => {
+  const { data, error } = await supabase
+    .from('deworming_records')
+    .insert([
+      {
+        firstname: firstname.value,
+        middlename: middlename.value,
+        mother_name: motherName.value,
+        sex: sex.value,
+        birthday: birthday.value,
+        age: age.value
+      }
+    ])
+  if (error) return console.error('Error saving record:', error)
+  
+  // Refresh table and close modal
+  fetchRecords()
+  closeModal()
+}
+
+// Reset form fields
+const resetForm = () => {
+  firstname.value = ''
+  middlename.value = ''
+  motherName.value = ''
+  sex.value = ''
+  birthday.value = ''
+  age.value = ''
 }
 </script>
+
 
 <template>
   <DashboardView>
@@ -117,7 +164,7 @@ const closeModal = () => {
           <img src="/images/barangaylogo.png" alt="Barangay Logo" style="height: 80px;" />
         </div>
         <hr />
-        <form @submit.prevent="closeModal" class="deworming-form">
+        <form @submit.prevent="saveRecord" class="deworming-form">
           <div class="row-fields">
             <div class="form-group">
               <label>First Name:</label>
