@@ -25,6 +25,7 @@ const dewormingRecords = ref([
 
 <template>
   <DashboardView>
+    <div class="preventive-bg">
     <div class="container my-4">
       <button class="btn btn-outline-secondary mb-3" @click="$router.back()">← Back</button>
       <h2 class="mb-4">Deworming (10–19 yrs old) Records</h2>
@@ -53,10 +54,21 @@ const dewormingRecords = ref([
         </table>
       </div>
     </div>
+    </div>
   </DashboardView>
 </template>
 
 <style scoped>
+.preventive-bg {
+  background: url('/images/preventivehealth.jpg') no-repeat center center;
+  background-size: cover;
+  min-height: calc(120vh - 319px);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding: 0 4rem;
+}
 .table-responsive {
   overflow-x: auto;
 }
