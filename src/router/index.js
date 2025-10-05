@@ -18,7 +18,6 @@ import ChildcareRecords from '@/views/ChildcareRecords.vue'
 import FpsRecords from '@/views/FpsRecords.vue'
 import PhsRecords from '@/views/PhsRecords.vue'
 import RegisterView from '@/views/RegisterView.vue'
-import AdminDashboardview from '@/components/AdminDashboardview.vue'
 import BhwView from '@/views/BhwView.vue'
 
 
@@ -120,11 +119,7 @@ const router = createRouter({
       name: 'register',
       component: RegisterView,
     },
-    {
-      path: '/admindashboard',
-      name: 'admindashboard',
-      component: AdminDashboardview,
-    },
+    
     {
       path: '/bhw',
       name: 'bhw',
