@@ -1,27 +1,37 @@
 <script setup>
 import DashboardView from '@/components/DashboardView.vue'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { supabase } from '@/utils/supabase.js'
 
-// Sample records for Responsible Parenthood and Planning
-const responsibleRecords = ref([
-  {
-    surname: 'Dela Cruz',
-    firstname: 'Juan',
-    motherName: 'Maria Dela Cruz',
-    sex: 'M',
-    birthday: '1990-05-10',
-    age: 35
-  },
-  {
-    surname: 'Lopez',
-    firstname: 'Anna',
-    motherName: 'Luisa Lopez',
-    sex: 'F',
-    birthday: '1995-03-22',
-    age: 30
+const responsibleRecords = ref([])
+
+// Fetch records from Supabase
+const fetchRecords = async () => {
+  const { data, error } = await supabase
+    .from('family_planning_records')
+    .select('*')
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error('Error fetching records:', error)
+    return
   }
-])
+
+  responsibleRecords.value = data.map(record => ({
+    surname: record.surname,
+    firstname: record.firstname,
+    motherName: record.mother_name,
+    sex: record.sex,
+    birthday: record.birthday,
+    age: record.age
+  }))
+}
+
+onMounted(() => {
+  fetchRecords()
+})
 </script>
+
 
 <template>
   <DashboardView>

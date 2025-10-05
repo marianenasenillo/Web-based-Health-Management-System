@@ -2,14 +2,15 @@
 import DashboardView from '@/components/DashboardView.vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { supabase } from '@/utils/supabase.js'
 
 const router = useRouter()
 const showRecords = ref(false)
-const activeMenu = ref('') // '' | 'responsible'
+const activeMenu = ref('')
 const showModal = ref(false)
-const modalType = ref('') // 'responsible'
+const modalType = ref('')
 
-// Form fields for Responsible Parenthood and Planning
+// Form fields
 const surname = ref('')
 const firstname = ref('')
 const motherName = ref('')
@@ -17,35 +18,47 @@ const sex = ref('')
 const birthday = ref('')
 const age = ref('')
 
-const goPrevPage = () => {
-  router.push('/childcare')
-}
-const goNextPage = () => {
-  router.push('/preventivehealhservices')
-}
-const toggleRecords = () => {
-  showRecords.value = !showRecords.value
-}
-const openMenu = (type) => {
-  activeMenu.value = type
-}
-const closeMenu = () => {
-  activeMenu.value = ''
-}
-const fillIn = (type) => {
-  modalType.value = type
-  showModal.value = true
-  closeMenu()
-}
-const viewRecords = (type) => {
-  if (type === 'responsible') {
-    router.push('/fpsrecords')
+// Methods
+const goPrevPage = () => router.push('/childcare')
+const goNextPage = () => router.push('/preventivehealhservices')
+const toggleRecords = () => (showRecords.value = !showRecords.value)
+const openMenu = (type) => (activeMenu.value = type)
+const closeMenu = () => (activeMenu.value = '')
+const fillIn = (type) => { modalType.value = type; showModal.value = true; closeMenu() }
+const viewRecords = (type) => { if (type === 'responsible') router.push('/fpsrecords'); closeMenu() }
+const closeModal = () => (showModal.value = false)
+
+// Save form to Supabase
+const saveRecord = async () => {
+  const { data, error } = await supabase
+    .from('family_planning_records')
+    .insert([
+      {
+        surname: surname.value,
+        firstname: firstname.value,
+        mother_name: motherName.value,
+        sex: sex.value,
+        birthday: birthday.value,
+        age: age.value
+      }
+    ])
+  
+  if (error) {
+    alert('Error saving record: ' + error.message)
+    return
   }
-  closeMenu()
+
+  alert('Record saved successfully!')
+  // Reset form
+  surname.value = ''
+  firstname.value = ''
+  motherName.value = ''
+  sex.value = ''
+  birthday.value = ''
+  age.value = ''
+  closeModal()
 }
-const closeModal = () => {
-  showModal.value = false
-}
+
 </script>
 
 <template>
@@ -123,7 +136,7 @@ const closeModal = () => {
           <img src="/images/barangaylogo.png" alt="Barangay Logo" style="height: 80px;" />
         </div>
         <hr />
-        <form @submit.prevent="closeModal" class="responsible-form">
+        <form @submit.prevent="saveRecord" class="responsible-form">
           <div class="row-fields">
             <div class="form-group">
               <label>Surname:</label>
