@@ -1,30 +1,58 @@
-<script setup></script>
+<script setup>
+import { ref } from 'vue'
+
+// form fields
+const username = ref('')
+const password = ref('')
+const role = ref('')
+const purok = ref('')
+const barangay = ref('')
+
+// options
+const roleOptions = ['BHW', 'Barangay Admin']
+const purokOptions = ['Purok 1', 'Purok 2', 'Purok 3']
+const barangayOptions = ['Brgy. 5', 'Brgy. 6']
+
+// mock login function
+const handleLogin = () => {
+  if (!username.value || !password.value || !role.value || !purok.value || !barangay.value) {
+    alert('Please fill in all fields.')
+    return
+  }
+
+  // example login logic
+  console.log('Logging in with:')
+  console.log({
+    username: username.value,
+    password: password.value,
+    role: role.value,
+    purok: purok.value,
+    barangay: barangay.value
+  })
+
+  alert(`Welcome, ${username.value}!`)
+}
+</script>
 
 <template>
   <v-app class="yellow-background">
     <!-- APP BAR -->
-    <v-app-bar app color="#5b841e" height="90" class="d-flex align-center px-4"> </v-app-bar>
+    <v-app-bar app color="#5b841e" height="90" class="d-flex align-center px-4">
+    </v-app-bar>
 
     <!-- MAIN CONTENT -->
     <v-main class="main-no-scroll">
       <v-container fluid>
         <v-row class="fill-height d-flex align-center justify-center">
           <!-- LEFT SIDE (Logo Card) -->
-          <v-col cols="12" md="7">
+          <v-col cols="12" md="7" class="hide-on-mobile">
             <v-card
               class="pa-7 flex-grow-1 d-flex align-center justify-center"
               height="472"
               elevation="4"
               color="#fff9c4"
-              style="
-                border-top-left-radius: 16px;
-                border-bottom-left-radius: 16px;
-                border-top-right-radius: 0;
-                border-bottom-right-radius: 0;
-                margin-right: -18px;
-              "
             >
-              <v-img src="/images/logo.png" contain />
+              <v-img src="/images/logo.png" contain max-width="700" />
             </v-card>
           </v-col>
 
@@ -34,12 +62,7 @@
               class="flex-grow-1 d-flex flex-column justify-center"
               elevation="4"
               color="#fff9c4"
-              style="
-                border-top-right-radius: 16px;
-                border-bottom-right-radius: 16px;
-                border-top-left-radius: 0;
-                border-bottom-left-radius: 0;
-              "
+              height="472"
             >
               <!-- Title -->
               <h3
@@ -54,6 +77,7 @@
 
               <!-- Username -->
               <v-text-field
+                v-model="username"
                 label="Username:"
                 variant="filled"
                 bg-color="#5b841e"
@@ -65,6 +89,7 @@
 
               <!-- Password -->
               <v-text-field
+                v-model="password"
                 label="Password:"
                 type="password"
                 variant="filled"
@@ -75,12 +100,13 @@
                 style="--v-theme-on-surface: white"
               />
 
-              <!-- Role + Assigned Purok -->
+              <!-- Select fields -->
               <v-row class="mx-9">
-                <v-col cols="6">
+                <v-col cols="4">
                   <v-select
+                    v-model="role"
                     label="Role"
-                    :items="['BHW', 'Barangay Admin']"
+                    :items="roleOptions"
                     variant="filled"
                     bg-color="#5b841e"
                     color="white"
@@ -89,10 +115,26 @@
                     style="--v-theme-on-surface: white"
                   />
                 </v-col>
-                <v-col cols="6">
+
+                <v-col cols="4">
                   <v-select
+                    v-model="purok"
                     label="Assigned Purok"
-                    :items="['Purok 1', 'Purok 2', 'Purok 3']"
+                    :items="purokOptions"
+                    variant="filled"
+                    bg-color="#5b841e"
+                    color="white"
+                    density="comfortable"
+                    class="text-white"
+                    style="--v-theme-on-surface: white"
+                  />
+                </v-col>
+
+                <v-col cols="4">
+                  <v-select
+                    v-model="barangay"
+                    label="Barangay"
+                    :items="barangayOptions"
                     variant="filled"
                     bg-color="#5b841e"
                     color="white"
@@ -109,6 +151,7 @@
                   block
                   class="text-white text-lowercase font-weight-bold"
                   style="background-color: #5b841e"
+                  @click="handleLogin"
                 >
                   log in
                 </v-btn>
@@ -151,5 +194,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+@media (max-width: 1264px) {
+  .hide-on-mobile {
+    display: none !important;
+  }
 }
 </style>
