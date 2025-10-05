@@ -171,13 +171,6 @@ const handleLogin = async () => {
               <p class="text-center mt-2">
                 <a href="#" style="color: black; text-decoration: underline">Forgot password?</a>
               </p>
-
-              <div class="my-4 mx-8" style="border-bottom: 1px solid #000"></div>
-
-              <p class="text-center mb-6">
-                Don’t have an account?
-                <a href="#" style="color: blue; text-decoration: underline">Sign up</a>
-              </p>
             </v-card>
           </v-col>
         </v-row>
