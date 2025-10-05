@@ -3,12 +3,13 @@
 import DashboardView from '@/components/DashboardView.vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { supabase } from '@/utils/supabase.js'
 
 const router = useRouter()
 const showRecords = ref(false)
-const activeMenu = ref('') // '' | 'household' | 'head'
+const activeMenu = ref('')
 const showModal = ref(false)
-const modalType = ref('') // 'household' | 'head'
+const modalType = ref('')
 
 // Household Profiling form fields
 const purok = ref('')
@@ -64,7 +65,7 @@ const fpStatus = ref('')
 const waterSource = ref('')
 const toiletFacility = ref('')
 
-// For multiple members, you can use an array of objects
+// For multiple members (future use)
 const members = ref([
   {
     purok: '',
@@ -106,44 +107,93 @@ const headFields = [
   { label: 'Suffix:', model: 'headSuffix', ref: headSuffix, type: 'text' },
 ]
 
-const goPrevPage = () => {
-  router.push('/home')
-}
-const goNextPage = () => {
-  router.push('/maternalservices')
-}
-const toggleRecords = () => {
-  showRecords.value = !showRecords.value
-}
-const openMenu = (type) => {
-  activeMenu.value = type
-}
-const closeMenu = () => {
-  activeMenu.value = ''
-}
+const goPrevPage = () => router.push('/home')
+const goNextPage = () => router.push('/maternalservices')
+const toggleRecords = () => (showRecords.value = !showRecords.value)
+const openMenu = (type) => (activeMenu.value = type)
+const closeMenu = () => (activeMenu.value = '')
 const fillIn = (type) => {
   modalType.value = type
   showModal.value = true
   closeMenu()
 }
 const viewRecords = (type) => {
-  if (type === 'household') {
-    router.push('/hpsrecords')
-  } else if (type === 'head') {
-    router.push('/hhpsrecords')
-  }
+  if (type === 'household') router.push('/hpsrecords')
+  else if (type === 'head') router.push('/hhpsrecords')
   closeMenu()
 }
-const closeModal = () => {
-  showModal.value = false
+const closeModal = () => (showModal.value = false)
+
+/* =====================================================
+   ✅ SUPABASE INSERT FUNCTIONS
+   ===================================================== */
+const saveHousehold = async () => {
+  try {
+    const { error } = await supabase.from('households').insert([
+      {
+        date_visit: dateVisit.value || null,
+        household_no: householdNo.value || null,
+        purok: purok.value || null,
+        lastname: lastname.value || null,
+        firstname: firstname.value || null,
+        middlename: middlename.value || null,
+        suffix: suffix.value || null,
+        relationship: relationship.value || null,
+        birthdate: birthdate.value || null,
+        age: age.value ? parseInt(age.value) : null,
+        sex: sex.value || null,
+        civil_status: civilStatus.value || null,
+        education: education.value || null,
+        religion: religion.value || null,
+        ethnicity: ethnicity.value || null,
+        is_4ps_member: is4psMember.value === 'Yes',
+        household_id_4ps: householdId4ps.value || null,
+        philhealth_id: philhealthId.value || null,
+        membership_type: membershipType.value || null,
+        philhealth_category: philhealthCategory.value || null,
+        medical_history: medicalHistory.value || null,
+        age_group: ageGroup.value || null,
+        lmp: lmp.value || null,
+        using_fp_method: usingFpMethod.value || null,
+        fp_method_used: fpMethodUsed.value || null,
+        fp_status: fpStatus.value || null,
+        water_source: waterSource.value || null,
+        toilet_facility: toiletFacility.value || null,
+      },
+    ])
+
+    if (error) throw error
+    alert('✅ Household record saved successfully!')
+    closeModal()
+  } catch (err) {
+    console.error('Error saving household:', err.message)
+    alert('❌ Failed to save household record.')
+  }
 }
-const saveHousehold = () => {
-  // Save logic for household profiling
-  closeModal()
-}
-const saveHead = () => {
-  // Save logic for household head profiling
-  closeModal()
+
+const saveHead = async () => {
+  try {
+    const { error } = await supabase.from('household_heads').insert([
+      {
+        purok: headPurok.value || null,
+        lastname: headLastname.value || null,
+        firstname: headFirstname.value || null,
+        middlename: headMiddlename.value || null,
+        suffix: headSuffix.value || null,
+        family_count: headFamilyCount.value ? parseInt(headFamilyCount.value) : null,
+        population: headPopulation.value ? parseInt(headPopulation.value) : null,
+        female_count: headFemale.value ? parseInt(headFemale.value) : null,
+        male_count: headMale.value ? parseInt(headMale.value) : null,
+      },
+    ])
+
+    if (error) throw error
+    alert('✅ Household Head record saved successfully!')
+    closeModal()
+  } catch (err) {
+    console.error('Error saving household head:', err.message)
+    alert('❌ Failed to save household head record.')
+  }
 }
 </script>
 
