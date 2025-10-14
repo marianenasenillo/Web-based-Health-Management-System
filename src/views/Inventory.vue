@@ -1,12 +1,10 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import DashboardView from '@/components/DashboardView.vue'
+import toolsApi from '@/utils/tools'
 
-// Tools list
-const tools = ref([
-  { name: 'Sphygmomanometer', quantity: 5 },
-  { name: 'Height Measuring Tape', quantity: 3 },
-])
+// Tools list (loaded from DB)
+const tools = ref([])
 const newTool = ref({ name: '', quantity: 1 })
 
 // Modal state for availing tool
@@ -27,25 +25,35 @@ const availTool = (tool) => {
 }
 
 // Confirm avail (decrement stock)
-const confirmAvail = () => {
+const confirmAvail = async () => {
   if (
-    availForm.value.name &&
-    availForm.value.purok &&
-    availForm.value.quantity > 0 &&
-    selectedTool.value.quantity >= availForm.value.quantity
+    !availForm.value.name || !availForm.value.purok || !(availForm.value.quantity > 0)
   ) {
-    selectedTool.value.quantity -= availForm.value.quantity
+    alert('Please fill all fields')
+    return
+  }
+
+  try {
+    // selectedTool is expected to come from DB and include tool_id
+    if (!selectedTool.value?.tool_id) throw new Error('Tool not recognized')
+    await toolsApi.availTool({
+      tool_id: selectedTool.value.tool_id,
+      name: availForm.value.name,
+      purok: availForm.value.purok,
+      quantity: availForm.value.quantity,
+    })
+
+    // refresh list from DB
+    tools.value = await toolsApi.listTools()
     showAvailModal.value = false
+  } catch (err) {
+    console.error('Failed to avail tool', err)
+    alert('Failed to avail tool: ' + (err.message || err))
   }
 }
 
 // Add new tool
-const addTool = () => {
-  if (newTool.value.name && newTool.value.quantity > 0) {
-    tools.value.push({ ...newTool.value })
-    newTool.value = { name: '', quantity: 1 }
-  }
-}
+// (deprecated) local-only addTool removed; use modal flow below
 
 // Add tool modal
 const showAddToolModal = ref(false)
@@ -56,12 +64,32 @@ const openAddToolModal = () => {
   showAddToolModal.value = true
 }
 
-const confirmAddTool = () => {
-  if (addToolForm.value.name && addToolForm.value.quantity > 0) {
-    tools.value.push({ ...addToolForm.value })
+const confirmAddTool = async () => {
+  if (!addToolForm.value.name || !(addToolForm.value.quantity > 0)) {
+    alert('Please provide a valid name and quantity')
+    return
+  }
+
+  try {
+    const created = await toolsApi.createTool({ name: addToolForm.value.name, quantity: addToolForm.value.quantity })
+    // refresh list
+    tools.value = await toolsApi.listTools()
     showAddToolModal.value = false
+  } catch (err) {
+    console.error('Failed to create tool', err)
+    alert('Failed to add tool: ' + (err.message || err))
   }
 }
+
+// Load tools on mount
+onMounted(async () => {
+  try {
+    tools.value = await toolsApi.listTools()
+  } catch (err) {
+    console.error('Failed to load tools', err)
+    tools.value = []
+  }
+})
 </script>
 
 <template>
