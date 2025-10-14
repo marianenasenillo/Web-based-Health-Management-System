@@ -10,7 +10,6 @@ import Phs from '@/views/Phs.vue'
 import Calendar from '@/views/Calendar.vue'
 import Inventory from '@/views/Inventory.vue'
 import ReportView from '@/views/ReportView.vue'
-import HpsRecords from '@/views/HpsRecords.vue'
 import HhpsRecords from '@/views/HhpsRecords.vue'
 import MaternalWrarecords from '@/views/MaternalWrarecords.vue'
 import MaternalCcsrecords from '@/views/MaternalCcsrecords.vue'
@@ -78,11 +77,6 @@ const router = createRouter({
       path: '/reports',
       name: 'reports',
       component: ReportView,
-    },
-    {
-      path: '/hpsrecords',
-      name: 'hpsrecords',
-      component: HpsRecords,
     },
     {
       path: '/hhpsrecords',

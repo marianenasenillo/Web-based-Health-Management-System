@@ -118,83 +118,130 @@ const fillIn = (type) => {
   closeMenu()
 }
 const viewRecords = (type) => {
-  if (type === 'household') router.push('/hpsrecords')
-  else if (type === 'head') router.push('/hhpsrecords')
+ if (type === 'head') router.push('/hhpsrecords')
   closeMenu()
 }
 const closeModal = () => (showModal.value = false)
 
-/* =====================================================
-   ✅ SUPABASE INSERT FUNCTIONS
-   ===================================================== */
-const saveHousehold = async () => {
-  try {
-    const { error } = await supabase.from('households').insert([
-      {
-        date_visit: dateVisit.value || null,
-        household_no: householdNo.value || null,
-        purok: purok.value || null,
-        lastname: lastname.value || null,
-        firstname: firstname.value || null,
-        middlename: middlename.value || null,
-        suffix: suffix.value || null,
-        relationship: relationship.value || null,
-        birthdate: birthdate.value || null,
-        age: age.value ? parseInt(age.value) : null,
-        sex: sex.value || null,
-        civil_status: civilStatus.value || null,
-        education: education.value || null,
-        religion: religion.value || null,
-        ethnicity: ethnicity.value || null,
-        is_4ps_member: is4psMember.value === 'Yes',
-        household_id_4ps: householdId4ps.value || null,
-        philhealth_id: philhealthId.value || null,
-        membership_type: membershipType.value || null,
-        philhealth_category: philhealthCategory.value || null,
-        medical_history: medicalHistory.value || null,
-        age_group: ageGroup.value || null,
-        lmp: lmp.value || null,
-        using_fp_method: usingFpMethod.value || null,
-        fp_method_used: fpMethodUsed.value || null,
-        fp_status: fpStatus.value || null,
-        water_source: waterSource.value || null,
-        toilet_facility: toiletFacility.value || null,
-      },
-    ])
-
-    if (error) throw error
-    alert('✅ Household record saved successfully!')
-    closeModal()
-  } catch (err) {
-    console.error('Error saving household:', err.message)
-    alert('❌ Failed to save household record.')
-  }
-}
-
 const saveHead = async () => {
   try {
-    const { error } = await supabase.from('household_heads').insert([
+    const { data, error } = await supabase.from('household_heads').insert([
       {
-        purok: headPurok.value || null,
-        lastname: headLastname.value || null,
-        firstname: headFirstname.value || null,
-        middlename: headMiddlename.value || null,
-        suffix: headSuffix.value || null,
-        family_count: headFamilyCount.value ? parseInt(headFamilyCount.value) : null,
+        purok: headPurok.value,
+        lastname: headLastname.value,
+        firstname: headFirstname.value,
+        middlename: headMiddlename.value,
+        suffix: headSuffix.value,
+        no_of_families: headFamilyCount.value ? parseInt(headFamilyCount.value) : null,
         population: headPopulation.value ? parseInt(headPopulation.value) : null,
         female_count: headFemale.value ? parseInt(headFemale.value) : null,
         male_count: headMale.value ? parseInt(headMale.value) : null,
       },
-    ])
+    ]);
 
-    if (error) throw error
-    alert('✅ Household Head record saved successfully!')
-    closeModal()
+    if (error) throw error;
+    alert('Household head saved successfully!');
+    closeModal();
+
+    // Clear fields after save
+    headPurok.value = '';
+    headLastname.value = '';
+    headFirstname.value = '';
+    headMiddlename.value = '';
+    headSuffix.value = '';
+    headFamilyCount.value = '';
+    headPopulation.value = '';
+    headFemale.value = '';
+    headMale.value = '';
+
   } catch (err) {
-    console.error('Error saving household head:', err.message)
-    alert('❌ Failed to save household head record.')
+    console.error(err);
+    alert('Error saving household head record.');
   }
-}
+};
+
+const saveHousehold = async () => {
+  try {
+    // ⚠️ For now, you must specify an existing head_id manually or link dynamically
+    const headId = prompt('Enter the Head ID this member belongs to:');
+
+    if (!headId) {
+      alert('Head ID is required!');
+      return;
+    }
+
+    const { data, error } = await supabase.from('household_members').insert([
+      {
+        head_id: headId,
+        date_visit: dateVisit.value || null,
+        relationship: relationship.value,
+        lastname: lastname.value,
+        firstname: firstname.value,
+        middlename: middlename.value,
+        suffix: suffix.value,
+        birthdate: birthdate.value || null,
+        age: age.value ? parseInt(age.value) : null,
+        sex: sex.value,
+        civil_status: civilStatus.value,
+        education: education.value,
+        religion: religion.value,
+        ethnicity: ethnicity.value,
+        is_4ps_member: is4psMember.value === 'Yes',
+        household_id_4ps: householdId4ps.value,
+        philhealth_id: philhealthId.value,
+        membership_type: membershipType.value,
+        philhealth_category: philhealthCategory.value,
+        medical_history: medicalHistory.value,
+        age_group: ageGroup.value,
+        lmp: lmp.value || null,
+        using_fp_method: usingFpMethod.value === 'Yes',
+        fp_method_used: fpMethodUsed.value,
+        fp_status: fpStatus.value,
+        water_source: waterSource.value,
+        toilet_facility: toiletFacility.value,
+      },
+    ]);
+
+    if (error) throw error;
+    alert('Household member saved successfully!');
+    closeModal();
+
+    // Clear fields
+    dateVisit.value = '';
+    householdNo.value = '';
+    purok.value = '';
+    lastname.value = '';
+    firstname.value = '';
+    middlename.value = '';
+    suffix.value = '';
+    relationship.value = '';
+    birthdate.value = '';
+    age.value = '';
+    sex.value = '';
+    civilStatus.value = '';
+    education.value = '';
+    religion.value = '';
+    ethnicity.value = '';
+    is4psMember.value = '';
+    householdId4ps.value = '';
+    philhealthId.value = '';
+    membershipType.value = '';
+    philhealthCategory.value = '';
+    medicalHistory.value = '';
+    ageGroup.value = '';
+    lmp.value = '';
+    usingFpMethod.value = '';
+    fpMethodUsed.value = '';
+    fpStatus.value = '';
+    waterSource.value = '';
+    toiletFacility.value = '';
+
+  } catch (err) {
+    console.error(err);
+    alert('Error saving household member record.');
+  }
+};
+
 </script>
 
 <template>
@@ -245,7 +292,6 @@ const saveHead = async () => {
             </button>
             <div v-if="activeMenu === 'household'" class="dropdown-menu">
               <button @click="fillIn('household')">Fill In</button>
-              <button @click="viewRecords('household')">View Records</button>
             </div>
           </div>
 
@@ -470,8 +516,7 @@ const saveHead = async () => {
             </div>
             <div class="form-actions-left">
               <button type="button" class="modal-btn cancel-btn" @click="closeModal">Cancel</button>
-              <button type="submit" class="modal-btn">Save</button>
-              <button type="button" class="modal-btn" @click="addMember">+ Add new member</button>
+              <button type="submit" class="modal-btn" >+ Add new member</button>
             </div>
           </form>
         </template>
