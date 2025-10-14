@@ -168,11 +168,6 @@ const resetCervicalForm = () => {
 
       <!-- Overlay Content -->
       <div class="overlay-content text-white text-start ms-5">
-        <!-- Search bar -->
-        <div class="input-group mb-3 search-box">
-          <input type="text" class="form-control" placeholder="Search..." />
-          <button class="btn btn-light">Go</button>
-        </div>
 
         <h1 class="fw-bold">Maternal & Women Care Services</h1>
         <p>Click to view and manage maternal services records efficiently.</p>
@@ -763,18 +758,21 @@ const resetCervicalForm = () => {
 
 /* Responsive for tablet and mobile */
 @media (max-width: 1100px) {
-  .maternal-bg {
-    padding: 0 1rem;
-  }
   .overlay-content {
-    margin-left: 1rem;
-    max-width: 98vw;
-    padding: 1.2rem;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    max-width: 640px;
+    margin: 0 auto;
+    text-align: center;
   }
-  .records-box {
-    padding: 2rem 1rem;
-    gap: 2rem;
-    max-width: 98vw;
+  .maternal-bg {
+    align-items: flex-start;
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+  .arrow-btn {
+    width: 48px;
+    height: 48px;
   }
   .maternal-logo {
     max-width: 300px;
@@ -794,19 +792,23 @@ const resetCervicalForm = () => {
   }
 }
 
-@media (max-width: 700px) {
-  .maternal-bg {
-    padding: 0 0.2rem;
-    min-height: 100vh;
-    flex-direction: column;
-  }
+@media (max-width: 767px) {
   .overlay-content {
-    margin-left: 0.2rem;
-    max-width: 100vw;
-    padding: 0.7rem;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    max-width: 92%;
+    margin: 0 auto;
+    text-align: center;
+    padding: 1rem;
+    border-radius: 0.6rem;
   }
-  .records-overlay {
-    padding: 0.5rem;
+  .materbal-bg {
+    align-items: flex-start;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+  .overlay-content .search-box {
+    margin-bottom: 0.5rem;
   }
   .records-box {
     flex-direction: column;

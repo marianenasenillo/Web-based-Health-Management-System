@@ -100,12 +100,6 @@ const resetForm = () => {
 
       <!-- Overlay Content -->
       <div class="overlay-content text-white text-start ms-5">
-        <!-- Search bar -->
-        <div class="input-group mb-3 search-box">
-          <input type="text" class="form-control" placeholder="Search..." />
-          <button class="btn btn-light">Go</button>
-        </div>
-
         <h1 class="fw-bold">Preventive Health Services</h1>
         <p>Click to view and manage Preventive Health Services records efficiently.</p>
 
@@ -509,5 +503,152 @@ const resetForm = () => {
 }
 .cancel-btn:hover {
   background-color: #bbb;
+}
+/* Center overlay-content on tablets and phones */
+@media (max-width: 1024px) {
+  .overlay-content {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    max-width: 640px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .family-bg {
+    align-items: flex-start;
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+  .arrow-btn {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+@media (max-width: 767px) {
+  .overlay-content {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    max-width: 92%;
+    margin: 0 auto;
+    text-align: center;
+    padding: 1rem;
+    border-radius: 0.6rem;
+  }
+  .family-bg {
+    align-items: flex-start;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+  .overlay-content .search-box {
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Make modal and form scrollable on small screens */
+@media (max-width: 1024px) {
+  .modal-box {
+    max-width: 720px;
+    padding: 1.25rem;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .deworming-form {
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-right: 8px;
+  }
+
+  .modal-overlay {
+    align-items: flex-start;
+    padding-top: 18px;
+    padding-bottom: 18px;
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 767px) {
+  .modal-box {
+    max-width: 96%;
+    padding: 0.9rem;
+    max-height: calc(100vh - 80px);
+  }
+
+  .deworming-form {
+    max-height: calc(100vh - 160px);
+  }
+}
+
+/* Responsive adjustments for the records overlay */
+@media (max-width: 1024px) {
+  .records-box {
+    padding: 1.5rem;
+    gap: 1rem;
+    flex-direction: column;
+    align-items: stretch;
+    max-width: 720px;
+  }
+
+  .family-logo {
+    width: 240px;
+    margin: 0 auto;
+    display: block;
+  }
+
+  .records-content {
+    padding: 0 0.5rem;
+    text-align: center;
+  }
+
+  .back-btn {
+    top: 10px;
+    left: 10px;
+  }
+}
+
+@media (max-width: 767px) {
+  .records-overlay {
+    align-items: flex-start;
+    padding: 1rem;
+    overflow-y: auto;
+  }
+
+  .records-box {
+    padding: 1rem;
+    gap: 0.8rem;
+    border-radius: 0.8rem;
+    max-width: 96%;
+    max-height: calc(100vh - 80px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .family-logo {
+    width: 160px;
+  }
+
+  /* Modal header logos */
+  .modal-box img {
+    height: 45px !important;
+  }
+
+  .records-content p {
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+
+  .record-btn {
+    padding: 0.7rem;
+    font-size: 0.95rem;
+  }
+
+  .dropdown-menu {
+    position: static;
+    box-shadow: none;
+    background: transparent;
+    padding: 0;
+  }
 }
 </style>

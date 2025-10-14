@@ -252,12 +252,6 @@ const saveHousehold = async () => {
 
       <!-- Overlay Content -->
       <div class="overlay-content text-white text-start ms-5">
-        <!-- Search bar -->
-        <div class="input-group mb-3 search-box">
-          <input type="text" class="form-control" placeholder="Search..." />
-          <button class="btn btn-light">Go</button>
-        </div>
-
         <h1 class="fw-bold">Household Profiling Services</h1>
         <p>Click to view and manage household records efficiently.</p>
 
@@ -331,6 +325,7 @@ const saveHousehold = async () => {
         </div>
         <hr />
         <template v-if="modalType === 'household'">
+          <div class="modal-form-wrap">
           <form @submit.prevent="saveHousehold" class="household-form wide-form">
             <div class="row-fields">
               <div class="form-group">
@@ -519,9 +514,11 @@ const saveHousehold = async () => {
               <button type="submit" class="modal-btn" >+ Add new member</button>
             </div>
           </form>
+          </div>
         </template>
         <template v-else-if="modalType === 'head'">
           <!-- Household Head Profiling Form (shortened and responsive) -->
+          <div class="modal-form-wrap">
           <form @submit.prevent="saveHead" class="compact-head-form">
             <div class="row-fields">
               <div class="form-group">
@@ -568,6 +565,7 @@ const saveHousehold = async () => {
               <button type="submit" class="modal-btn" style="font-size:0.95rem; padding:0.4rem 1rem;">Save</button>
             </div>
           </form>
+          </div>
         </template>
       </div>
     </div>
@@ -890,99 +888,70 @@ const saveHousehold = async () => {
   background: #e6f3d2;
 }
 
-/* Responsive for tablet and mobile */
-@media (max-width: 1100px) {
-  .hps-bg {
-    padding: 0 1rem;
-  }
+/* Responsive adjustments copied from Childcare */
+@media (max-width: 1024px) {
   .overlay-content {
-    margin-left: 1rem;
-    max-width: 98vw;
-    padding: 1.2rem;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    max-width: 92%;
+    text-align: center !important;
+    margin: 0 auto !important;
   }
+
+  .hps-bg { padding: 0 1.5rem; }
+
   .records-box {
-    padding: 2rem 1rem;
+    padding: 2rem;
     gap: 2rem;
-    max-width: 98vw;
+    flex-direction: column;
+    align-items: center;
+    max-width: 720px;
   }
-  .hps-logo {
-    max-width: 300px;
-    width: 100%;
-  }
-  .modal-box {
-    max-width: 98vw;
-    padding: 1rem 0.5rem;
-  }
-  .wide-form {
-    max-width: 98vw;
-    padding: 0 0.2rem;
-  }
-  .row-fields {
-    gap: 0.4rem;
-  }
+
+  .hps-logo { width: 220px; height: auto; margin: 0 auto; }
 }
 
-@media (max-width: 700px) {
-  .hps-bg {
-    padding: 0 0.2rem;
-    min-height: 100vh;
-    flex-direction: column;
-  }
+@media (max-width: 767px) {
   .overlay-content {
-    margin-left: 0.2rem;
-    max-width: 100vw;
-    padding: 0.7rem;
+    padding: 1rem !important;
+     max-width: 65% !important;
+    margin-left: 18% !important;
+    text-align: center !important;
+    
   }
-  .records-overlay {
-    padding: 0.5rem;
-  }
+
   .records-box {
-    flex-direction: column;
-    gap: 1rem;
-    padding: 1rem 0.2rem;
-    max-width: 100vw;
-  }
-  .hps-logo {
-    max-width: 180px;
+    padding: 1rem;
+    max-width: 100%;
     width: 100%;
-    margin-bottom: 1rem;
+    height: 90vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 0.75rem;
   }
+
+  .hps-logo { width: 160px; }
+
   .modal-box {
-    max-width: 100vw;
-    padding: 0.5rem 0.2rem;
-    min-width: 0;
+    padding: 1rem 1rem;
+    max-width: 98vw;
+    width: 98vw;
+    max-height: 94vh;
+    align-items: stretch;
   }
-  .modal-header {
-    flex-direction: column;
-    gap: 0.5rem;
+
+  .modal-form-wrap {
+    max-height: calc(94vh - 140px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-right: 0.25rem;
   }
-  @media (max-width: 700px) {
-  .modal-logo {
-    height: 36px;
-    max-width: 44px;
-  }
+
+  .wide-form .row-fields { display: flex; flex-direction: column; }
+
+  .modal-title-col h4 { font-size: 0.85rem; }
+  .modal-title-col h2 { font-size: 0.9rem; }
 }
-  .wide-form {
-    max-width: 100vw;
-    padding: 0 0.1rem;
-  }
-  .row-fields {
-    flex-direction: column;
-    gap: 0.2rem;
-  }
-  .form-group {
-    min-width: 0;
-    width: 100%;
-  }
-  .form-actions-left {
-    flex-direction: column;
-    gap: 0.3rem;
-    width: 100%;
-  }
-  .modal-btn {
-    width: 100%;
-    font-size: 0.95rem;
-    padding: 0.5rem 0.7rem;
-  }
-}
+
+
 </style>
