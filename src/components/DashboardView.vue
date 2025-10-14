@@ -4,10 +4,15 @@ import { useRouter } from 'vue-router'
 import { supabase } from '@/utils/supabase'
 
 const router = useRouter()
+
+// State
 const userRole = ref(null)
 const userData = ref({})
 const showUserMenu = ref(false)
 const mobileDrawer = ref(false)
+const editDialog = ref(false)
+const uploading = ref(false)
+const newAvatar = ref(null)
 
 onMounted(async () => {
   const {
@@ -17,6 +22,7 @@ onMounted(async () => {
   if (user) {
     userRole.value = user.user_metadata?.role || null
     userData.value = {
+      id: user.id, // keep for naming file
       full_name: user.user_metadata?.full_name || 'No name provided',
       email: user.email,
       role: user.user_metadata?.role || 'Unknown',
@@ -33,6 +39,70 @@ async function logout() {
   await supabase.auth.signOut()
   router.push('/')
 }
+
+async function uploadAvatar(event) {
+  try {
+    const file = event.target.files?.[0]
+    if (!file) return
+    uploading.value = true
+    // Ensure authenticated user (so storage RLS can match owner)
+    const { data: userResp, error: userErr } = await supabase.auth.getUser()
+    if (userErr || !userResp?.user) throw new Error('Not authenticated')
+    const uid = userResp.user.id
+
+    // Generate unique filename and include user id
+    const fileExt = file.name.split('.').pop()
+    const fileName = `avatars/${uid}-${Date.now()}.${fileExt}`
+    const filePath = fileName
+
+    // Upload to Supabase Storage
+    const { error: uploadError } = await supabase.storage
+      .from('profile-pictures')
+      .upload(filePath, file, { upsert: true })
+
+    if (uploadError) {
+      // If RLS denies the insert, surface the server message
+      console.error('Upload error', uploadError)
+      throw uploadError
+    }
+
+    // Get public URL
+    const { data } = supabase.storage.from('profile-pictures').getPublicUrl(filePath)
+    const publicUrl = data?.publicUrl || data?.public_url || ''
+    newAvatar.value = publicUrl || newAvatar.value
+    if (publicUrl) userData.value.avatar_url = publicUrl
+  } catch (error) {
+    console.error('Error uploading avatar:', error?.message || error)
+    // RLS will return messages like "new row violates row-level security policy"
+    if ((error?.message || '').toLowerCase().includes('row-level security')) {
+      alert('Upload blocked by Storage Row-Level Security (RLS). Ensure the storage policy allows your user to insert files or that the path includes the authenticated user id.')
+    } else {
+      alert('Failed to upload avatar: ' + (error?.message || String(error)))
+    }
+  } finally {
+    uploading.value = false
+  }
+}
+
+async function saveProfile() {
+  try {
+    const { error } = await supabase.auth.updateUser({
+      data: {
+        full_name: userData.value.full_name,
+        barangay: userData.value.barangay,
+        purok: userData.value.purok,
+        avatar_url: newAvatar.value || userData.value.avatar_url,
+      },
+    })
+
+    if (error) throw error
+    editDialog.value = false
+    alert('Profile updated successfully!')
+  } catch (error) {
+    console.error('Error updating profile:', error.message)
+    alert('Failed to update profile.')
+  }
+}
 </script>
 
 <template>
@@ -46,32 +116,27 @@ async function logout() {
 
         <v-spacer></v-spacer>
 
-        <!-- Mobile hamburger (shows on <=1024px) -->
-        <v-btn icon class="mobile-only" aria-label="Open navigation drawer" @click="mobileDrawer = true" color="white">
-          <v-icon>mdi-menu</v-icon>
+        <!-- Mobile hamburger -->
+        <v-btn icon class="mobile-only" @click="mobileDrawer = true">
+          <v-icon color="white">mdi-menu</v-icon>
         </v-btn>
 
         <!-- COMMON BUTTONS -->
         <v-btn class="desktop-only" text to="/home">Home</v-btn>
 
-        <!-- ADMIN-ONLY BUTTON -->
+        <!-- ADMIN BUTTONS -->
         <v-btn class="desktop-only" v-if="userRole === 'Admin'" text to="/bhw">BHW</v-btn>
         <v-btn class="desktop-only" v-if="userRole === 'Admin'" text to="/reports">Reports</v-btn>
+
         <!-- SHARED BUTTONS -->
-        
         <v-btn class="desktop-only" text to="/calendar">Calendar</v-btn>
         <v-btn class="desktop-only" text to="/inventory">Inventory</v-btn>
 
-        <!-- LOGOUT BUTTON -->
+        <!-- LOGOUT -->
         <v-btn class="desktop-only" text @click="logout">Log out</v-btn>
 
-        <!-- USER AVATAR (clickable) -->
-        <v-menu
-          v-model="showUserMenu"
-          offset-y
-          transition="scale-transition"
-          min-width="320"
-        >
+        <!-- USER AVATAR MENU -->
+        <v-menu v-model="showUserMenu" offset-y transition="scale-transition" min-width="320">
           <template #activator="{ props }">
             <v-avatar
               v-bind="props"
@@ -83,7 +148,6 @@ async function logout() {
             </v-avatar>
           </template>
 
-          <!-- ENLARGED USER INFO CARD -->
           <v-card
             elevation="8"
             color="#fff9c56"
@@ -109,26 +173,38 @@ async function logout() {
                 <p><strong>Barangay:</strong> {{ userData.barangay }}</p>
                 <p><strong>Purok:</strong> {{ userData.purok }}</p>
               </div>
+
+              <!-- EDIT PROFILE BUTTON -->
+              <v-btn color="#5b841e" class="mt-4 text-white" @click="editDialog = true">
+                <v-icon left>mdi-account-edit</v-icon>
+                Edit Profile
+              </v-btn>
             </v-card-text>
           </v-card>
         </v-menu>
       </v-app-bar>
 
-      <!-- Mobile Navigation Drawer -->
-      <v-navigation-drawer
-        v-model="mobileDrawer"
-        temporary
-        right
-        class="mobile-drawer"
-        elevation="6"
-      >
+      <!-- MOBILE NAV DRAWER -->
+      <v-navigation-drawer v-model="mobileDrawer" temporary right class="mobile-drawer" elevation="6">
         <v-list dense>
-          <v-list-item to="/home" @click="mobileDrawer = false"><v-list-item-title>Home</v-list-item-title></v-list-item>
-          <v-list-item v-if="userRole === 'Admin'" to="/bhw" @click="mobileDrawer = false"><v-list-item-title>BHW</v-list-item-title></v-list-item>
-          <v-list-item v-if="userRole === 'Admin'" to="/reports" @click="mobileDrawer = false"><v-list-item-title>Reports</v-list-item-title></v-list-item>
-          <v-list-item to="/calendar" @click="mobileDrawer = false"><v-list-item-title>Calendar</v-list-item-title></v-list-item>
-          <v-list-item to="/inventory" @click="mobileDrawer = false"><v-list-item-title>Inventory</v-list-item-title></v-list-item>
-          <v-list-item @click="() => { mobileDrawer = false; logout(); }"><v-list-item-title>Log out</v-list-item-title></v-list-item>
+          <v-list-item to="/home" @click="mobileDrawer = false">
+            <v-list-item-title>Home</v-list-item-title>
+          </v-list-item>
+          <v-list-item v-if="userRole === 'Admin'" to="/bhw" @click="mobileDrawer = false">
+            <v-list-item-title>BHW</v-list-item-title>
+          </v-list-item>
+          <v-list-item v-if="userRole === 'Admin'" to="/reports" @click="mobileDrawer = false">
+            <v-list-item-title>Reports</v-list-item-title>
+          </v-list-item>
+          <v-list-item to="/calendar" @click="mobileDrawer = false">
+            <v-list-item-title>Calendar</v-list-item-title>
+          </v-list-item>
+          <v-list-item to="/inventory" @click="mobileDrawer = false">
+            <v-list-item-title>Inventory</v-list-item-title>
+          </v-list-item>
+          <v-list-item @click="() => { mobileDrawer = false; logout(); }">
+            <v-list-item-title>Log out</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-navigation-drawer>
 
@@ -138,16 +214,44 @@ async function logout() {
       </v-main>
 
       <!-- FOOTER -->
-      <v-footer
-        app
-        color="#5b841e"
-        height="90"
-        class="d-flex align-center justify-center"
-      >
+      <v-footer app color="#5b841e" height="90" class="d-flex align-center justify-center">
         <span class="text-white text-decoration-underline">
           2025 All Rights Reserved
         </span>
       </v-footer>
+
+      <!-- EDIT PROFILE DIALOG -->
+      <v-dialog v-model="editDialog" max-width="500">
+        <v-card>
+          <v-card-title class="text-h6 font-weight-bold">Edit Profile</v-card-title>
+          <v-card-text>
+            <v-form>
+              <v-text-field v-model="userData.full_name" label="Full Name" outlined dense />
+              <v-text-field v-model="userData.barangay" label="Barangay" outlined dense />
+              <v-text-field v-model="userData.purok" label="Purok" outlined dense />
+
+              <v-file-input
+                label="Change Avatar"
+                accept="image/*"
+                prepend-icon="mdi-camera"
+                @change="uploadAvatar"
+                :loading="uploading"
+                outlined
+                dense
+              ></v-file-input>
+
+              <v-avatar size="80" class="mt-3">
+                <v-img :src="newAvatar || userData.avatar_url" />
+              </v-avatar>
+            </v-form>
+          </v-card-text>
+
+          <v-card-actions class="justify-end">
+            <v-btn text @click="editDialog = false">Cancel</v-btn>
+            <v-btn color="#5b841e" class="text-white" @click="saveProfile">Save</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </v-app>
   </v-responsive>
 </template>
@@ -156,83 +260,42 @@ async function logout() {
 .cursor-pointer {
   cursor: pointer;
 }
-
-.logo-link { display: inline-block; }
-
+.logo-link {
+  display: inline-block;
+}
 .header-logo {
   height: 70px;
   display: block;
 }
-
 @media (max-width: 1024px) {
-  .header-logo { height: 48px; }
+  .header-logo {
+    height: 48px;
+  }
 }
-
 @media (max-width: 767px) {
-  .header-logo { height: 56px; }
-}
-
-@media (max-width: 1024px) {
-
-  /* Footer */
-  .v-footer {
-    height: 110px !important;
-    padding: 1rem !important;
-  }
-
-  .v-footer span {
-    font-size: 1rem !important;
+  .header-logo {
+    height: 56px;
   }
 }
-
-/* Desktop / Mobile visibility helpers */
-.desktop-only { display: inline-flex; }
-.mobile-only { display: none; }
-
+.desktop-only {
+  display: inline-flex;
+}
+.mobile-only {
+  display: none;
+}
 @media (max-width: 1280px) {
-  .desktop-only { display: none !important; }
-  .mobile-only { display: inline-flex !important; }
-
-  /* Enlarge app bar on tablet/phone for easier tapping */
-  .v-app-bar {
-    height: 110px !important;
-    padding-top: 0.5rem !important;
-    padding-bottom: 0.5rem !important;
+  .desktop-only {
+    display: none !important;
   }
-
-  /* Ensure header logo remains visible and centered-ish on small screens */
-  .logo-link { margin-left: 0; }
+  .mobile-only {
+    display: inline-flex !important;
+  }
 }
-
-/* Style the mobile drawer content so it's dark with white text */
-::v-deep .mobile-drawer .v-list,
 ::v-deep .mobile-drawer {
   background: #5b841e !important;
-  color: #ffffff !important;
+  color: white !important;
 }
-
-::v-deep .mobile-drawer .v-list-item-title,
-::v-deep .mobile-drawer .v-list-item {
-  color: #ffffff !important;
-}
-
-/* Shift logo to the right on larger screens */
-@media (min-width: 1025px) {
-  .logo-link { margin-left: 10%; }
-}
-
-/* Reset margin on medium/smaller screens */
-@media (max-width: 1024px) {
-  .logo-link { margin-left: 0; }
-}
-
-@media (max-width: 767px) {
-  .v-footer {
-    height: 95px !important;
-  }
-
-  .v-footer span {
-    font-size: 1.05rem !important;
-  }
+::v-deep .mobile-drawer .v-list-item-title {
+  color: white !important;
 }
 </style>
