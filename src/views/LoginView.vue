@@ -8,20 +8,18 @@ import { requiredValidator, passwordValidator, emailValidator } from '@/utils/va
 const email = ref('')
 const password = ref('')
 const role = ref('')
-const purok = ref('')
-const barangay = ref('')
+
+
 
 // options
 const roleOptions = ['BHW', 'Admin']
-const purokOptions = ['Purok 1', 'Purok 2', 'Purok 3']
-const barangayOptions = ['Brgy. 5', 'Brgy. 6']
+
 
 // validation rules
 const emailRules = [requiredValidator, emailValidator]
 const passwordRules = [requiredValidator, passwordValidator]
 const roleRules = [requiredValidator]
-const purokRules = [requiredValidator]
-const barangayRules = [requiredValidator]
+
 
 // refs
 const form = ref(null)
@@ -140,7 +138,7 @@ const handleLogin = async () => {
 
                 <!-- Select fields -->
                 <v-row class="mx-9">
-                  <v-col cols="4">
+                  <v-col cols="12">
                     <v-select
                       v-model="role"
                       label="Role"
@@ -152,36 +150,6 @@ const handleLogin = async () => {
                       class="text-white"
                       style="--v-theme-on-surface: white"
                       :rules="roleRules"
-                    />
-                  </v-col>
-
-                  <v-col cols="4">
-                    <v-select
-                      v-model="purok"
-                      label="Assigned Purok"
-                      :items="purokOptions"
-                      variant="filled"
-                      bg-color="#5b841e"
-                      color="white"
-                      density="comfortable"
-                      class="text-white"
-                      style="--v-theme-on-surface: white"
-                      :rules="purokRules"
-                    />
-                  </v-col>
-
-                  <v-col cols="4">
-                    <v-select
-                      v-model="barangay"
-                      label="Barangay"
-                      :items="barangayOptions"
-                      variant="filled"
-                      bg-color="#5b841e"
-                      color="white"
-                      density="comfortable"
-                      class="text-white"
-                      style="--v-theme-on-surface: white"
-                      :rules="barangayRules"
                     />
                   </v-col>
                 </v-row>
