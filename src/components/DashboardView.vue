@@ -7,6 +7,7 @@ const router = useRouter()
 const userRole = ref(null)
 const userData = ref({})
 const showUserMenu = ref(false)
+const mobileDrawer = ref(false)
 
 onMounted(async () => {
   const {
@@ -39,23 +40,30 @@ async function logout() {
     <v-app>
       <!-- TOP NAVIGATION -->
       <v-app-bar app color="#5b841e" height="90" class="d-flex align-center px-4">
-        <v-img src="/images/logo.png" contain />
+        <router-link to="/" class="logo-link">
+          <img src="/images/logo.png" alt="logo" class="header-logo" />
+        </router-link>
 
         <v-spacer></v-spacer>
 
+        <!-- Mobile hamburger (shows on <=1024px) -->
+        <v-btn icon class="mobile-only" aria-label="Open navigation drawer" @click="mobileDrawer = true" color="white">
+          <v-icon>mdi-menu</v-icon>
+        </v-btn>
+
         <!-- COMMON BUTTONS -->
-        <v-btn text to="/home">Home</v-btn>
+        <v-btn class="desktop-only" text to="/home">Home</v-btn>
 
         <!-- ADMIN-ONLY BUTTON -->
-        <v-btn v-if="userRole === 'Admin'" text to="/bhw">BHW</v-btn>
-
+        <v-btn class="desktop-only" v-if="userRole === 'Admin'" text to="/bhw">BHW</v-btn>
+        <v-btn class="desktop-only" v-if="userRole === 'Admin'" text to="/reports">Reports</v-btn>
         <!-- SHARED BUTTONS -->
-        <v-btn text to="/reports">Reports</v-btn>
-        <v-btn text to="/calendar">Calendar</v-btn>
-        <v-btn text to="/inventory">Inventory</v-btn>
+        
+        <v-btn class="desktop-only" text to="/calendar">Calendar</v-btn>
+        <v-btn class="desktop-only" text to="/inventory">Inventory</v-btn>
 
         <!-- LOGOUT BUTTON -->
-        <v-btn text @click="logout">Log out</v-btn>
+        <v-btn class="desktop-only" text @click="logout">Log out</v-btn>
 
         <!-- USER AVATAR (clickable) -->
         <v-menu
@@ -106,6 +114,24 @@ async function logout() {
         </v-menu>
       </v-app-bar>
 
+      <!-- Mobile Navigation Drawer -->
+      <v-navigation-drawer
+        v-model="mobileDrawer"
+        temporary
+        right
+        class="mobile-drawer"
+        elevation="6"
+      >
+        <v-list dense>
+          <v-list-item to="/home" @click="mobileDrawer = false"><v-list-item-title>Home</v-list-item-title></v-list-item>
+          <v-list-item v-if="userRole === 'Admin'" to="/bhw" @click="mobileDrawer = false"><v-list-item-title>BHW</v-list-item-title></v-list-item>
+          <v-list-item v-if="userRole === 'Admin'" to="/reports" @click="mobileDrawer = false"><v-list-item-title>Reports</v-list-item-title></v-list-item>
+          <v-list-item to="/calendar" @click="mobileDrawer = false"><v-list-item-title>Calendar</v-list-item-title></v-list-item>
+          <v-list-item to="/inventory" @click="mobileDrawer = false"><v-list-item-title>Inventory</v-list-item-title></v-list-item>
+          <v-list-item @click="() => { mobileDrawer = false; logout(); }"><v-list-item-title>Log out</v-list-item-title></v-list-item>
+        </v-list>
+      </v-navigation-drawer>
+
       <!-- MAIN CONTENT -->
       <v-main>
         <slot />
@@ -129,5 +155,84 @@ async function logout() {
 <style scoped>
 .cursor-pointer {
   cursor: pointer;
+}
+
+.logo-link { display: inline-block; }
+
+.header-logo {
+  height: 70px;
+  display: block;
+}
+
+@media (max-width: 1024px) {
+  .header-logo { height: 48px; }
+}
+
+@media (max-width: 767px) {
+  .header-logo { height: 56px; }
+}
+
+@media (max-width: 1024px) {
+
+  /* Footer */
+  .v-footer {
+    height: 110px !important;
+    padding: 1rem !important;
+  }
+
+  .v-footer span {
+    font-size: 1rem !important;
+  }
+}
+
+/* Desktop / Mobile visibility helpers */
+.desktop-only { display: inline-flex; }
+.mobile-only { display: none; }
+
+@media (max-width: 1280px) {
+  .desktop-only { display: none !important; }
+  .mobile-only { display: inline-flex !important; }
+
+  /* Enlarge app bar on tablet/phone for easier tapping */
+  .v-app-bar {
+    height: 110px !important;
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+  }
+
+  /* Ensure header logo remains visible and centered-ish on small screens */
+  .logo-link { margin-left: 0; }
+}
+
+/* Style the mobile drawer content so it's dark with white text */
+::v-deep .mobile-drawer .v-list,
+::v-deep .mobile-drawer {
+  background: #5b841e !important;
+  color: #ffffff !important;
+}
+
+::v-deep .mobile-drawer .v-list-item-title,
+::v-deep .mobile-drawer .v-list-item {
+  color: #ffffff !important;
+}
+
+/* Shift logo to the right on larger screens */
+@media (min-width: 1025px) {
+  .logo-link { margin-left: 10%; }
+}
+
+/* Reset margin on medium/smaller screens */
+@media (max-width: 1024px) {
+  .logo-link { margin-left: 0; }
+}
+
+@media (max-width: 767px) {
+  .v-footer {
+    height: 95px !important;
+  }
+
+  .v-footer span {
+    font-size: 1.05rem !important;
+  }
 }
 </style>
