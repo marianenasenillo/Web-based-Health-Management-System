@@ -14,7 +14,7 @@ const goNextPage = () => {
   <DashboardView>
     <!-- FULL BACKGROUND WRAPPER -->
     <div class="home-bg d-flex align-items-center justify-content-start">
-      <div class="overlay-content text-white mb-3 text-start ms-5">
+      <div class="content text-white mb-3 text-start ms-5">
         <h1>Buenavista Health Sync</h1>
         <p>Securing Health Data, Transforming Healthcare for All</p>
         <button 
@@ -133,14 +133,38 @@ const goNextPage = () => {
   align-items: center;
 }
 
-.overlay-content {
-  background: rgba(131, 189, 45, 0.45);
-  padding: 2rem;
-  border-radius: 1rem;
-  max-width: 480px;
-  margin-left: 6rem;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+.content {
+  max-width: 720px;
+  transform: translateX(20%); /* move content 20% to the right */
 }
+
+.content h1 {
+  font-size: 3.2rem; /* make the h1 larger */
+  line-height: 1.05;
+}
+
+.content p {
+  font-size: 1.15rem; /* slightly larger paragraph */
+  margin-top: 0.6rem;
+}
+
+@media (max-width: 768px) {
+  .content {
+    transform: none;
+    margin-left: 1rem;
+    margin-right: 1rem;
+    text-align: center;
+  }
+
+  .content h1 {
+    font-size: 2.2rem;
+  }
+
+  .content p {
+    font-size: 1rem;
+  }
+}
+
 .arrow-btn {
   background: rgba(0, 0, 0, 0.5);
   border: none;

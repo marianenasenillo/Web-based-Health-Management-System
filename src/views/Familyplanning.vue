@@ -69,12 +69,6 @@ const saveRecord = async () => {
 
       <!-- Overlay Content -->
       <div class="overlay-content text-white text-start ms-5">
-        <!-- Search bar -->
-        <div class="input-group mb-3 search-box">
-          <input type="text" class="form-control" placeholder="Search..." />
-          <button class="btn btn-light">Go</button>
-        </div>
-
         <h1 class="fw-bold">Family Planning Services</h1>
         <p>Click to view and manage Family Planning Services records efficiently.</p>
 
