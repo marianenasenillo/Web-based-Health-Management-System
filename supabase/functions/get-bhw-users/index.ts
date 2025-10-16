@@ -36,6 +36,7 @@ serve(async (req) => {
         purok: u.user_metadata?.purok || 'N/A',
         schedule: u.user_metadata?.schedule || 'N/A',
         photo: u.user_metadata?.avatar_url || '/images/default-avatar.png',
+        role: u.user_metadata?.role || 'N/A',
       }))
 
     return new Response(JSON.stringify(bhwUsers), {
