@@ -13,8 +13,6 @@ const closeReport = () => showReport.value = false
 const nextStep = () => step.value++
 const prevStep = () => step.value--
 </script>
-
-
 <template>
   <DashboardView>
     <div class="report-bg d-flex align-items-center position-relative">
@@ -212,7 +210,7 @@ const prevStep = () => step.value--
                 </p>
               </div>
               <div class="text-center mb-4">
-                <img src="/images/hdr.jpg" alt="Household Demographic Report" style="max-width: 100%; border-radius: 12px;" />
+                <img src="/images/househoulddemographics.jpg" alt="Household Demographic Report" style="max-width: 100%; border-radius: 12px;" />
               </div>
               <section>
                 <p>

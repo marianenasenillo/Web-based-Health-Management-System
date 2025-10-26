@@ -291,11 +291,12 @@ async function saveProfile() {
     display: inline-flex !important;
   }
 }
-::v-deep .mobile-drawer {
+:deep(.mobile-drawer) {
   background: #5b841e !important;
   color: white !important;
 }
-::v-deep .mobile-drawer .v-list-item-title {
+
+:deep(.mobile-drawer .v-list-item-title) {
   color: white !important;
 }
 </style>
