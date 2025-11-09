@@ -111,7 +111,7 @@ async function saveProfile() {
       <!-- TOP NAVIGATION -->
       <v-app-bar app color="#5b841e" height="90" class="d-flex align-center px-4">
         <router-link to="/" class="logo-link">
-          <img src="/images/logo.png" alt="logo" class="header-logo" />
+          <img src="/images/logo.png" alt="logo" class="header-logo ml-16" />
         </router-link>
 
         <v-spacer></v-spacer>
@@ -222,36 +222,37 @@ async function saveProfile() {
 
       <!-- EDIT PROFILE DIALOG -->
       <v-dialog v-model="editDialog" max-width="500">
-        <v-card>
-          <v-card-title class="text-h6 font-weight-bold">Edit Profile</v-card-title>
-          <v-card-text>
-            <v-form>
-              <v-text-field v-model="userData.full_name" label="Full Name" outlined dense />
-              <v-text-field v-model="userData.barangay" label="Barangay" outlined dense />
-              <v-text-field v-model="userData.purok" label="Purok" outlined dense />
+  <v-card>
+    <v-card-title class="text-h6 font-weight-bold">Edit Profile</v-card-title>
 
-              <v-file-input
-                label="Change Avatar"
-                accept="image/*"
-                prepend-icon="mdi-camera"
-                @change="uploadAvatar"
-                :loading="uploading"
-                outlined
-                dense
-              ></v-file-input>
+    <v-card-text style="max-height: 70vh; overflow-y: auto;">
+      <v-form>
+        <v-text-field v-model="userData.full_name" label="Full Name" outlined dense />
+        <v-text-field v-model="userData.barangay" label="Barangay" outlined dense />
+        <v-text-field v-model="userData.purok" label="Purok" outlined dense />
+        <v-file-input
+          label="Change Avatar"
+          accept="image/*"
+          prepend-icon="mdi-camera"
+          @change="uploadAvatar"
+          :loading="uploading"
+          outlined
+          dense
+        ></v-file-input>
 
-              <v-avatar size="80" class="mt-3">
-                <v-img :src="newAvatar || userData.avatar_url" />
-              </v-avatar>
-            </v-form>
-          </v-card-text>
+        <v-avatar size="80" class="mt-3">
+          <v-img :src="newAvatar || userData.avatar_url" />
+        </v-avatar>
+      </v-form>
+    </v-card-text>
 
-          <v-card-actions class="justify-end">
-            <v-btn text @click="editDialog = false">Cancel</v-btn>
-            <v-btn color="#5b841e" class="text-white" @click="saveProfile">Save</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
+    <v-card-actions class="justify-end" style="background: white; position: sticky; bottom: 0;">
+      <v-btn text @click="editDialog = false">Cancel</v-btn>
+      <v-btn class="save-btn text-black" @click="saveProfile">Save</v-btn>
+    </v-card-actions>
+  </v-card>
+</v-dialog>
+
     </v-app>
   </v-responsive>
 </template>
@@ -266,6 +267,10 @@ async function saveProfile() {
 .header-logo {
   height: 70px;
   display: block;
+}
+.save-btn:hover {
+  background-color: #5b841e !important;
+  color: white !important;
 }
 @media (max-width: 1024px) {
   .header-logo {
@@ -299,4 +304,6 @@ async function saveProfile() {
 :deep(.mobile-drawer .v-list-item-title) {
   color: white !important;
 }
+
+
 </style>
