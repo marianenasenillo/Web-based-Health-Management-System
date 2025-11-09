@@ -1,0 +1,189 @@
+     <script setup>
+import { ref, onMounted } from 'vue'
+import { supabase } from '@/utils/supabase'
+import { Bar, Pie } from 'vue-chartjs'
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js'
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement)
+
+const emit = defineEmits(['prev'])
+
+const stats = ref({
+  totalHouseholds: 0,
+  householdsByPurok: {
+    'Purok 1': 0,
+    'Purok 2': 0,
+    'Purok 3': 0,
+    'Purok 4': 0
+  },
+  ageDistribution: {
+    '0-14 years': 0,
+    '15-24 years': 0,
+    '25-59 years': 0,
+    '60+ years': 0
+  }
+})
+
+const householdBarData = ref({
+  labels: ['Purok 1', 'Purok 2', 'Purok 3', 'Purok 4'],
+  datasets: [{
+    label: 'Number of Households',
+    data: [0, 0, 0, 0],
+    backgroundColor: '#4CAF50'
+  }]
+})
+
+const ageDistributionData = ref({
+  labels: ['0-14 years', '15-24 years', '25-59 years', '60+ years'],
+  datasets: [{
+    data: [0, 0, 0, 0],
+    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0']
+  }]
+})
+
+const chartOptions = {
+  responsive: true,
+  maintainAspectRatio: true,
+  aspectRatio: 1.5,
+  plugins: {
+    legend: {
+      position: 'bottom',
+      labels: {
+        padding: 20,
+        font: {
+          size: 12
+        }
+      }
+    }
+  },
+  scales: {
+    y: {
+      beginAtZero: true,
+      ticks: {
+        stepSize: 1
+      }
+    }
+  }
+}
+
+const fetchHouseholdStats = async () => {
+  try {
+    // Using vitamina records to get household distribution by purok
+    const { data: vitaminAData } = await supabase
+      .from('childcare_vitamina_records')
+      .select('purok, age')
+      
+    if (vitaminAData) {
+      // Count households by purok
+      vitaminAData.forEach(record => {
+        if (record.purok in stats.value.householdsByPurok) {
+          stats.value.householdsByPurok[record.purok]++
+        }
+
+        // Calculate age distribution
+        const age = record.age || 0
+        if (age <= 14) stats.value.ageDistribution['0-14 years']++
+        else if (age <= 24) stats.value.ageDistribution['15-24 years']++
+        else if (age <= 59) stats.value.ageDistribution['25-59 years']++
+        else stats.value.ageDistribution['60+ years']++
+      })
+
+      // Update bar chart data
+      householdBarData.value.datasets[0].data = Object.values(stats.value.householdsByPurok)
+      stats.value.totalHouseholds = vitaminAData.length
+
+      // Update pie chart data
+      ageDistributionData.value.datasets[0].data = Object.values(stats.value.ageDistribution)
+    }
+  } catch (error) {
+    console.error('Error fetching household stats:', error)
+  }
+}
+
+onMounted(() => {
+  fetchHouseholdStats()
+})
+</script>
+
+<template>
+              <!-- THIRD REPORT CONTENT -->
+              <div class="mb-4">
+                <div class="row align-items-center">
+                  <div class="col-3 text-end">
+                    <img src="/images/agusanlogo.png" alt="Province Logo" height="80" />
+                  </div>
+                  <div class="col-6 text-center">
+                    <h5 class="fw-bold mb-1">Republic of the Philippines</h5>
+                    <h6 class="mb-0">
+                      Province of Agusan del Norte <br />
+                      Municipality of Buenavista <br />
+                      <strong>Barangay Poblacion</strong>
+                    </h6>
+                  </div>
+                  <div class="col-3 text-start">
+                    <img src="/images/barangaylogo.png" alt="Barangay Logo" height="80" />
+                  </div>
+                </div>
+              </div>
+              <hr class="my-4" />
+              <div class="text-center mb-4">
+                <h4 class="fw-bold">Household Demographic Report</h4>
+                <p>
+                  Barangay 5 – Municipality of Buenavista, Agusan del Norte <br />
+                  September 2025
+                </p>
+              </div>
+               <div class="container py-4">
+    <div class="row">
+      <!-- Bar Chart -->
+      <div class="col-md-6 mb-4">
+        <div class="card p-3 shadow-sm">
+          <h5 class="text-center mb-3">Households per Purok</h5>
+          <div style="width: 100%; max-width: 500px; margin: 0 auto;">
+            <Bar :data="householdBarData" :options="chartOptions" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Pie Chart -->
+      <div class="col-md-6 mb-4">
+        <div class="card p-3 shadow-sm">
+          <h5 class="text-center mb-3">Age Distribution</h5>
+          <div style="width: 100%; max-width: 500px; margin: 0 auto;">
+            <Pie :data="ageDistributionData" :options="chartOptions" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+              <section>
+                <p>
+                  In Barangay 5, there are {{ stats.totalHouseholds }} households across the four puroks. 
+                  {{ 
+                    Object.entries(stats.householdsByPurok)
+                      .sort((a, b) => b[1] - a[1])
+                      .map(([purok, count], index) => 
+                        index === 0 
+                          ? `${purok} has the highest number of households (${count})` 
+                          : index === 3 
+                            ? `while ${purok} has the lowest (${count})`
+                            : ''
+                      )
+                      .filter(text => text)
+                      .join(', ')
+                  }}.<br>
+                  The age distribution shows: 
+                  {{ 
+                    Object.entries(stats.ageDistribution)
+                      .map(([group, count]) => 
+                        `${group}: ${Math.round((count/stats.totalHouseholds)*100)}% (${count})`
+                      )
+                      .join(', ')
+                  }}.<br>
+                </p>
+                
+              </section>
+              <div class="d-flex justify-content-between mt-4">
+               <button class="btn btn-secondary" @click="$emit('prev')">&larr; Back</button>
+              </div>
+            </template>
