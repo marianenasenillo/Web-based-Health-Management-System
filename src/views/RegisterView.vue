@@ -264,12 +264,21 @@ const handleRegister = async () => {
               <div class="mx-16 mb-5">
                 <v-btn
                   block
-                  class="text-white text-lowercase font-weight-bold"
+                  class="text-white text-lowercase font-weight-bold mb-2"
                   style="background-color: #5b841e"
                   :loading="isLoading"
                   @click="handleRegister"
                 >
                   register
+                </v-btn>
+
+                <v-btn
+                  block
+                  class="text-white text-lowercase font-weight-bold"
+                  style="background-color: #466a17"
+                  @click="router.push('/bhw')"
+                >
+                  back
                 </v-btn>
 
                 <p v-if="errorMessage" class="text-red text-center mt-2">{{ errorMessage }}</p>

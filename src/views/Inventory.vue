@@ -184,9 +184,9 @@ onMounted(async () => {
 }
 
 .inventory-card {
-  flex: 1 1 400px;
-  min-width: 710px;
-  max-width: 400px;
+  flex: 1 1 calc(50% - 1rem);
+  min-width: 300px;
+  max-width: calc(50% - 1rem);
   height: 450px; /* fixed height */
   background-color: rgba(255,255,255,0.9);
   border-radius: 12px;
@@ -389,17 +389,13 @@ onMounted(async () => {
 @media (max-width: 900px) {
   .inventory-bg {
     flex-direction: column;
+    align-items: center;
   }
   .inventory-card {
-    max-width: 100%;
+    min-width: 90%;
+    max-width: 90%;
     height: 400px;
-  }
-}
-
-/* Responsive */
-@media (max-width: 900px) {
-  .inventory-bg {
-    flex-direction: column;
+    margin-bottom: 1rem;
   }
 }
 </style>
