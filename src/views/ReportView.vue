@@ -5,9 +5,13 @@ import ReportTwo from '@/components/reports/ReportTwo.vue'
 import ReportThree from '@/components/reports/ReportThree.vue'
 
 import { ref } from 'vue'
+import html2canvas from 'html2canvas'
+import { jsPDF } from 'jspdf'
 
 const showReport = ref(false)
 const step = ref(1)
+
+const reportRef = ref(null)
 
 const openReport = () => {
   showReport.value = true
@@ -16,6 +20,50 @@ const openReport = () => {
 const closeReport = () => (showReport.value = false)
 const nextStep = () => step.value++
 const prevStep = () => step.value--
+
+// Export visible report area to PDF (A4 paginated)
+const exportPdf = async () => {
+  if (!reportRef.value) return
+  const element = reportRef.value
+
+  // temporarily remove max-height/overflow so entire content is captured
+  const originalOverflow = element.style.overflow
+  const originalMaxHeight = element.style.maxHeight
+  element.style.overflow = 'visible'
+  element.style.maxHeight = 'none'
+
+  // Render element to canvas at higher scale for better quality
+  const canvas = await html2canvas(element, { scale: 2, useCORS: true })
+  const imgData = canvas.toDataURL('image/png')
+
+  // A4 size in mm
+  const pdf = new jsPDF('p', 'mm', 'a4')
+  const pageWidth = pdf.internal.pageSize.getWidth()
+  const pageHeight = pdf.internal.pageSize.getHeight()
+
+  // Convert canvas pixel size to mm for jsPDF
+  const pxPerMm = canvas.width / (pageWidth * (window.devicePixelRatio || 1))
+  const imgWidthMm = pageWidth
+  const imgHeightMm = (canvas.height / pxPerMm) / (window.devicePixelRatio || 1)
+
+  let remainingHeight = imgHeightMm
+  let position = 0
+
+  // Add image slices per page
+  while (remainingHeight > 0) {
+    pdf.addImage(imgData, 'PNG', 0, position, imgWidthMm, imgHeightMm)
+    remainingHeight -= pageHeight
+    if (remainingHeight > 0) pdf.addPage()
+    // next page position: shift the image up by pageHeight (negative)
+    position -= pageHeight
+  }
+
+  pdf.save('report.pdf')
+
+  // restore styles
+  element.style.overflow = originalOverflow
+  element.style.maxHeight = originalMaxHeight
+}
 </script>
 
 <template>
@@ -29,8 +77,10 @@ const prevStep = () => step.value--
 
       <div v-if="showReport" class="records-overlay">
         <div class="records-box d-flex flex-column align-items-center">
+          <!-- back button (left) and a compact export button (top-right) positioned absolutely so they don't affect layout -->
           <button class="back-btn align-self-start" @click="closeReport">← back</button>
-          <div class="report-container py-4 bg-white shadow rounded">
+          <button class="export-small-btn" @click="exportPdf" title="Export PDF">⤓</button>
+          <div ref="reportRef" class="report-container py-4 bg-white shadow rounded">
             <ReportOne v-if="step === 1" @next="nextStep" />
             <ReportTwo v-else-if="step === 2" @next="nextStep" @prev="prevStep" />
             <ReportThree v-else-if="step === 3" @prev="prevStep" />
@@ -119,5 +169,40 @@ const prevStep = () => step.value--
   padding-right: 3rem;
   max-height: 80vh;      /* NEW: limit height */
   overflow-y: auto;      /* NEW: enable vertical scroll */
+}
+
+.export-small-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background-color: rgba(43, 122, 11, 0.95);
+  color: #fff;
+  border: none;
+  padding: 0.25rem 0.45rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.85rem;
+  line-height: 1;
+  min-width: 36px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.export-small-btn:hover { background-color: #236008 }
+
+/* Prevent breaking inside important blocks when printing */
+.no-break, .report-container * {
+  -webkit-column-break-inside: avoid;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+@media print {
+  .records-overlay { background: #fff !important; }
+  .records-box { box-shadow: none !important; background: #fff !important; }
+  .report-container { max-height: none !important; overflow: visible !important; }
+  .back-btn, .export-btn { display: none !important; }
 }
 </style>
