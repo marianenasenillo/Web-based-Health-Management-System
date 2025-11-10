@@ -45,6 +45,7 @@ async function uploadAvatar(event) {
     const file = event.target.files?.[0]
     if (!file) return
     uploading.value = true
+
     // Ensure authenticated user (so storage RLS can match owner)
     const { data: userResp, error: userErr } = await supabase.auth.getUser()
     if (userErr || !userResp?.user) throw new Error('Not authenticated')
@@ -55,22 +56,44 @@ async function uploadAvatar(event) {
     const fileName = `avatars/${uid}-${Date.now()}.${fileExt}`
     const filePath = fileName
 
+    // Delete old avatar if it exists (except default)
+    const oldAvatarUrl = userData.value.avatar_url
+    if (oldAvatarUrl && !oldAvatarUrl.includes('/images/avatar.jpg')) {
+      const oldPath = oldAvatarUrl.split('/').pop()
+      if (oldPath) {
+        await supabase.storage
+          .from('profile-pictures')
+          .remove([`avatars/${oldPath}`])
+      }
+    }
+
     // Upload to Supabase Storage
     const { error: uploadError } = await supabase.storage
       .from('profile-pictures')
       .upload(filePath, file, { upsert: true })
 
     if (uploadError) {
-      // If RLS denies the insert, surface the server message
       console.error('Upload error', uploadError)
       throw uploadError
     }
 
-    // Get public URL
+    // Get public URL and update both local state and user metadata
     const { data } = supabase.storage.from('profile-pictures').getPublicUrl(filePath)
     const publicUrl = data?.publicUrl || data?.public_url || ''
-    newAvatar.value = publicUrl || newAvatar.value
-    if (publicUrl) userData.value.avatar_url = publicUrl
+    
+    if (publicUrl) {
+      newAvatar.value = publicUrl
+      userData.value.avatar_url = publicUrl
+      
+      // Update user metadata immediately
+      const { error: updateError } = await supabase.auth.updateUser({
+        data: {
+          avatar_url: publicUrl
+        }
+      })
+      
+      if (updateError) throw updateError
+    }
   } catch (error) {
     console.error('Error uploading avatar:', error?.message || error)
     // RLS will return messages like "new row violates row-level security policy"
@@ -86,7 +109,7 @@ async function uploadAvatar(event) {
 
 async function saveProfile() {
   try {
-    const { error } = await supabase.auth.updateUser({
+    const { data, error } = await supabase.auth.updateUser({
       data: {
         full_name: userData.value.full_name,
         barangay: userData.value.barangay,
@@ -96,6 +119,20 @@ async function saveProfile() {
     })
 
     if (error) throw error
+
+    // Update local user data with the new values
+    if (data?.user) {
+      userData.value = {
+        ...userData.value,
+        full_name: data.user.user_metadata?.full_name,
+        barangay: data.user.user_metadata?.barangay,
+        purok: data.user.user_metadata?.purok,
+        avatar_url: data.user.user_metadata?.avatar_url,
+      }
+    }
+
+    // Reset newAvatar since it's now saved
+    newAvatar.value = null
     editDialog.value = false
     alert('Profile updated successfully!')
   } catch (error) {
