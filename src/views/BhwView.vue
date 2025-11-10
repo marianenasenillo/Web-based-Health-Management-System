@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import DashboardView from '@/components/DashboardView.vue'
 import { supabase } from '@/utils/supabase'
@@ -9,12 +9,108 @@ const router = useRouter()
 // state
 const bhwList = ref([])
 const selectedBhw = ref(null)
+const currentUser = ref(null)
+const isEditing = ref(false)
+const editingBhw = ref(null)
+const scheduleOptions = [
+  'Morning (8AM-12PM)',
+  'Afternoon (1PM-5PM)',
+  'Whole Day (8AM-5PM)',
+  'Not Available'
+]
 
-// ✅ Fetch BHW users from Supabase Edge Function
+// Check if user can edit all fields (Admin)
+const canEditAllFields = computed(() => {
+  return currentUser.value?.user_metadata?.role === 'Admin'
+})
+
+// Check if user can edit basic fields (own profile for BHW)
+const canEditBasicFields = computed(() => {
+  return currentUser.value?.id === selectedBhw.value?.id &&
+         currentUser.value?.user_metadata?.role === 'BHW'
+})
+
+// Function to start editing
+function startEdit() {
+  if (!canEditAllFields.value && !canEditBasicFields.value) return
+  editingBhw.value = { ...selectedBhw.value }
+  isEditing.value = true
+}
+
+// Function to cancel editing
+function cancelEdit() {
+  editingBhw.value = null
+  isEditing.value = false
+}
+
+// Function to update BHW
+async function updateBhw() {
+  try {
+    // For non-admin BHWs allow only birthdate and contact to be updated
+    const updateData = {
+      birthdate: editingBhw.value.birthdate,
+      contact: editingBhw.value.contact
+    }
+
+    // Admins can update name and other fields
+    if (canEditAllFields.value) {
+      updateData.name = editingBhw.value.name
+      updateData.purok = editingBhw.value.purok
+      updateData.schedule = editingBhw.value.schedule
+      updateData.role = editingBhw.value.role
+    }
+
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) throw new Error('Not authenticated')
+
+    // Update based on user role
+    if (canEditAllFields.value && currentUser.value?.id !== editingBhw.value.id) {
+      // For Admin updating other BHW's info: call the stored procedure via supabase.rpc
+      const { error } = await supabase.rpc('update_user_metadata', {
+        p_user_id: editingBhw.value.id,
+        p_metadata: updateData
+      })
+
+      if (error) {
+        // If the RPC returns an error, surface it
+        throw error
+      }
+    } else {
+      // For users updating their own info
+      const { error } = await supabase.auth.updateUser({
+        data: updateData
+      })
+      if (error) throw error
+    }
+
+    // Update local data
+    const index = bhwList.value.findIndex(b => b.id === editingBhw.value.id)
+    if (index !== -1) {
+      bhwList.value[index] = { ...bhwList.value[index], ...updateData }
+      if (selectedBhw.value?.id === editingBhw.value.id) {
+        selectedBhw.value = { ...selectedBhw.value, ...updateData }
+      }
+    }
+
+    isEditing.value = false
+    editingBhw.value = null
+    alert('Profile updated successfully!')
+  } catch (err) {
+    console.error('Error updating BHW:', err.message)
+    alert('Failed to update BHW: ' + err.message)
+  }
+}
+
+
+// ✅ Fetch BHW users and current user from Supabase Edge Function
 onMounted(async () => {
   try {
-    const { data: { session } } = await supabase.auth.getSession()
+    // Get current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    if (userError) throw userError
+    currentUser.value = user
 
+    const { data: { session } } = await supabase.auth.getSession()
     const response = await fetch(
       'https://hzmhjjvobhugsebwbwqn.supabase.co/functions/v1/get-bhw-users',
       {
@@ -75,20 +171,75 @@ function goToRegister() {
           class="bg-white bg-opacity-75 p-4 rounded shadow"
           style="width: 350px;"
         >
-          <div class="text-center mb-3">
-            <img
-              :src="selectedBhw.photo"
-              alt="Profile photo"
-              class="img-thumbnail mb-2"
-              style="width: 150px; height: 180px; object-fit: cover;"
-            />
+          <!-- View Mode -->
+          <div v-if="!isEditing">
+            <div class="text-center mb-3">
+              <img
+                :src="selectedBhw.photo"
+                alt="Profile photo"
+                class="img-thumbnail mb-2"
+                style="width: 150px; height: 180px; object-fit: cover;"
+              />
+            </div>
+            <p><b>Full name:</b> {{ selectedBhw.name }}</p>
+            <p><b>Birthdate:</b> {{ selectedBhw.birthdate }}</p>
+            <p><b>Contact number:</b> {{ selectedBhw.contact }}</p>
+            <p><b>Assigned Purok:</b> {{ selectedBhw.purok }}</p>
+            <p><b>Duty Schedule:</b> {{ selectedBhw.schedule }}</p>
+            <p><b>Role:</b> {{ selectedBhw.role }}</p>
+            
+            <!-- Edit button - show only for admin or if it's the user's own profile -->
+            <div v-if="canEditAllFields || canEditBasicFields" class="mt-3">
+              <button class="btn btn-primary me-2" @click="startEdit">Edit</button>
+            </div>
           </div>
-          <p><b>Full name:</b> {{ selectedBhw.name }}</p>
-          <p><b>Birthdate:</b> {{ selectedBhw.birthdate }}</p>
-          <p><b>Contact number:</b> {{ selectedBhw.contact }}</p>
-          <p><b>Assigned Purok:</b> {{ selectedBhw.purok }}</p>
-          <p><b>Duty Schedule:</b> {{ selectedBhw.schedule }}</p>
-          <p><b>Role:</b> {{ selectedBhw.role }}</p>
+
+          <!-- Edit Mode -->
+          <div v-else class="edit-form">
+            <div class="mb-3">
+              <label class="form-label">Full name:</label>
+              <template v-if="canEditAllFields">
+                <input v-model="editingBhw.name" class="form-control">
+              </template>
+              <template v-else>
+                <p class="form-control-plaintext">{{ editingBhw.name }}</p>
+              </template>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Birthdate:</label>
+              <input v-model="editingBhw.birthdate" type="date" class="form-control">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Contact number:</label>
+              <input v-model="editingBhw.contact" class="form-control">
+            </div>
+            
+            <!-- Admin-only fields -->
+            <template v-if="canEditAllFields">
+              <div class="mb-3">
+                <label class="form-label">Assigned Purok:</label>
+                <input v-model="editingBhw.purok" class="form-control">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Duty Schedule:</label>
+                <select v-model="editingBhw.schedule" class="form-select">
+                  <option value="">Select schedule</option>
+                  <option v-for="option in scheduleOptions" :key="option" :value="option">
+                    {{ option }}
+                  </option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Role:</label>
+                <input v-model="editingBhw.role" class="form-control">
+              </div>
+            </template>
+
+            <div class="d-flex gap-2 mt-3">
+              <button class="btn btn-success" @click="updateBhw">Save</button>
+              <button class="btn btn-secondary" @click="cancelEdit">Cancel</button>
+            </div>
+          </div>
         </div>
 
         <div v-else class="text-white text-center p-4">
