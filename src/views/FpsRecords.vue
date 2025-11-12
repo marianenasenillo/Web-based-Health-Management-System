@@ -36,11 +36,16 @@ onMounted(() => {
 <template>
   <DashboardView>
     <div class="family-bg">
-    <div class="container my-4">
-      <button class="btn btn-outline-secondary mb-3" @click="$router.back()">← Back</button>
-      <h2 class="mb-4">Responsible Parenthood and Planning Records</h2>
-      <div class="table-responsive">
-        <table class="table table-bordered table-hover">
+    <div class="container">
+      <div class="records-top d-flex align-items-center mb-2">
+        <button class="btn btn-outline-secondary me-3" @click="$router.back()">← Back</button>
+        <h3 class="mb-0">Responsible Parenthood and Planning Records</h3>
+        <div class="ms-auto search-box"></div>
+      </div>
+
+      <div class="table-wrapper">
+        <div class="table-responsive large-table">
+          <table class="table table-bordered table-hover mb-0">
           <thead class="table-light">
             <tr>
               <th>Surname</th>
@@ -62,6 +67,7 @@ onMounted(() => {
             </tr>
           </tbody>
         </table>
+        </div>
       </div>
     </div>
     </div>
@@ -72,51 +78,28 @@ onMounted(() => {
 .family-bg {
   background: url('/images/familyplanning-bg.jpg') no-repeat center center;
   background-size: cover;
-  min-height: calc(120vh - 319px);
   width: 100%;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   position: relative;
-  padding: 0 4rem;
+  padding: 1.1rem;
+  overflow: hidden;
 }
-.table-responsive {
-  overflow-x: auto;
-}
-.table {
-  font-size: 0.95rem;
-  min-width: 700px;
-}
-@media (max-width: 900px) {
-  .table {
-    min-width: 500px;
-    font-size: 0.92rem;
-  }
-}
-@media (max-width: 700px) {
-  .container {
-    padding: 0.2rem;
-  }
-  .table {
-    min-width: 350px;
-    font-size: 0.9rem;
-  }
-  th, td {
-    padding: 0.3rem 0.5rem !important;
-    white-space: nowrap;
-    font-size: 0.92rem;
-  }
-}
-@media (max-width: 500px) {
-  .container {
-    padding: 0.1rem;
-  }
-  .table {
-    min-width: 250px;
-    font-size: 0.85rem;
-  }
-  th, td {
-    padding: 0.18rem 0.25rem !important;
-    font-size: 0.85rem;
-  }
+.modal { overflow-y: auto }
+
+.records-top { align-items: center }
+.search-box { max-width: 540px }
+.search-input { border-radius: 28px 0 0 28px }
+.search-btn { border-radius: 0 28px 28px 0 }
+.table-wrapper { border-radius: 12px; overflow: hidden; background: rgba(255,255,255,0.95); }
+.table-wrapper { height: calc(100vh - 260px); display: flex; flex-direction: column; }
+.table-responsive.large-table { flex: 1 1 auto; height: 100%; overflow: auto }
+.large-table table { font-size: 1.05rem; margin-bottom: 0 }
+.large-table thead th { padding: 1rem; font-size: 1rem; position: sticky; top: 0; background: #fff; z-index: 5 }
+.large-table tbody td { padding: 0.9rem }
+
+@media (max-width: 768px) {
+  .search-box { max-width: 100% }
+  .large-table thead th { font-size: 0.95rem }
 }
 </style>
