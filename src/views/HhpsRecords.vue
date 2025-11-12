@@ -1,6 +1,6 @@
 <script setup>
 import DashboardView from '@/components/DashboardView.vue'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { supabase } from '@/utils/supabase.js'
 
@@ -10,6 +10,7 @@ const goBack = () => router.back()
 const loading = ref(true)
 const error = ref(null)
 const headRecords = ref([])
+const searchQuery = ref('')
 
 const selectedHead = ref(null)
 const showMembersModal = ref(false)
@@ -18,6 +19,19 @@ const members = ref([])
 onMounted(async () => {
   await fetchHeadRecords()
 })
+
+const filteredRecords = computed(() => {
+  const q = String(searchQuery.value || '').trim()
+  if (!q) return headRecords.value
+  return headRecords.value.filter(r => String(r.head_id).toLowerCase().includes(q.toLowerCase()))
+})
+
+const handleSearch = () => {
+  // computed `filteredRecords` will react to `searchQuery`; keep placeholder for possible analytics or focus behavior
+  // we can also scroll table to top when searching
+  const el = document.querySelector('.table-responsive.large-table')
+  if (el) el.scrollTop = 0
+}
 
 const fetchHeadRecords = async () => {
   loading.value = true
@@ -63,9 +77,18 @@ const viewMembers = async (head) => {
 <template>
   <DashboardView>
     <div class="hps-bg">
-      <div class="container my-4">
-        <button class="btn btn-outline-secondary mb-3" @click="goBack">← Back</button>
-        <h2 class="mb-4">Household Head Profiling Records</h2>
+      <div class="container">
+        <div class="records-top d-flex align-items-center mb-2">
+          <button class="btn btn-outline-secondary me-3" @click="goBack">← Back</button>
+          <h3 class="mb-0">Household Head Profiling Records</h3>
+          <div class="ms-auto search-box">
+            <div class="input-group">
+              <input v-model="searchQuery" @keyup.enter="handleSearch" type="search" class="form-control search-input" placeholder="Search by Head ID..." aria-label="Search by Head ID">
+              <button class="btn btn-primary search-btn" @click="handleSearch">Search</button>
+              <button class="btn btn-outline-secondary ms-2" v-if="searchQuery" @click="searchQuery = ''">Clear</button>
+            </div>
+          </div>
+        </div>
 
         <div v-if="loading" class="text-center my-4">
           <div class="spinner-border text-primary" role="status"></div>
@@ -76,66 +99,58 @@ const viewMembers = async (head) => {
           {{ error }}
         </div>
 
-        <div v-else class="table-responsive">
-          <table class="table table-bordered table-striped">
-            <thead class="table-light">
-              <tr>
-                <th>Head ID</th>
-                <th>Purok</th>
-                <th>Last Name</th>
-                <th>First Name</th>
-                <th>Middle Name</th>
-                <th>Suffix</th>
-                <th>No. of Families</th>
-                <th>Population</th>
-                <th>Female</th>
-                <th>Male</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="record in headRecords" :key="record.head_id">
-  <td>{{ record.head_id }}</td>
-  <td>{{ record.purok }}</td>
-  <td>{{ record.lastname }}</td>
-  <td>{{ record.firstname }}</td>
-  <td>{{ record.middlename }}</td>
-  <td>{{ record.suffix }}</td>
-  <td>{{ record.no_of_families }}</td>
-  <td>{{ record.population }}</td>
-  <td>{{ record.female_count }}</td>
-  <td>{{ record.male_count }}</td>
-  <td>
-    <button
-      class="btn btn-primary btn-sm me-2"
-      @click="viewMembers(record)"
-    >
-      View Members
-    </button>
-    <button class="btn btn-secondary btn-sm">Edit</button>
-  </td>
-</tr>
+        <div v-else>
+                <div class="table-wrapper">
+                  <div class="table-responsive large-table">
+              <table class="table table-bordered table-striped mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Head ID</th>
+                    <th>Purok</th>
+                    <th>Last Name</th>
+                    <th>First Name</th>
+                    <th>Middle Name</th>
+                    <th>Suffix</th>
+                    <th>No. of Families</th>
+                    <th>Population</th>
+                    <th>Female</th>
+                    <th>Male</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="record in filteredRecords" :key="record.head_id">
+                    <td>{{ record.head_id }}</td>
+                    <td>{{ record.purok }}</td>
+                    <td>{{ record.lastname }}</td>
+                    <td>{{ record.firstname }}</td>
+                    <td>{{ record.middlename }}</td>
+                    <td>{{ record.suffix }}</td>
+                    <td>{{ record.no_of_families }}</td>
+                    <td>{{ record.population }}</td>
+                    <td>{{ record.female_count }}</td>
+                    <td>{{ record.male_count }}</td>
+                    <td>
+                      <button class="btn btn-primary btn-sm me-2" @click="viewMembers(record)">View Members</button>
+                      <button class="btn btn-secondary btn-sm">Edit</button>
+                    </td>
+                  </tr>
 
-              <tr v-if="headRecords.length === 0">
-                <td colspan="11" class="text-center">No records found.</td>
-              </tr>
-            </tbody>
-          </table>
+                  <tr v-if="filteredRecords.length === 0">
+                    <td colspan="11" class="text-center">No records found.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
 
         <!-- Modal for Members -->
-        <div
-          class="modal fade show d-block"
-          tabindex="-1"
-          v-if="showMembersModal"
-          style="background: rgba(0,0,0,0.6)"
-        >
+        <div class="modal fade show d-block" tabindex="-1" v-if="showMembersModal" style="background: rgba(0,0,0,0.6)">
           <div class="modal-dialog modal-lg">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title">
-                  Members of: {{ selectedHead.firstname }} {{ selectedHead.lastname }}
-                </h5>
+                <h5 class="modal-title">Members of: {{ selectedHead.firstname }} {{ selectedHead.lastname }}</h5>
                 <button type="button" class="btn-close" @click="showMembersModal = false"></button>
               </div>
               <div class="modal-body">
@@ -144,7 +159,7 @@ const viewMembers = async (head) => {
                 </div>
 
                 <div v-else class="table-responsive">
-                  <table class="table table-bordered">
+                  <table class="table table-bordered mb-0">
                     <thead class="table-light">
                       <tr>
                         <th>Last Name</th>
@@ -179,13 +194,12 @@ const viewMembers = async (head) => {
                 </div>
               </div>
               <div class="modal-footer">
-                <button class="btn btn-secondary" @click="showMembersModal = false">
-                  Close
-                </button>
+                <button class="btn btn-secondary" @click="showMembersModal = false">Close</button>
               </div>
             </div>
           </div>
         </div>
+
       </div>
     </div>
   </DashboardView>
@@ -195,14 +209,31 @@ const viewMembers = async (head) => {
 .hps-bg {
   background: url('/images/householdprofiling.jpg') no-repeat center center;
   background-size: cover;
-  min-height: calc(120vh - 319px);
   width: 100%;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   position: relative;
-  padding: 0 4rem;
+  padding: 1.1rem ;
+  overflow: hidden; /* prevent this container from scrolling */
 }
 .modal {
   overflow-y: auto;
+}
+
+.records-top { align-items: center }
+.search-box { max-width: 540px }
+.search-input { border-radius: 28px 0 0 28px }
+.search-btn { border-radius: 0 28px 28px 0 }
+.table-wrapper { border-radius: 12px; overflow: hidden; background: rgba(255,255,255,0.95); }
+/* Make the table-wrapper take the remaining vertical space and keep internal scrolling in the table only */
+.table-wrapper { height: calc(100vh - 260px); display: flex; flex-direction: column; }
+.table-responsive.large-table { flex: 1 1 auto; height: 100%; overflow: auto; }
+.large-table table { font-size: 1.05rem; margin-bottom: 0 }
+.large-table thead th { padding: 1rem; font-size: 1rem; position: sticky; top: 0; background: #fff; z-index: 5 }
+.large-table tbody td { padding: 0.9rem }
+
+@media (max-width: 768px) {
+  .search-box { max-width: 100% }
+  .large-table thead th { font-size: 0.95rem }
 }
 </style>
