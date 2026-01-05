@@ -2,11 +2,16 @@
 import { ref, computed, onMounted } from 'vue'
 import DashboardView from '@/components/DashboardView.vue'
 import toolsApi from '@/utils/tools'
+import medicineApi from '@/utils/medicine'
 import { supabase } from '@/utils/supabase'
 
 // Tools list (loaded from DB)
 const tools = ref([])
 const newTool = ref({ name: '', quantity: 1 })
+
+// Medicine list (loaded from DB)
+const medicine = ref([])
+const newMedicine = ref({ name: '', quantity: 1 })
 
 // User role
 const userRole = ref(null)
@@ -16,9 +21,19 @@ const showAvailModal = ref(false)
 const availForm = ref({ name: '', purok: '', quantity: 1 })
 const selectedTool = ref(null)
 
+// Modal state for availing medicine
+const showAvailMedicineModal = ref(false)
+const availMedicineForm = ref({ name: '', purok: '', quantity: 1 })
+const selectedMedicine = ref(null)
+
 // Computed: only show tools with quantity > 0
 const availableTools = computed(() =>
   tools.value.filter(tool => tool.quantity > 0)
+)
+
+// Computed: only show medicine with quantity > 0
+const availableMedicine = computed(() =>
+  medicine.value.filter(med => med.quantity > 0)
 )
 
 // Avail a tool (open modal)
@@ -26,6 +41,13 @@ const availTool = (tool) => {
   selectedTool.value = tool
   availForm.value = { name: '', purok: '', quantity: 1 }
   showAvailModal.value = true
+}
+
+// Avail a medicine (open modal)
+const availMedicine = (med) => {
+  selectedMedicine.value = med
+  availMedicineForm.value = { name: '', purok: '', quantity: 1 }
+  showAvailMedicineModal.value = true
 }
 
 // Confirm avail (decrement stock)
@@ -53,6 +75,34 @@ const confirmAvail = async () => {
   } catch (err) {
     console.error('Failed to avail tool', err)
     alert('Failed to avail tool: ' + (err.message || err))
+  }
+}
+
+// Confirm avail medicine (decrement stock)
+const confirmAvailMedicine = async () => {
+  if (
+    !availMedicineForm.value.name || !availMedicineForm.value.purok || !(availMedicineForm.value.quantity > 0)
+  ) {
+    alert('Please fill all fields')
+    return
+  }
+
+  try {
+    // selectedMedicine is expected to come from DB and include medicine_id
+    if (!selectedMedicine.value?.medicine_id) throw new Error('Medicine not recognized')
+    await medicineApi.availMedicine({
+      medicine_id: selectedMedicine.value.medicine_id,
+      name: availMedicineForm.value.name,
+      purok: availMedicineForm.value.purok,
+      quantity: availMedicineForm.value.quantity,
+    })
+
+    // refresh list from DB
+    medicine.value = await medicineApi.listMedicine()
+    showAvailMedicineModal.value = false
+  } catch (err) {
+    console.error('Failed to avail medicine', err)
+    alert('Failed to avail medicine: ' + (err.message || err))
   }
 }
 
@@ -85,6 +135,32 @@ const confirmAddTool = async () => {
   }
 }
 
+// Add medicine modal
+const showAddMedicineModal = ref(false)
+const addMedicineForm = ref({ name: '', quantity: 1 })
+
+const openAddMedicineModal = () => {
+  addMedicineForm.value = { name: '', quantity: 1 }
+  showAddMedicineModal.value = true
+}
+
+const confirmAddMedicine = async () => {
+  if (!addMedicineForm.value.name || !(addMedicineForm.value.quantity > 0)) {
+    alert('Please provide a valid name and quantity')
+    return
+  }
+
+  try {
+    const created = await medicineApi.createMedicine({ name: addMedicineForm.value.name, quantity: addMedicineForm.value.quantity })
+    // refresh list
+    medicine.value = await medicineApi.listMedicine()
+    showAddMedicineModal.value = false
+  } catch (err) {
+    console.error('Failed to create medicine', err)
+    alert('Failed to add medicine: ' + (err.message || err))
+  }
+}
+
 // Load tools on mount
 onMounted(async () => {
   try {
@@ -92,6 +168,12 @@ onMounted(async () => {
   } catch (err) {
     console.error('Failed to load tools', err)
     tools.value = []
+  }
+  try {
+    medicine.value = await medicineApi.listMedicine()
+  } catch (err) {
+    console.error('Failed to load medicine', err)
+    medicine.value = []
   }
   try {
     const { data } = await supabase.auth.getUser()
@@ -108,10 +190,25 @@ onMounted(async () => {
       <div class="inventory-card">
         <h2>Medicine Stocks</h2>
         <div class="scrollable-content">
-          <!-- Medicine stocks: no functionality for now (placeholder) -->
-          <div class="medicine-stock-item" style="justify-content:center; padding-top:2rem;">
-            <span style="color:#64748b; font-weight:600">Medicine stocks view is informational only — no actions available for now.</span>
+          <div class="medicine-list">
+            <div 
+              v-for="med in availableMedicine" 
+              :key="med.medicine_id" 
+              class="medicine-item"
+            >
+              <div style="display:flex; align-items:center; justify-content:space-between; width:100%">
+                <div>{{ med.name }} ({{ med.quantity }})</div>
+                <div>
+                  <!-- BHW users can avail medicine -->
+                  <button v-if="userRole === 'BHW'" class="avail-btn" @click="availMedicine(med)">Avail</button>
+                </div>
+              </div>
+            </div>
           </div>
+        </div>
+        <div class="medicine-input">
+          <!-- Only Admin can add medicine -->
+          <button v-if="userRole === 'Admin'" class="add-medicine-btn" @click="openAddMedicineModal">Add Medicine</button>
         </div>
       </div>
 
@@ -181,6 +278,50 @@ onMounted(async () => {
           <div class="modal-actions">
             <button @click="confirmAddTool">Confirm</button>
             <button @click="showAddToolModal = false">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Avail Medicine Modal -->
+      <div v-if="showAvailMedicineModal" class="modal-overlay">
+        <div class="modal-content">
+          <button class="modal-close" @click="showAvailMedicineModal = false" v-if="showAvailMedicineModal">&times;</button>
+          <h3>Avail Medicine: {{ selectedMedicine?.name }}</h3>
+          <label>
+            Name:
+            <input v-model="availMedicineForm.name" placeholder="Your Name" />
+          </label>
+          <label>
+            Purok:
+            <input v-model="availMedicineForm.purok" placeholder="Purok" />
+          </label>
+          <label>
+            Quantity:
+            <input v-model.number="availMedicineForm.quantity" type="number" min="1" :max="selectedMedicine?.quantity" />
+          </label>
+          <div class="modal-actions">
+            <button @click="confirmAvailMedicine">Confirm</button>
+            <button @click="showAvailMedicineModal = false">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add Medicine Modal -->
+      <div v-if="showAddMedicineModal" class="modal-overlay">
+        <div class="modal-content">
+          <button class="modal-close" @click="showAddMedicineModal = false" v-if="showAddMedicineModal">&times;</button>
+          <h3>Add Medicine</h3>
+          <label>
+            Medicine Name:
+            <input v-model="addMedicineForm.name" placeholder="Medicine Name" />
+          </label>
+          <label>
+            Quantity:
+            <input v-model.number="addMedicineForm.quantity" type="number" min="1" placeholder="Quantity" />
+          </label>
+          <div class="modal-actions">
+            <button @click="confirmAddMedicine">Confirm</button>
+            <button @click="showAddMedicineModal = false">Cancel</button>
           </div>
         </div>
       </div>
@@ -270,6 +411,39 @@ onMounted(async () => {
 }
 
 .add-tool-btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  background-color: #6aa84f;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.medicine-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.medicine-item {
+  padding: 8px 12px;
+  background-color: #f1f1f1;
+  border-radius: 6px;
+  user-select: none;
+  transition: background 0.2s;
+}
+
+.medicine-input {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  justify-content: flex-end;
+}
+
+.add-medicine-btn {
   padding: 6px 12px;
   border-radius: 6px;
   background-color: #6aa84f;
