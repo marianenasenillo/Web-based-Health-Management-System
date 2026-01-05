@@ -2,10 +2,14 @@
 import { ref, computed, onMounted } from 'vue'
 import DashboardView from '@/components/DashboardView.vue'
 import toolsApi from '@/utils/tools'
+import { supabase } from '@/utils/supabase'
 
 // Tools list (loaded from DB)
 const tools = ref([])
 const newTool = ref({ name: '', quantity: 1 })
+
+// User role
+const userRole = ref(null)
 
 // Modal state for availing tool
 const showAvailModal = ref(false)
@@ -89,6 +93,12 @@ onMounted(async () => {
     console.error('Failed to load tools', err)
     tools.value = []
   }
+  try {
+    const { data } = await supabase.auth.getUser()
+    userRole.value = data?.user?.user_metadata?.role || null
+  } catch (err) {
+    console.error('Failed to get user role', err)
+  }
 })
 </script>
 
@@ -98,10 +108,9 @@ onMounted(async () => {
       <div class="inventory-card">
         <h2>Medicine Stocks</h2>
         <div class="scrollable-content">
-          <div v-for="tool in availableTools" :key="tool.name" class="medicine-stock-item">
-            <span>{{ tool.name }}</span>
-            <span class="stock-count">{{ tool.quantity }}</span>
-            <button class="avail-btn" @click="availTool(tool)">Avail</button>
+          <!-- Medicine stocks: no functionality for now (placeholder) -->
+          <div class="medicine-stock-item" style="justify-content:center; padding-top:2rem;">
+            <span style="color:#64748b; font-weight:600">Medicine stocks view is informational only — no actions available for now.</span>
           </div>
         </div>
       </div>
@@ -115,12 +124,19 @@ onMounted(async () => {
               :key="tool.name" 
               class="tool-item"
             >
-              {{ tool.name }} ({{ tool.quantity }})
+              <div style="display:flex; align-items:center; justify-content:space-between; width:100%">
+                <div>{{ tool.name }} ({{ tool.quantity }})</div>
+                <div>
+                  <!-- BHW users can avail tools -->
+                  <button v-if="userRole === 'BHW'" class="avail-btn" @click="availTool(tool)">Avail</button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
         <div class="tools-input">
-          <button class="add-tool-btn" @click="openAddToolModal">Add Tool</button>
+          <!-- Only Admin can add tools -->
+          <button v-if="userRole === 'Admin'" class="add-tool-btn" @click="openAddToolModal">Add Tool</button>
         </div>
         
       </div>
