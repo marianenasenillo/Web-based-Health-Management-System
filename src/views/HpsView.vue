@@ -338,7 +338,13 @@ const saveHousehold = async () => {
               </div>
               <div class="form-group">
                 <label>Purok</label>
-                <input type="text" v-model="purok" class="input-stroke" />
+                <select v-model="purok" class="input-stroke">
+                  <option value="">Select Purok</option>
+                  <option value="Purok 1">Purok 1</option>
+                  <option value="Purok 2">Purok 2</option>
+                  <option value="Purok 3">Purok 3</option>
+                  <option value="Purok 4">Purok 4</option>
+                </select>
               </div>
             </div>
             <div class="row-fields">
@@ -523,7 +529,13 @@ const saveHousehold = async () => {
             <div class="row-fields">
               <div class="form-group">
                 <label for="head-purok">Purok</label>
-                <input id="head-purok" v-model="headPurok" type="text" class="input-stroke" />
+                <select id="head-purok" v-model="headPurok" class="input-stroke">
+                  <option value="">Select Purok</option>
+                  <option value="Purok 1">Purok 1</option>
+                  <option value="Purok 2">Purok 2</option>
+                  <option value="Purok 3">Purok 3</option>
+                  <option value="Purok 4">Purok 4</option>
+                </select>
               </div>
               <div class="form-group">
                 <label for="head-lastname">Last Name</label>
