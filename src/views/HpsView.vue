@@ -180,7 +180,6 @@ const saveHousehold = async () => {
       {
         head_id: headId,
         barangay: barangay.value,
-        purok: purok.value,
         date_visit: dateVisit.value || null,
         relationship: relationship.value,
         lastname: lastname.value,
