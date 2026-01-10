@@ -15,10 +15,14 @@ const barangayChartData = ref({})
 const genderChartData = ref({})
 const purokChartData = ref({})
 
+const discussionText = ref('')
+
 onMounted(async () => {
   await fetchBarangayComparison()
   await fetchGenderDistribution()
   await fetchPurokComparison()
+
+  generateDiscussion()
 
   // Create charts
   if (barangayBarCanvas.value) {
@@ -172,6 +176,28 @@ const fetchPurokComparison = async () => {
     console.error('Error fetching purok comparison:', err)
   }
 }
+
+const generateDiscussion = () => {
+  const barangayData = barangayChartData.value.datasets?.[0]?.data || []
+  const genderData = genderChartData.value.datasets?.[0]?.data || []
+  const purokLabels = purokChartData.value.labels || []
+  const purokData = purokChartData.value.datasets?.[0]?.data || []
+
+  let text = `<h4>Discussion</h4>
+<p>Based on the comparative analysis, Barangay 5 has a population of ${barangayData[0] || 0}, while Barangay 6 has ${barangayData[1] || 0}. `
+
+  if (genderData.length > 0) {
+    text += `The gender distribution shows ${genderData[0] || 0} males and ${genderData[1] || 0} females across both barangays. `
+  }
+
+  if (purokLabels.length > 0) {
+    text += `Population per purok varies, with the highest in ${purokLabels[purokData.indexOf(Math.max(...purokData))] || 'unknown'} (${Math.max(...purokData) || 0} residents). `
+  }
+
+  text += `This data supports planning for equitable resource allocation and community development.</p>`
+
+  discussionText.value = text
+}
 </script>
 
 <template>
@@ -229,6 +255,7 @@ const fetchPurokComparison = async () => {
       </div>
     </div>
   </div>
+  <section v-html="discussionText"></section>
               
               <div class="d-flex justify-content-between mt-4">
                <button class="btn btn-secondary" @click="$emit('prev')">&larr; Back</button>
