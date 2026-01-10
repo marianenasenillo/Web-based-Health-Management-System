@@ -18,7 +18,7 @@ import FpsRecords from '@/views/FpsRecords.vue'
 import PhsRecords from '@/views/PhsRecords.vue'
 import RegisterView from '@/views/RegisterView.vue'
 import BhwView from '@/views/BhwView.vue'
-
+import Hhpsexport from '@/components/reports/Hhpsexport.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -113,11 +113,15 @@ const router = createRouter({
       name: 'register',
       component: RegisterView,
     },
-    
     {
       path: '/bhw',
       name: 'bhw',
       component: BhwView,
+    },
+    {
+      path: '/hhpsexport',
+      name: 'hhpsexport',
+      component: Hhpsexport,
     },
   ],
 })
