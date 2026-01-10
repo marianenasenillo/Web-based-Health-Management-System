@@ -35,9 +35,15 @@ const exportPdf = async () => {
   // Temporarily reduce logo sizes for PDF export
   const logos = element.querySelectorAll('img[alt="Province Logo"], img[alt="Barangay Logo"]')
   const originalSizes = []
+  const originalMargins = []
   logos.forEach(img => {
     originalSizes.push(img.style.height)
     img.style.height = '80px'
+    if (img.alt === 'Province Logo') {
+      originalMargins.push(img.style.right)
+      img.style.position = 'relative'
+      img.style.right = '-130px'
+    }
   })
 
   // Render element to canvas at higher scale for better quality
@@ -47,6 +53,10 @@ const exportPdf = async () => {
   // Restore logo sizes
   logos.forEach((img, index) => {
     img.style.height = originalSizes[index]
+    if (img.alt === 'Province Logo') {
+      img.style.right = originalMargins[index] || ''
+      img.style.position = ''
+    }
   })
 
   // A4 size in mm
