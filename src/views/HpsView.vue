@@ -12,6 +12,7 @@ const showModal = ref(false)
 const modalType = ref('')
 
 // Household Profiling form fields
+const barangay = ref('')
 const purok = ref('')
 const lastname = ref('')
 const firstname = ref('')
@@ -33,6 +34,7 @@ const fbDate = ref('')
 const changeMethod = ref('')
 
 // Household Head Profiling form fields
+const headBarangay = ref('')
 const headPurok = ref('')
 const headLastname = ref('')
 const headFirstname = ref('')
@@ -68,6 +70,7 @@ const toiletFacility = ref('')
 // For multiple members (future use)
 const members = ref([
   {
+    barangay: '',
     purok: '',
     dateVisit: '',
     householdNo: '',
@@ -100,6 +103,7 @@ const members = ref([
 ])
 
 const headFields = [
+  { label: 'Barangay:', model: 'headBarangay', ref: headBarangay, type: 'select' },
   { label: 'Purok:', model: 'headPurok', ref: headPurok, type: 'text' },
   { label: 'Last Name:', model: 'headLastname', ref: headLastname, type: 'text' },
   { label: 'First Name:', model: 'headFirstname', ref: headFirstname, type: 'text' },
@@ -127,6 +131,7 @@ const saveHead = async () => {
   try {
     const { data, error } = await supabase.from('household_heads').insert([
       {
+        barangay: headBarangay.value,
         purok: headPurok.value,
         lastname: headLastname.value,
         firstname: headFirstname.value,
@@ -144,6 +149,7 @@ const saveHead = async () => {
     closeModal();
 
     // Clear fields after save
+    headBarangay.value = '';
     headPurok.value = '';
     headLastname.value = '';
     headFirstname.value = '';
@@ -173,6 +179,8 @@ const saveHousehold = async () => {
     const { data, error } = await supabase.from('household_members').insert([
       {
         head_id: headId,
+        barangay: barangay.value,
+        purok: purok.value,
         date_visit: dateVisit.value || null,
         relationship: relationship.value,
         lastname: lastname.value,
@@ -209,6 +217,7 @@ const saveHousehold = async () => {
     // Clear fields
     dateVisit.value = '';
     householdNo.value = '';
+    barangay.value = '';
     purok.value = '';
     lastname.value = '';
     firstname.value = '';
@@ -335,6 +344,14 @@ const saveHousehold = async () => {
               <div class="form-group">
                 <label>Household No.</label>
                 <input type="text" v-model="householdNo" class="input-stroke" />
+              </div>
+              <div class="form-group">
+                <label>Barangay</label>
+                <select v-model="barangay" class="input-stroke">
+                  <option value="">Select Barangay</option>
+                  <option value="Barangay 5">Barangay 5</option>
+                  <option value="Barangay 6">Barangay 6</option>
+                </select>
               </div>
               <div class="form-group">
                 <label>Purok</label>
@@ -527,6 +544,14 @@ const saveHousehold = async () => {
           <div class="modal-form-wrap">
           <form @submit.prevent="saveHead" class="compact-head-form">
             <div class="row-fields">
+              <div class="form-group">
+                <label for="head-barangay">Barangay</label>
+                <select id="head-barangay" v-model="headBarangay" class="input-stroke">
+                  <option value="">Select Barangay</option>
+                  <option value="Barangay 5">Barangay 5</option>
+                  <option value="Barangay 6">Barangay 6</option>
+                </select>
+              </div>
               <div class="form-group">
                 <label for="head-purok">Purok</label>
                 <select id="head-purok" v-model="headPurok" class="input-stroke">
