@@ -32,9 +32,22 @@ const exportPdf = async () => {
   element.style.overflow = 'visible'
   element.style.maxHeight = 'none'
 
+  // Temporarily reduce logo sizes for PDF export
+  const logos = element.querySelectorAll('img[alt="Province Logo"], img[alt="Barangay Logo"]')
+  const originalSizes = []
+  logos.forEach(img => {
+    originalSizes.push(img.style.height)
+    img.style.height = '80px'
+  })
+
   // Render element to canvas at higher scale for better quality
   const canvas = await html2canvas(element, { scale: 2, useCORS: true })
   const imgData = canvas.toDataURL('image/png')
+
+  // Restore logo sizes
+  logos.forEach((img, index) => {
+    img.style.height = originalSizes[index]
+  })
 
   // A4 size in mm
   const pdf = new jsPDF('p', 'mm', 'a4')
