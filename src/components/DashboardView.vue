@@ -251,7 +251,7 @@ async function saveProfile() {
       </v-main>
 
       <!-- FOOTER -->
-      <v-footer app color="#5b841e" height="90" class="d-flex align-center justify-center">
+      <v-footer app color="#5b841e" height="50" class="d-flex align-center justify-center">
         <span class="text-white text-decoration-underline">
           2025 All Rights Reserved
         </span>

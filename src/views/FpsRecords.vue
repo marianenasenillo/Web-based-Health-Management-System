@@ -78,12 +78,14 @@ onMounted(() => {
 .family-bg {
   background: url('/images/familyplanning-bg.jpg') no-repeat center center;
   background-size: cover;
-  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
-  align-items: flex-start;
-  position: relative;
-  padding: 1.1rem;
-  overflow: hidden;
+  justify-content: center;
+  align-items: center;
 }
 .modal { overflow-y: auto }
 
