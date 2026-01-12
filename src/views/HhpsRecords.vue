@@ -15,6 +15,7 @@ const searchQuery = ref('')
 const selectedHead = ref(null)
 const showMembersModal = ref(false)
 const members = ref([])
+const userRole = ref('')
 
 onMounted(async () => {
   await fetchHeadRecords()
@@ -43,6 +44,9 @@ const fetchHeadRecords = async () => {
     if (!user) throw new Error('Not authenticated')
 
     const userBarangay = user.user_metadata?.barangay
+    const userRoleValue = user.user_metadata?.role || 'BHW' // Default to BHW if no role specified
+    userRole.value = userRoleValue
+
     if (!userBarangay) throw new Error('No barangay assigned')
 
     const { data, error: err } = await supabase
@@ -153,7 +157,7 @@ const archiveRecord = async (record) => {
               <input v-model="searchQuery" @keyup.enter="handleSearch" type="search" class="form-control search-input" placeholder="Search by Head ID..." aria-label="Search by Head ID">
               <button class="btn btn-primary search-btn" @click="handleSearch">Search</button>
               <button class="btn btn-outline-secondary ms-2" v-if="searchQuery" @click="searchQuery = ''">Clear</button>
-              <button class="btn btn-warning report-btn" @click="router.push('/hhpsarchived')">Archived</button>
+              <button v-if="userRole === 'Admin'" class="btn btn-warning report-btn" @click="router.push('/hhpsarchived')">Archived</button>
             </div>
           </div>
         </div>
@@ -200,9 +204,9 @@ const archiveRecord = async (record) => {
                     <td>{{ record.male_count }}</td>
                     <td>
                       <button class="btn btn-primary btn-sm me-2" @click="viewMembers(record)">View Members</button>
-                      <button class="btn btn-secondary btn-sm">Edit</button>
-                      <button class="btn btn-danger btn-sm me-2" @click="deleteRecord(record)">Delete</button>
-                      <button class="btn btn-warning btn-sm" @click="archiveRecord(record)">Archive</button>
+                      <button class="btn btn-secondary btn-sm me-2">Edit</button>
+                      <button v-if="userRole === 'Admin'" class="btn btn-danger btn-sm me-2" @click="deleteRecord(record)">Delete</button>
+                      <button v-if="userRole === 'Admin'" class="btn btn-warning btn-sm" @click="archiveRecord(record)">Archive</button>
                     </td>
                   </tr>
 
