@@ -19,6 +19,7 @@ import PhsRecords from '@/views/PhsRecords.vue'
 import RegisterView from '@/views/RegisterView.vue'
 import BhwView from '@/views/BhwView.vue'
 import Hhpsexport from '@/components/reports/Hhpsexport.vue'
+import HhpsArchived from '@/views/HhpsArchived.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -122,6 +123,11 @@ const router = createRouter({
       path: '/hhpsexport',
       name: 'hhpsexport',
       component: Hhpsexport,
+    },
+    {
+      path: '/hhpsarchived',
+      name: 'hhpsarchived',
+      component: HhpsArchived,
     },
   ],
 })

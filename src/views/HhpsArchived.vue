@@ -49,7 +49,7 @@ const fetchHeadRecords = async () => {
       .from('household_heads')
       .select('*')
       .eq('barangay', userBarangay)
-      .eq('is_archived', false)
+      .eq('is_archived', true)
       .order('created_at', { ascending: false })
 
     if (err) throw err
@@ -137,6 +137,31 @@ const archiveRecord = async (record) => {
     alert('Error archiving record.')
   }
 }
+
+// Restore Record
+const restoreRecord = async (record) => {
+  if (!confirm(`Are you sure you want to restore the household head "${record.firstname} ${record.lastname}"?`)) {
+    return
+  }
+
+  try {
+    const { error } = await supabase
+      .from('household_heads')
+      .update({
+        is_archived: false,
+        archived_at: null
+      })
+      .eq('head_id', record.head_id)
+
+    if (error) throw error
+
+    alert('Record restored successfully.')
+    await fetchHeadRecords() // Refresh the list
+  } catch (e) {
+    console.error(e)
+    alert('Error restoring record.')
+  }
+}
 </script>
 
 
@@ -146,14 +171,11 @@ const archiveRecord = async (record) => {
       <div class="container">
         <div class="records-top d-flex align-items-center mb-2">
           <button class="btn btn-outline-secondary me-3" @click="goBack">← Back</button>
-          <h3 class="mb-0">Household Head Profiling Records</h3>
+          <h3 class="mb-0">Archived Household Head Profiling Records</h3>
           <div class="ms-auto search-box">
             <div class="input-group">
-              <button class="btn btn-primary report-btn">Report</button>
               <input v-model="searchQuery" @keyup.enter="handleSearch" type="search" class="form-control search-input" placeholder="Search by Head ID..." aria-label="Search by Head ID">
               <button class="btn btn-primary search-btn" @click="handleSearch">Search</button>
-              <button class="btn btn-outline-secondary ms-2" v-if="searchQuery" @click="searchQuery = ''">Clear</button>
-              <button class="btn btn-warning report-btn" @click="router.push('/hhpsarchived')">Archived</button>
             </div>
           </div>
         </div>
@@ -199,10 +221,7 @@ const archiveRecord = async (record) => {
                     <td>{{ record.female_count }}</td>
                     <td>{{ record.male_count }}</td>
                     <td>
-                      <button class="btn btn-primary btn-sm me-2" @click="viewMembers(record)">View Members</button>
-                      <button class="btn btn-secondary btn-sm">Edit</button>
-                      <button class="btn btn-danger btn-sm me-2" @click="deleteRecord(record)">Delete</button>
-                      <button class="btn btn-warning btn-sm" @click="archiveRecord(record)">Archive</button>
+                      <button class="btn btn-success btn-sm" @click="restoreRecord(record)">Restore</button>
                     </td>
                   </tr>
 
