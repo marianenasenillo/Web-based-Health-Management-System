@@ -49,6 +49,7 @@ const fetchHeadRecords = async () => {
       .from('household_heads')
       .select('*')
       .eq('barangay', userBarangay)
+      .eq('is_archived', false)
       .order('created_at', { ascending: false })
 
     if (err) throw err
@@ -78,6 +79,62 @@ const viewMembers = async (head) => {
   } catch (e) {
     console.error(e)
     alert('Error loading household members.')
+  }
+}
+
+// Delete Record
+const deleteRecord = async (record) => {
+  if (!confirm(`Are you sure you want to delete the household head "${record.firstname} ${record.lastname}" and all associated members? This action cannot be undone.`)) {
+    return
+  }
+
+  try {
+    // First delete all members
+    const { error: membersError } = await supabase
+      .from('household_members')
+      .delete()
+      .eq('head_id', record.head_id)
+
+    if (membersError) throw membersError
+
+    // Then delete the head
+    const { error: headError } = await supabase
+      .from('household_heads')
+      .delete()
+      .eq('head_id', record.head_id)
+
+    if (headError) throw headError
+
+    alert('Record and associated members deleted successfully.')
+    await fetchHeadRecords() // Refresh the list
+  } catch (e) {
+    console.error(e)
+    alert('Error deleting record.')
+  }
+}
+
+// Archive Record
+const archiveRecord = async (record) => {
+  if (!confirm(`Are you sure you want to archive the household head "${record.firstname} ${record.lastname}"?`)) {
+    return
+  }
+
+  try {
+    const { error } = await supabase
+      .from('household_heads')
+      .update({
+        is_archived: true,
+        archived_at: new Date().toISOString()
+      })
+      .eq('head_id', record.head_id)
+
+    if (error) throw error
+
+    alert('Record archived successfully.')
+    await fetchHeadRecords() // Refresh the list
+  } catch (e) {
+    console.error(e)
+    alert('Error archiving record.')
   }
 }
 </script>
@@ -143,6 +200,8 @@ const viewMembers = async (head) => {
                     <td>
                       <button class="btn btn-primary btn-sm me-2" @click="viewMembers(record)">View Members</button>
                       <button class="btn btn-secondary btn-sm">Edit</button>
+                      <button class="btn btn-danger btn-sm me-2" @click="deleteRecord(record)">Delete</button>
+                      <button class="btn btn-warning btn-sm" @click="archiveRecord(record)">Archive</button>
                     </td>
                   </tr>
 
