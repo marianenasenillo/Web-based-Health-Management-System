@@ -16,15 +16,27 @@ const selectedHead = ref(null)
 const showMembersModal = ref(false)
 const members = ref([])
 const userRole = ref('')
+const selectedPurok = ref('')
+const editHead = ref(null)
+const showEditModal = ref(false)
 
 onMounted(async () => {
   await fetchHeadRecords()
 })
 
 const filteredRecords = computed(() => {
+  let records = headRecords.value
   const q = String(searchQuery.value || '').trim()
-  if (!q) return headRecords.value
-  return headRecords.value.filter(r => String(r.head_id).toLowerCase().includes(q.toLowerCase()))
+  if (q) {
+    records = records.filter(r => 
+      String(r.head_id).toLowerCase().includes(q.toLowerCase()) ||
+      String(r.lastname).toLowerCase().includes(q.toLowerCase())
+    )
+  }
+  if (selectedPurok.value) {
+    records = records.filter(r => r.purok === selectedPurok.value)
+  }
+  return records
 })
 
 const handleSearch = () => {
@@ -141,6 +153,40 @@ const archiveRecord = async (record) => {
     alert('Error archiving record.')
   }
 }
+
+// Edit Record
+const editRecord = (record) => {
+  editHead.value = { ...record }
+  showEditModal.value = true
+}
+
+const saveEdit = async () => {
+  try {
+    const { error } = await supabase
+      .from('household_heads')
+      .update({
+        purok: editHead.value.purok,
+        lastname: editHead.value.lastname,
+        firstname: editHead.value.firstname,
+        middlename: editHead.value.middlename,
+        suffix: editHead.value.suffix,
+        no_of_families: editHead.value.no_of_families,
+        population: editHead.value.population,
+        female_count: editHead.value.female_count,
+        male_count: editHead.value.male_count
+      })
+      .eq('head_id', editHead.value.head_id)
+
+    if (error) throw error
+
+    alert('Record updated successfully.')
+    showEditModal.value = false
+    await fetchHeadRecords()
+  } catch (e) {
+    console.error(e)
+    alert('Error updating record.')
+  }
+}
 </script>
 
 
@@ -154,7 +200,7 @@ const archiveRecord = async (record) => {
           <div class="ms-auto search-box">
             <div class="input-group">
               <button class="btn btn-primary report-btn">Report</button>
-              <input v-model="searchQuery" @keyup.enter="handleSearch" type="search" class="form-control search-input" placeholder="Search by Head ID..." aria-label="Search by Head ID">
+              <input v-model="searchQuery" @keyup.enter="handleSearch" type="search" class="form-control search-input" placeholder="Search by Head ID or Last Name..." aria-label="Search by Head ID or Last Name">
               <button class="btn btn-primary search-btn" @click="handleSearch">Search</button>
               <button class="btn btn-outline-secondary ms-2" v-if="searchQuery" @click="searchQuery = ''">Clear</button>
               <button v-if="userRole === 'Admin'" class="btn btn-warning report-btn" @click="router.push('/hhpsarchived')">Archived</button>
@@ -178,7 +224,13 @@ const archiveRecord = async (record) => {
                 <thead class="table-light">
                   <tr>
                     <th>Head ID</th>
-                    <th>Purok</th>
+                    <th><select v-model="selectedPurok" class="form-select me-2" style="max-width: 150px;">
+                <option value="">Purok</option>
+                <option value="Purok 1">Purok 1</option>
+                <option value="Purok 2">Purok 2</option>
+                <option value="Purok 3">Purok 3</option>
+                <option value="Purok 5">Purok 5</option>
+              </select></th>
                     <th>Last Name</th>
                     <th>First Name</th>
                     <th>Middle Name</th>
@@ -204,7 +256,7 @@ const archiveRecord = async (record) => {
                     <td>{{ record.male_count }}</td>
                     <td>
                       <button class="btn btn-primary btn-sm me-2" @click="viewMembers(record)">View Members</button>
-                      <button class="btn btn-secondary btn-sm me-2">Edit</button>
+                      <button class="btn btn-secondary btn-sm me-2" @click="editRecord(record)">Edit</button>
                       <button v-if="userRole === 'Admin'" class="btn btn-danger btn-sm me-2" @click="deleteRecord(record)">Delete</button>
                       <button v-if="userRole === 'Admin'" class="btn btn-warning btn-sm" @click="archiveRecord(record)">Archive</button>
                     </td>
@@ -269,6 +321,69 @@ const archiveRecord = async (record) => {
               </div>
               <div class="modal-footer">
                 <button class="btn btn-secondary" @click="showMembersModal = false">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal for Editing Head -->
+        <div class="modal fade show d-block" tabindex="-1" v-if="showEditModal" style="background: rgba(0,0,0,0.6)">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Edit Household Head: {{ editHead.firstname }} {{ editHead.lastname }}</h5>
+                <button type="button" class="btn-close" @click="showEditModal = false"></button>
+              </div>
+              <div class="modal-body">
+                <form @submit.prevent="saveEdit">
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label>Purok</label>
+                      <select v-model="editHead.purok" class="form-control" required>
+                        <option value="Purok 1">Purok 1</option>
+                        <option value="Purok 2">Purok 2</option>
+                        <option value="Purok 3">Purok 3</option>
+                        <option value="Purok 5">Purok 5</option>
+                      </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label>Last Name</label>
+                      <input v-model="editHead.lastname" type="text" class="form-control" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label>First Name</label>
+                      <input v-model="editHead.firstname" type="text" class="form-control" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label>Middle Name</label>
+                      <input v-model="editHead.middlename" type="text" class="form-control">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label>Suffix</label>
+                      <input v-model="editHead.suffix" type="text" class="form-control">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label>No. of Families</label>
+                      <input v-model.number="editHead.no_of_families" type="number" class="form-control">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label>Population</label>
+                      <input v-model.number="editHead.population" type="number" class="form-control">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label>Female Count</label>
+                      <input v-model.number="editHead.female_count" type="number" class="form-control">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label>Male Count</label>
+                      <input v-model.number="editHead.male_count" type="number" class="form-control">
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @click="showEditModal = false">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                  </div>
+                </form>
               </div>
             </div>
           </div>
