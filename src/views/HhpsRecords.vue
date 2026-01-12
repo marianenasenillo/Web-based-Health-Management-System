@@ -37,9 +37,18 @@ const fetchHeadRecords = async () => {
   loading.value = true
   error.value = null
   try {
+    // Get current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    if (userError) throw userError
+    if (!user) throw new Error('Not authenticated')
+
+    const userBarangay = user.user_metadata?.barangay
+    if (!userBarangay) throw new Error('No barangay assigned')
+
     const { data, error: err } = await supabase
       .from('household_heads')
       .select('*')
+      .eq('barangay', userBarangay)
       .order('created_at', { ascending: false })
 
     if (err) throw err

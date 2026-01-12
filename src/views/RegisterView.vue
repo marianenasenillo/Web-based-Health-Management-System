@@ -34,7 +34,7 @@ const successMessage = ref('')
 const errorMessage = ref('')
 
 // options
-const barangayOptions = ['Brgy. 5', 'Brgy. 6']
+const barangayOptions = ['Barangay 5', 'Barangay 6']
 const purokOptions = ['Purok 1', 'Purok 2', 'Purok 3']
 
 // validate form fields
