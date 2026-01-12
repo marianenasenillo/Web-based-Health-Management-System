@@ -162,7 +162,7 @@ const resetCervicalForm = () => {
 
 <template>
   <DashboardView>
-    <div class="maternal-bg d-flex align-items-center justify-content-between position-relative">
+    <div class="maternal-bg justify-content-between">
       <!-- Previous Arrow -->
       <button class="arrow-btn prev-btn" @click="goPrevPage">❮</button>
 
@@ -433,12 +433,15 @@ const resetCervicalForm = () => {
 /* Main background and overlay content */
 .maternal-bg {
   background: url('/images/maternal.jpg') no-repeat center center;
-  background-size: cover;
-  min-height: calc(120vh - 319px);
-  width: 100%;
+ background-size: cover;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   align-items: center;
-  position: relative;
+  justify-content: space-between;
   padding: 0 4rem;
 }
 .overlay-content {

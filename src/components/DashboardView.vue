@@ -246,7 +246,7 @@ async function saveProfile() {
       </v-navigation-drawer>
 
       <!-- MAIN CONTENT -->
-      <v-main>
+      <v-main class="d-flex align-items-center justify-content-start">
         <slot />
       </v-main>
 

@@ -126,8 +126,11 @@ const goNextPage = () => {
 .home-bg {
   background: url('/images/bg.jpg') no-repeat center center;
   background-size: cover;
-  min-height: calc(120vh - 319px);
-  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   justify-content: center;
   align-items: center;

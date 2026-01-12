@@ -63,7 +63,7 @@ const saveRecord = async () => {
 
 <template>
   <DashboardView>
-    <div class="family-bg d-flex align-items-center justify-content-between position-relative">
+    <div class="family-bg justify-content-between">
       <!-- Previous Arrow -->
       <button class="arrow-btn prev-btn" @click="goPrevPage">❮</button>
 
@@ -180,11 +180,14 @@ const saveRecord = async () => {
 .family-bg {
   background: url('/images/familyplanning-bg.jpg') no-repeat center center;
   background-size: cover;
-  min-height: calc(120vh - 319px);
-  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   align-items: center;
-  position: relative;
+  justify-content: space-between;
   padding: 0 4rem;
 }
 

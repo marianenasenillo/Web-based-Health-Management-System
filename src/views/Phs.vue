@@ -94,7 +94,7 @@ const resetForm = () => {
 
 <template>
   <DashboardView>
-    <div class="preventive-bg d-flex align-items-center justify-content-between position-relative">
+    <div class="preventive-bg justify-content-between">
       <!-- Previous Arrow -->
       <button class="arrow-btn prev-btn" @click="goPrevPage">❮</button>
 
@@ -208,11 +208,14 @@ const resetForm = () => {
 .preventive-bg {
   background: url('/images/preventivehealth.jpg') no-repeat center center;
   background-size: cover;
-  min-height: calc(120vh - 319px);
-  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   align-items: center;
-  position: relative;
+  justify-content: space-between;
   padding: 0 4rem;
 }
 
