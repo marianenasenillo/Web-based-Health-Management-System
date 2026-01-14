@@ -1,75 +1,350 @@
 <script setup>
 import DashboardView from '@/components/DashboardView.vue'
-import { ref, onMounted } from 'vue'
+import FpsExport from '@/components/reports/FpsExport.vue'
+import html2canvas from 'html2canvas'
+import jsPDF from 'jspdf'
+import { ref, onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { supabase } from '@/utils/supabase.js'
 
+const router = useRouter()
+const goBack = () => router.back()
+
+const loading = ref(true)
+const error = ref(null)
 const responsibleRecords = ref([])
+const searchQuery = ref('')
 
-// Fetch records from Supabase
-const fetchRecords = async () => {
-  const { data, error } = await supabase
-    .from('family_planning_records')
-    .select('*')
-    .order('created_at', { ascending: false })
+const userRole = ref('')
+const selectedPurok = ref('')
+const editRecord = ref(null)
+const showEditModal = ref(false)
+const showReportModal = ref(false)
+const reportRef = ref(null)
 
-  if (error) {
-    console.error('Error fetching records:', error)
+onMounted(async () => {
+  await fetchResponsibleRecords()
+})
+
+const filteredRecords = computed(() => {
+  let records = responsibleRecords.value
+  const q = String(searchQuery.value || '').trim()
+  if (q) {
+    records = records.filter(r =>
+      String(r.surname).toLowerCase().includes(q.toLowerCase()) ||
+      String(r.firstname).toLowerCase().includes(q.toLowerCase())
+    )
+  }
+  if (selectedPurok.value) {
+    records = records.filter(r => r.purok === selectedPurok.value)
+  }
+  return records
+})
+
+const handleSearch = () => {
+  // computed `filteredRecords` will react to `searchQuery`; keep placeholder for possible analytics or focus behavior
+  // we can also scroll table to top when searching
+  const el = document.querySelector('.table-responsive.large-table')
+  if (el) el.scrollTop = 0
+}
+
+const fetchResponsibleRecords = async () => {
+  loading.value = true
+  error.value = null
+  try {
+    // Get current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    if (userError) throw userError
+    if (!user) throw new Error('Not authenticated')
+
+    const userBarangay = user.user_metadata?.barangay
+    const userRoleValue = user.user_metadata?.role || 'BHW' // Default to BHW if no role specified
+    userRole.value = userRoleValue
+
+    if (!userBarangay) throw new Error('No barangay assigned')
+
+    const { data, error: err } = await supabase
+      .from('family_planning_records')
+      .select('*')
+      .eq('is_archived', false)
+      .order('created_at', { ascending: false })
+
+    if (err) throw err
+    responsibleRecords.value = data
+  } catch (e) {
+    console.error(e)
+    error.value = 'Failed to load family planning records.'
+  } finally {
+    loading.value = false
+  }
+}
+
+// Delete Record
+const deleteRecord = async (record) => {
+  if (!confirm(`Are you sure you want to delete the family planning record for "${record.firstname} ${record.surname}"? This action cannot be undone.`)) {
     return
   }
 
-  responsibleRecords.value = data.map(record => ({
-    surname: record.surname,
-    firstname: record.firstname,
-    motherName: record.mother_name,
-    sex: record.sex,
-    birthday: record.birthday,
-    age: record.age
-  }))
+  try {
+    const { error } = await supabase
+      .from('family_planning_records')
+      .delete()
+      .eq('id', record.id)
+
+    if (error) throw error
+
+    alert('Record deleted successfully.')
+    await fetchResponsibleRecords() // Refresh the list
+  } catch (e) {
+    console.error(e)
+    alert('Error deleting record.')
+  }
 }
 
-onMounted(() => {
-  fetchRecords()
-})
+// Edit Record
+const editRecordFunc = (record) => {
+  editRecord.value = { ...record }
+  showEditModal.value = true
+}
+
+const saveEdit = async () => {
+  try {
+    const { error } = await supabase
+      .from('family_planning_records')
+      .update({
+        surname: editRecord.value.surname,
+        firstname: editRecord.value.firstname,
+        mother_name: editRecord.value.mother_name,
+        sex: editRecord.value.sex,
+        birthday: editRecord.value.birthday,
+        age: editRecord.value.age,
+        purok: editRecord.value.purok
+      })
+      .eq('id', editRecord.value.id)
+
+    if (error) throw error
+
+    alert('Record updated successfully.')
+    showEditModal.value = false
+    await fetchResponsibleRecords() // Refresh the list
+  } catch (e) {
+    console.error(e)
+    alert('Error updating record.')
+  }
+}
+
+// Archive Record
+const archiveRecord = async (record) => {
+  if (!confirm(`Are you sure you want to archive the family planning record for "${record.firstname} ${record.surname}"?`)) {
+    return
+  }
+
+  try {
+    const { error } = await supabase
+      .from('family_planning_records')
+      .update({
+        is_archived: true,
+        archived_at: new Date().toISOString()
+      })
+      .eq('id', record.id)
+
+    if (error) throw error
+
+    alert('Record archived successfully.')
+    await fetchResponsibleRecords() // Refresh the list
+  } catch (e) {
+    console.error(e)
+    alert('Error archiving record.')
+  }
+}
+
+// Export PDF
+const exportPdf = async () => {
+  const element = reportRef.value
+  if (!element) return
+
+  try {
+    const canvas = await html2canvas(element, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#ffffff'
+    })
+
+    const imgData = canvas.toDataURL('image/png')
+    const pdf = new jsPDF('p', 'mm', 'a4')
+
+    const imgWidth = 210
+    const pageHeight = 295
+    const imgHeight = (canvas.height * imgWidth) / canvas.width
+    let heightLeft = imgHeight
+
+    let position = 0
+
+    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight)
+    heightLeft -= pageHeight
+
+    while (heightLeft >= 0) {
+      position = heightLeft - imgHeight
+      pdf.addPage()
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight)
+      heightLeft -= pageHeight
+    }
+
+    pdf.save('family-planning-report.pdf')
+  } catch (error) {
+    console.error('Error generating PDF:', error)
+    alert('Error generating PDF. Please try again.')
+  }
+}
 </script>
 
 
 <template>
   <DashboardView>
     <div class="family-bg">
-    <div class="container">
-      <div class="records-top d-flex align-items-center mb-2">
-        <button class="btn btn-outline-secondary me-3" @click="$router.back()">← Back</button>
-        <h3 class="mb-0">Responsible Parenthood and Planning Records</h3>
-        <div class="ms-auto search-box"></div>
-      </div>
-
-      <div class="table-wrapper">
-        <div class="table-responsive large-table">
-          <table class="table table-bordered table-hover mb-0">
-          <thead class="table-light">
-            <tr>
-              <th>Surname</th>
-              <th>First Name</th>
-              <th>Name of Mother</th>
-              <th>Sex</th>
-              <th>Birthday</th>
-              <th>Age in years</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(record, idx) in responsibleRecords" :key="idx">
-              <td>{{ record.surname }}</td>
-              <td>{{ record.firstname }}</td>
-              <td>{{ record.motherName }}</td>
-              <td>{{ record.sex }}</td>
-              <td>{{ record.birthday }}</td>
-              <td>{{ record.age }}</td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="container">
+        <div class="records-top d-flex align-items-center mb-2">
+          <button class="btn btn-outline-secondary me-3" @click="goBack">← Back</button>
+          <h3 class="mb-0">Responsible Parenthood and Planning Records</h3>
+          <div class="ms-auto search-box">
+            <div class="input-group">
+              <button class="btn btn-primary report-btn" @click="showReportModal = true">Report</button>
+              <input v-model="searchQuery" @keyup.enter="handleSearch" type="search" class="form-control search-input" placeholder="Search by Surname or First Name..." aria-label="Search by Surname or First Name">
+              <button class="btn btn-primary search-btn" @click="handleSearch">Search</button>
+              <button class="btn btn-outline-secondary ms-2" v-if="searchQuery" @click="searchQuery = ''">Clear</button>
+              <button v-if="userRole === 'Admin'" class="btn btn-warning report-btn" @click="router.push('/fpsarchived')">Archived</button>
+            </div>
+          </div>
         </div>
+
+        <div v-if="loading" class="text-center my-4">
+          <div class="spinner-border text-primary" role="status"></div>
+          <p>Loading records...</p>
+        </div>
+
+        <div v-else-if="error" class="alert alert-danger">
+          {{ error }}
+        </div>
+
+        <div v-else>
+          <div class="table-wrapper">
+            <div class="table-responsive large-table">
+              <table class="table table-bordered table-striped mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th><select v-model="selectedPurok" class="form-select me-2" style="max-width: 150px;">
+                <option value="">Purok</option>
+                <option value="Purok 1">Purok 1</option>
+                <option value="Purok 2">Purok 2</option>
+                <option value="Purok 3">Purok 3</option>
+                <option value="Purok 5">Purok 5</option>
+              </select></th>
+                    <th>Surname</th>
+                    <th>First Name</th>
+                    <th>Name of Mother</th>
+                    <th>Sex</th>
+                    <th>Birthday</th>
+                    <th>Age in years</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="record in filteredRecords" :key="record.id">
+                    <td>{{ record.purok }}</td>
+                    <td>{{ record.surname }}</td>
+                    <td>{{ record.firstname }}</td>
+                    <td>{{ record.mother_name }}</td>
+                    <td>{{ record.sex }}</td>
+                    <td>{{ record.birthday }}</td>
+                    <td>{{ record.age }}</td>
+                    <td>
+                      <button class="btn btn-secondary btn-sm me-2" @click="editRecordFunc(record)">Edit</button>
+                      <button v-if="userRole === 'Admin'" class="btn btn-danger btn-sm me-2" @click="deleteRecord(record)">Delete</button>
+                      <button v-if="userRole === 'Admin'" class="btn btn-warning btn-sm" @click="archiveRecord(record)">Archive</button>
+                    </td>
+                  </tr>
+
+                  <tr v-if="filteredRecords.length === 0">
+                    <td colspan="8" class="text-center">No records found.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal for Editing Record -->
+        <div class="modal fade show d-block" tabindex="-1" v-if="showEditModal" style="background: rgba(0,0,0,0.6)">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Edit Family Planning Record: {{ editRecord.firstname }} {{ editRecord.surname }}</h5>
+                <button type="button" class="btn-close" @click="showEditModal = false"></button>
+              </div>
+              <div class="modal-body">
+                <form @submit.prevent="saveEdit">
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label>Purok</label>
+                      <select v-model="editRecord.purok" class="form-control" required>
+                        <option value="Purok 1">Purok 1</option>
+                        <option value="Purok 2">Purok 2</option>
+                        <option value="Purok 3">Purok 3</option>
+                        <option value="Purok 5">Purok 5</option>
+                      </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label>Surname</label>
+                      <input v-model="editRecord.surname" type="text" class="form-control" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label>First Name</label>
+                      <input v-model="editRecord.firstname" type="text" class="form-control" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label>Name of Mother</label>
+                      <input v-model="editRecord.mother_name" type="text" class="form-control">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label>Sex</label>
+                      <select v-model="editRecord.sex" class="form-control">
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                      </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label>Birthday</label>
+                      <input v-model="editRecord.birthday" type="date" class="form-control">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label>Age in years</label>
+                      <input v-model.number="editRecord.age" type="number" class="form-control">
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @click="showEditModal = false">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal for Report -->
+        <div v-if="showReportModal" class="records-overlay">
+          <div class="records-box d-flex flex-column align-items-center">
+            <!-- back button (left) and a compact export button (top-right) positioned absolutely so they don't affect layout -->
+            <button class="back-btn" @click="showReportModal = false">← back</button>
+            <button class="export-small-btn" @click="exportPdf" title="Export PDF">⤓</button>
+            <div ref="reportRef" class="report-container py-4 bg-white shadow rounded">
+              <FpsExport />
+            </div>
+          </div>
+        </div>
+
       </div>
-    </div>
     </div>
   </DashboardView>
 </template>
@@ -103,5 +378,94 @@ onMounted(() => {
 @media (max-width: 768px) {
   .search-box { max-width: 100% }
   .large-table thead th { font-size: 0.95rem }
+}
+
+.records-overlay {
+  position: fixed;
+  top: 22px;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  padding: 2rem;
+}
+.records-box {
+  background: rgba(162, 163, 160, 0.65);
+  padding: 3rem 4rem;
+  border-radius: 1rem;
+  max-width: 1300px;
+  width: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+.back-btn {
+  position: absolute;
+  top: 100px;
+  left: -50px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-weight: bold;
+  color: #000;
+  font-size: 1.35rem;
+  padding: 0.5rem 0.9rem;
+  cursor: pointer;
+  transition: transform 0.2s;
+  z-index: 2001;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.back-btn:hover {
+  transform: scale(1.1);
+}
+.report-container {
+  max-width: 1100px;
+  padding-left: 3rem;
+  padding-right: 3rem;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.export-small-btn {
+  position: absolute;
+  top: 100px;
+  right: 12px;
+  background-color: rgba(43, 122, 11, 0.95);
+  color: #fff;
+  border: none;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1;
+  min-width: 48px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2001;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.export-small-btn:hover { background-color: #236008 }
+
+/* Prevent breaking inside important blocks when printing */
+.no-break, .report-container * {
+  -webkit-column-break-inside: avoid;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+@media print {
+  .records-overlay { background: #fff !important; }
+  .records-box { box-shadow: none !important; background: #fff !important; }
+  .report-container { max-height: none !important; overflow: visible !important; }
+  .back-btn, .export-btn { display: none !important; }
 }
 </style>

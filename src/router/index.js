@@ -23,6 +23,9 @@ import HhpsArchived from '@/views/HhpsArchived.vue'
 import ResetPassword from '@/views/ResetPassword.vue'
 import MaternalArchived from '@/views/MaternalArchived.vue'
 import WraArchived from '@/views/WraArchived.vue'
+import ChildcareArchived from '@/views/ChildcareArchived.vue'
+import FpsArchived from '@/views/FpsArchived.vue'
+import PhsArchived from '@/views/PhsArchived.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -146,6 +149,21 @@ const router = createRouter({
       path: '/wraarchived',
       name: 'wraarchived',
       component: WraArchived,
+    },
+    {
+      path: '/childcarearchived',
+      name: 'childcarearchived',
+      component: ChildcareArchived,
+    },
+    {
+      path: '/fpsarchived',
+      name: 'fpsarchived',
+      component: FpsArchived,
+    },
+    {
+      path: '/phsarchived',
+      name: 'phsarchived',
+      component: PhsArchived,
     },
   ],
 })
