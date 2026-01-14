@@ -1,6 +1,6 @@
 <script setup>
 import DashboardView from '@/components/DashboardView.vue'
-import MaternalExport from '@/components/reports/MaternalExport.vue'
+import WraExport from '@/components/reports/WraExport.vue'
 import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
 import { ref, onMounted, computed } from 'vue'
@@ -199,6 +199,15 @@ const exportPdf = async () => {
   }
 
   try {
+    const el = reportRef.value
+    if (!el) {
+      alert('Report content not available.')
+      return
+    }
+
+    // wait a moment so charts / dynamic content can finish rendering
+    await new Promise(resolve => setTimeout(resolve, 300))
+
     const canvas = await html2canvas(reportRef.value, {
       scale: 2, // Higher scale for better quality
       useCORS: true,
@@ -226,9 +235,9 @@ const exportPdf = async () => {
       heightLeft -= pageHeight
     }
 
-    pdf.save('maternal_report.pdf')
-  } catch (error) {
-    console.error('Error generating PDF:', error)
+    pdf.save('wra_report.pdf')
+  } catch (err) {
+    console.error('Error generating PDF:', err)
     alert('Error generating PDF. Please try again.')
   }
 }
@@ -457,7 +466,7 @@ const exportPdf = async () => {
             <button class="back-btn" @click="showReportModal = false">← back</button>
             <button class="export-small-btn" @click="exportPdf" title="Export PDF">⤓</button>
             <div ref="reportRef" class="report-container py-4 bg-white shadow rounded">
-              <MaternalExport />
+              <WraExport />
             </div>
           </div>
         </div>

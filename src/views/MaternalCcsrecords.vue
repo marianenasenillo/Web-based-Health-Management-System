@@ -167,6 +167,15 @@ const exportPdf = async () => {
   }
 
   try {
+    const el = reportRef.value
+    if (!el) {
+      alert('Report content not available.')
+      return
+    }
+
+    // wait a moment so charts / dynamic content can finish rendering
+    await new Promise(resolve => setTimeout(resolve, 300))
+
     const canvas = await html2canvas(reportRef.value, {
       scale: 2, // Higher scale for better quality
       useCORS: true,
@@ -195,8 +204,8 @@ const exportPdf = async () => {
     }
 
     pdf.save('maternal_report.pdf')
-  } catch (error) {
-    console.error('Error generating PDF:', error)
+  } catch (err) {
+    console.error('Error generating PDF:', err)
     alert('Error generating PDF. Please try again.')
   }
 }
