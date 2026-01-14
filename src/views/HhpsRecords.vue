@@ -1,5 +1,8 @@
 <script setup>
 import DashboardView from '@/components/DashboardView.vue'
+import Hhpsexport from '@/components/reports/Hhpsexport.vue'
+import html2canvas from 'html2canvas'
+import jsPDF from 'jspdf'
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { supabase } from '@/utils/supabase.js'
@@ -19,6 +22,8 @@ const userRole = ref('')
 const selectedPurok = ref('')
 const editHead = ref(null)
 const showEditModal = ref(false)
+const showReportModal = ref(false)
+const reportRef = ref(null)
 
 onMounted(async () => {
   await fetchHeadRecords()
@@ -187,6 +192,48 @@ const saveEdit = async () => {
     alert('Error updating record.')
   }
 }
+
+// Export PDF function
+const exportPdf = async () => {
+  if (!reportRef.value) {
+    alert('Report content not available.')
+    return
+  }
+
+  try {
+    const canvas = await html2canvas(reportRef.value, {
+      scale: 2, // Higher scale for better quality
+      useCORS: true,
+      allowTaint: false,
+      backgroundColor: '#ffffff'
+    })
+
+    const imgData = canvas.toDataURL('image/png')
+    const pdf = new jsPDF('p', 'mm', 'a4') // A4 size
+
+    const imgWidth = 210 // A4 width in mm
+    const pageHeight = 295 // A4 height in mm
+    const imgHeight = (canvas.height * imgWidth) / canvas.width
+    let heightLeft = imgHeight
+
+    let position = 0
+
+    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight)
+    heightLeft -= pageHeight
+
+    while (heightLeft >= 0) {
+      position = heightLeft - imgHeight
+      pdf.addPage()
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight)
+      heightLeft -= pageHeight
+    }
+
+    pdf.save('household_report.pdf')
+  } catch (error) {
+    console.error('Error generating PDF:', error)
+    alert('Error generating PDF. Please try again.')
+  }
+}
 </script>
 
 
@@ -199,7 +246,7 @@ const saveEdit = async () => {
           <h3 class="mb-0">Household Head Profiling Records</h3>
           <div class="ms-auto search-box">
             <div class="input-group">
-              <button class="btn btn-primary report-btn">Report</button>
+              <button class="btn btn-primary report-btn" @click="showReportModal = true">Export Overall Report</button>
               <input v-model="searchQuery" @keyup.enter="handleSearch" type="search" class="form-control search-input" placeholder="Search by Head ID or Last Name..." aria-label="Search by Head ID or Last Name">
               <button class="btn btn-primary search-btn" @click="handleSearch">Search</button>
               <button class="btn btn-outline-secondary ms-2" v-if="searchQuery" @click="searchQuery = ''">Clear</button>
@@ -389,6 +436,18 @@ const saveEdit = async () => {
           </div>
         </div>
 
+        <!-- Modal for Report -->
+        <div v-if="showReportModal" class="records-overlay">
+          <div class="records-box d-flex flex-column align-items-center">
+            <!-- back button (left) and a compact export button (top-right) positioned absolutely so they don't affect layout -->
+            <button class="back-btn" @click="showReportModal = false">← back</button>
+            <button class="export-small-btn" @click="exportPdf" title="Export PDF">⤓</button>
+            <div ref="reportRef" class="report-container py-4 bg-white shadow rounded">
+              <Hhpsexport />
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </DashboardView>
@@ -426,5 +485,94 @@ const saveEdit = async () => {
 @media (max-width: 768px) {
   .search-box { max-width: 100% }
   .large-table thead th { font-size: 0.95rem }
+}
+
+.records-overlay {
+  position: fixed;
+  top: 22px;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  padding: 2rem;
+}
+.records-box {
+  background: rgba(162, 163, 160, 0.65);
+  padding: 3rem 4rem;
+  border-radius: 1rem;
+  max-width: 1300px;
+  width: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+.back-btn {
+  position: absolute;
+  top: 100px;
+  left: -50px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-weight: bold;
+  color: #000;
+  font-size: 1.35rem;
+  padding: 0.5rem 0.9rem;
+  cursor: pointer;
+  transition: transform 0.2s;
+  z-index: 2001;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.back-btn:hover {
+  transform: scale(1.1);
+}
+.report-container {
+  max-width: 1100px;
+  padding-left: 3rem;
+  padding-right: 3rem;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.export-small-btn {
+  position: absolute;
+  top: 100px;
+  right: 12px;
+  background-color: rgba(43, 122, 11, 0.95);
+  color: #fff;
+  border: none;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1;
+  min-width: 48px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2001;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.export-small-btn:hover { background-color: #236008 }
+
+/* Prevent breaking inside important blocks when printing */
+.no-break, .report-container * {
+  -webkit-column-break-inside: avoid;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+@media print {
+  .records-overlay { background: #fff !important; }
+  .records-box { box-shadow: none !important; background: #fff !important; }
+  .report-container { max-height: none !important; overflow: visible !important; }
+  .back-btn, .export-btn { display: none !important; }
 }
 </style>
