@@ -331,13 +331,17 @@ onMounted(async () => {
 
 <style scoped>
 .inventory-bg {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2rem;
-  padding: 2rem;
   background: url('/images/inventory.jpg') no-repeat center center;
   background-size: cover;
-  min-height: calc(120vh - 319px);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4rem;
 }
 
 .inventory-card {

@@ -91,7 +91,7 @@ const exportPdf = async () => {
 
 <template>
   <DashboardView>
-    <div class="report-bg d-flex align-items-center position-relative">
+    <div class="report-bg ">
       <div class="overlay-content text-white text-start">
         <h1 class="fw-bold">Health Summary Report</h1>
         <p>Click below to view the Health Summary Report for Barangay 5.</p>
@@ -116,14 +116,20 @@ const exportPdf = async () => {
 
 <style scoped>
 .report-bg {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2rem;
-  padding: 2rem;
+  
   background: url('/images/bg.jpg') no-repeat center center;
   background-size: cover;
-  min-height: calc(120vh - 319px);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4rem;
 }
+
 .overlay-content {
   background: rgba(131, 189, 45, 0.65);
   padding: 2rem;

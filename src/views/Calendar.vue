@@ -358,7 +358,7 @@ onMounted(async () => {
 
 <template>
   <DashboardView>
-    <div class="calendar-bg">
+    <div class="calendar-bg gap-4">
       <div class="calendar-box">
         <DayPilotMonth
           ref="monthRef"
@@ -413,15 +413,19 @@ onMounted(async () => {
 
 <style>
 .calendar-bg {
-  display: flex;
-  gap: 2rem;
-  padding: 2rem;
   background: url('/images/health.jpg') no-repeat center center;
   background-size: cover;
-  min-height: calc(120vh - 319px);
-  align-items: flex-start;
-  backdrop-filter: blur(2px);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4rem;
 }
+
 
 .calendar-box {
   width: 1000px;
