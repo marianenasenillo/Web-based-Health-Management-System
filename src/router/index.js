@@ -20,6 +20,7 @@ import RegisterView from '@/views/RegisterView.vue'
 import BhwView from '@/views/BhwView.vue'
 import Hhpsexport from '@/components/reports/Hhpsexport.vue'
 import HhpsArchived from '@/views/HhpsArchived.vue'
+import ResetPassword from '@/views/ResetPassword.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -28,6 +29,11 @@ const router = createRouter({
       path: '/',
       name: 'Home',
       component: LoginView,
+    },
+    {
+      path: '/reset-password',
+      name: 'ResetPassword',
+      component: ResetPassword,
     },
     {
       path: '/dashboard',

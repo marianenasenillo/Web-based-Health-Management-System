@@ -71,6 +71,27 @@ const handleLogin = async () => {
     loading.value = false
   }
 }
+
+// handle forgot password
+const handleForgotPassword = async () => {
+  if (!email.value) {
+    alert('Please enter your email address first.')
+    return
+  }
+
+  try {
+    const { error } = await supabase.auth.resetPasswordForEmail(email.value, {
+      redirectTo: `${window.location.origin}/reset-password`
+    })
+
+    if (error) throw error
+
+    alert('Password reset email sent! Check your inbox.')
+  } catch (err) {
+    console.error(err)
+    alert(err.message || 'Failed to send reset email.')
+  }
+}
 </script>
 
 <template>
@@ -170,7 +191,7 @@ const handleLogin = async () => {
 
               <!-- Forgot Password -->
               <p class="text-center mt-2">
-                <a href="#" style="color: black; text-decoration: underline">Forgot password?</a>
+                <a href="#" @click.prevent="handleForgotPassword" style="color: black; text-decoration: underline; cursor: pointer;">Forgot password?</a>
               </p>
             </v-card>
           </v-col>
