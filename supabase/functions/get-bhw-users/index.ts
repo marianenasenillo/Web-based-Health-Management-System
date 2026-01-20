@@ -34,6 +34,7 @@ serve(async (req) => {
         birthdate: u.user_metadata?.birthdate || 'N/A',
         contact: u.user_metadata?.contact || 'N/A',
         purok: u.user_metadata?.purok || 'N/A',
+        barangay: u.user_metadata?.barangay || 'N/A',
         schedule: u.user_metadata?.schedule || 'N/A',
         photo: u.user_metadata?.avatar_url || '/images/default-avatar.png',
         role: u.user_metadata?.role || 'N/A',
