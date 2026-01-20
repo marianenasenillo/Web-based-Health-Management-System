@@ -153,7 +153,7 @@ const exportPdf = async () => {
 }
 .records-overlay {
   position: fixed;
-  top: 0;
+  top: 20px;
   left: 0;
   width: 100%;
   height: 100%;
@@ -170,6 +170,7 @@ const exportPdf = async () => {
   border-radius: 1rem;
   max-width: 1300px;
   width: 100%;
+  height: 600px;
   position: relative;
   display: flex;
   flex-direction: column;
