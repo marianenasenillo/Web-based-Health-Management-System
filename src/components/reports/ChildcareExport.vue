@@ -218,60 +218,6 @@ onMounted(async () => {
         </div>
       </div>
     </section>
-
-    <!-- TABLE SECTION -->
-    <section class="mb-4">
-      <h5 class="fw-bold mb-3">Detailed Records</h5>
-      <div class="table-responsive">
-        <table class="table table-bordered table-striped">
-          <thead class="table-light">
-            <tr>
-              <th>Purok</th>
-              <th>Last Name</th>
-              <th>First Name</th>
-              <th>Middle Name</th>
-              <th>Suffix</th>
-              <th>Age</th>
-              <th>Birthdate</th>
-              <th>Gender</th>
-              <th>Full name of Mother</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="record in vitaminARecords" :key="record.id">
-              <td>{{ record.purok }}</td>
-              <td>{{ record.lastname }}</td>
-              <td>{{ record.firstname }}</td>
-              <td>{{ record.middlename }}</td>
-              <td>{{ record.suffix }}</td>
-              <td>{{ record.age }}</td>
-              <td>{{ record.birthdate }}</td>
-              <td>{{ record.gender }}</td>
-              <td>{{ record.motherName }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- FOOTER -->
-    <div class="mt-5 pt-4 border-top">
-      <div class="row">
-        <div class="col-6">
-          <p class="mb-0">
-            <strong>Prepared by:</strong><br>
-            BHW Coordinator<br>
-            Barangay {{ userBarangay }}
-          </p>
-        </div>
-        <div class="col-6 text-end">
-          <p class="mb-0">
-            <strong>Date Generated:</strong><br>
-            {{ new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) }}
-          </p>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 

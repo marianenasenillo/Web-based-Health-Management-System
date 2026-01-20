@@ -1,5 +1,6 @@
 <script setup>
 import DashboardView from '@/components/DashboardView.vue'
+import Hhpsexport from '@/components/reports/Hhpsexport.vue'
 import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
 import { ref, onMounted, computed } from 'vue'
@@ -21,6 +22,14 @@ const userRole = ref('')
 const selectedPurok = ref('')
 const editHead = ref(null)
 const showEditModal = ref(false)
+
+const showReport = ref(false)
+const reportRef = ref(null)
+
+const openReport = () => {
+  showReport.value = true
+}
+const closeReport = () => (showReport.value = false)
 
 onMounted(async () => {
   await fetchHeadRecords()
@@ -259,6 +268,71 @@ const exportPdf = async () => {
     alert('Error generating PDF. Please try again.')
   }
 }
+const exportreportPdf = async () => {
+  if (!reportRef.value) return
+  const element = reportRef.value
+
+  // temporarily remove max-height/overflow so entire content is captured
+  const originalOverflow = element.style.overflow
+  const originalMaxHeight = element.style.maxHeight
+  element.style.overflow = 'visible'
+  element.style.maxHeight = 'none'
+
+  // Temporarily reduce logo sizes for PDF export
+  const logos = element.querySelectorAll('img[alt="Province Logo"], img[alt="Barangay Logo"]')
+  const originalSizes = []
+  const originalMargins = []
+  logos.forEach(img => {
+    originalSizes.push(img.style.height)
+    img.style.height = '80px'
+    if (img.alt === 'Province Logo') {
+      originalMargins.push(img.style.right)
+      img.style.position = 'relative'
+      img.style.right = '-130px'
+    }
+  })
+
+  // Render element to canvas at higher scale for better quality
+  const canvas = await html2canvas(element, { scale: 2, useCORS: true })
+  const imgData = canvas.toDataURL('image/png')
+
+  // Restore logo sizes
+  logos.forEach((img, index) => {
+    img.style.height = originalSizes[index]
+    if (img.alt === 'Province Logo') {
+      img.style.right = originalMargins[index] || ''
+      img.style.position = ''
+    }
+  })
+
+  // A4 size in mm
+  const pdf = new jsPDF('p', 'mm', 'a4')
+  const pageWidth = pdf.internal.pageSize.getWidth()
+  const pageHeight = pdf.internal.pageSize.getHeight()
+
+  // Convert canvas pixel size to mm for jsPDF
+  const pxPerMm = canvas.width / (pageWidth * (window.devicePixelRatio || 1))
+  const imgWidthMm = pageWidth
+  const imgHeightMm = (canvas.height / pxPerMm) / (window.devicePixelRatio || 1)
+
+  let remainingHeight = imgHeightMm
+  let position = 0
+
+  // Add image slices per page
+  while (remainingHeight > 0) {
+    pdf.addImage(imgData, 'PNG', 0, position, imgWidthMm, imgHeightMm)
+    remainingHeight -= pageHeight
+    if (remainingHeight > 0) pdf.addPage()
+    // next page position: shift the image up by pageHeight (negative)
+    position -= pageHeight
+  }
+
+  pdf.save('report.pdf')
+
+  // restore styles
+  element.style.overflow = originalOverflow
+  element.style.maxHeight = originalMaxHeight
+}
 </script>
 
 
@@ -276,8 +350,19 @@ const exportPdf = async () => {
               <button class="btn btn-primary search-btn" @click="handleSearch">Search</button>
               <button class="btn btn-outline-secondary ms-2" v-if="searchQuery" @click="searchQuery = ''">Clear</button>
               <button  class="btn btn-warning report-btn" @click="router.push('/hhpsarchived')">Archived</button>
-              <button  class="btn btn-primary report-btn" >Report</button>
+              <button  class="btn view-btn btn-primary report-btn" @click="openReport" >Report</button>
             </div>
+            <div v-if="showReport" class="records-overlay">
+        <div class="records-box d-flex flex-column align-items-center">
+          <!-- back button (left) and a compact export button (top-right) positioned absolutely so they don't affect layout -->
+          <button class="back-btn align-self-start" @click="closeReport">← back</button>
+          <button class="export-small-btn" @click="exportreportPdf" title="Export PDF">⤓</button>
+          <div ref="reportRef" class="report-container py-4 bg-white shadow rounded">
+            <Hhpsexport/>
+            
+          </div>
+        </div>
+      </div>
           </div>
         </div>
 
@@ -503,7 +588,7 @@ const exportPdf = async () => {
 
 .records-overlay {
   position: fixed;
-  top: 22px;
+  top: 20px;
   left: 0;
   width: 100%;
   height: 100%;
@@ -520,6 +605,7 @@ const exportPdf = async () => {
   border-radius: 1rem;
   max-width: 1300px;
   width: 100%;
+  height: 600px;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -528,19 +614,16 @@ const exportPdf = async () => {
 }
 .back-btn {
   position: absolute;
-  top: 100px;
-  left: -50px;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid #ccc;
-  border-radius: 6px;
+  top: 15px;
+  left: 15px;
+  background: transparent;
+  border: none;
   font-weight: bold;
   color: #000;
   font-size: 1.35rem;
   padding: 0.5rem 0.9rem;
   cursor: pointer;
   transition: transform 0.2s;
-  z-index: 2001;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 .back-btn:hover {
   transform: scale(1.1);
@@ -549,30 +632,28 @@ const exportPdf = async () => {
   max-width: 1100px;
   padding-left: 3rem;
   padding-right: 3rem;
-  max-height: 80vh;
-  overflow-y: auto;
+  max-height: 80vh;      /* NEW: limit height */
+  overflow-y: auto;      /* NEW: enable vertical scroll */
 }
 
 .export-small-btn {
   position: absolute;
-  top: 100px;
+  top: 12px;
   right: 12px;
   background-color: rgba(43, 122, 11, 0.95);
   color: #fff;
   border: none;
-  padding: 0.5rem 0.75rem;
+  padding: 0.25rem 0.45rem;
   border-radius: 6px;
   cursor: pointer;
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 0.85rem;
   line-height: 1;
-  min-width: 48px;
-  height: 40px;
+  min-width: 36px;
+  height: 32px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  z-index: 2001;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 .export-small-btn:hover { background-color: #236008 }
 
@@ -582,6 +663,8 @@ const exportPdf = async () => {
   page-break-inside: avoid;
   break-inside: avoid;
 }
+
+
 
 @media print {
   .records-overlay { background: #fff !important; }
