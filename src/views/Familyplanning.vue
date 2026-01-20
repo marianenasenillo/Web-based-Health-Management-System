@@ -10,6 +10,7 @@ const activeMenu = ref('')
 const showModal = ref(false)
 const modalType = ref('')
 const userRole = ref('')
+const userBarangay = ref('')
 
 // Form fields
 const surname = ref('')
@@ -66,6 +67,7 @@ const saveRecord = async () => {
 onMounted(async () => {
   const { data: { user } } = await supabase.auth.getUser()
   userRole.value = user?.user_metadata?.role || ''
+  userBarangay.value = user?.user_metadata?.barangay || ''
 })
 
 </script>
@@ -136,7 +138,8 @@ onMounted(async () => {
              Responsible Parenthood  and Planning
             </h2>
           </div>
-          <img src="/images/barangaylogo.png" alt="Barangay Logo" style="height: 80px;" />
+          <img v-if="userBarangay === 'Barangay 5'" src="/images/barangaylogo.png" alt="Barangay 5" style="height: 80px;" />
+          <img v-else src="/images/barangay6.png" alt="Barangay 6" style="height: 80px;" />
         </div>
         <hr />
         <form @submit.prevent="saveRecord" class="responsible-form">

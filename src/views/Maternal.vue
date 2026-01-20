@@ -10,6 +10,7 @@ const showModal = ref(false)
 const activeMenu = ref('')
 const modalType = ref('')
 const userRole = ref('')
+const userBarangay = ref('')
 
 // WRA form fields
 const purok = ref('')
@@ -162,6 +163,7 @@ const resetCervicalForm = () => {
 onMounted(async () => {
   const { data: { user } } = await supabase.auth.getUser()
   userRole.value = user?.user_metadata?.role || ''
+  userBarangay.value = user?.user_metadata?.barangay || ''
 })
 </script>
 
@@ -245,7 +247,8 @@ onMounted(async () => {
               WRA LIST _____ (10-49 YEARS OLD)
             </h2>
           </div>
-          <img src="/images/barangaylogo.png" alt="Barangay Logo" style="height: 80px;" />
+          <img v-if="userBarangay === 'Barangay 5'" src="/images/barangaylogo.png" alt="Barangay 5" style="height: 80px;" />
+          <img v-else src="/images/barangay6.png" alt="Barangay 6" style="height: 80px;" />
         </div>
         <hr />
         <form @submit.prevent="saveWra" class="wra-form">
@@ -380,7 +383,8 @@ onMounted(async () => {
           </span>
             </h2>
           </div>
-          <img src="/images/barangaylogo.png" alt="Barangay Logo" style="height: 80px;" />
+          <img v-if="userBarangay === 'Barangay 5'" src="/images/barangaylogo.png" alt="Barangay 5" style="height: 80px;" />
+          <img v-else src="/images/barangay6.png" alt="Barangay 6" style="height: 80px;" />
         </div>
         <hr />
         <form @submit.prevent="saveCervical" class="cervical-form">

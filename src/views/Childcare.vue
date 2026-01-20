@@ -11,6 +11,7 @@ const activeMenu = ref('')
 const showModal = ref(false)
 const modalType = ref('')
 const userRole = ref('')
+const userBarangay = ref('')
 
 // Navigation
 const goPrevPage = () => router.push('/maternalservices')
@@ -73,12 +74,17 @@ const saveVitaminaRecord = async () => {
     closeModal()
   }
 }
-</script>
-
 onMounted(async () => {
   const { data: { user } } = await supabase.auth.getUser()
   userRole.value = user?.user_metadata?.role || ''
+  userBarangay.value = user?.user_metadata?.barangay || ''
+  console.log('User role:', userRole.value)
+  console.log('User barangay:', userBarangay.value)
+  console.log('Full user metadata:', user?.user_metadata)
 })
+</script>
+
+
 
 
 <template>
@@ -147,7 +153,8 @@ onMounted(async () => {
               Vitamin A Supplementation _____  (1-4 yrs old)
             </h2>
           </div>
-          <img src="/images/barangaylogo.png" alt="Barangay Logo" style="height: 80px;" />
+          <img v-if="userBarangay === 'Barangay 5'" src="/images/barangaylogo.png" alt="Barangay 5" style="height: 80px;" />
+          <img v-else src="/images/barangay6.png" alt="Barangay 6" style="height: 80px;" />
         </div>
         <hr />
   <div class="modal-form-wrap">
