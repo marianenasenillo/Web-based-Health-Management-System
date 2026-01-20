@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { supabase } from '@/utils/supabase'
 import {
@@ -34,10 +34,17 @@ const successMessage = ref('')
 const errorMessage = ref('')
 const showSuccessSnackbar = ref(false)
 const showErrorSnackbar = ref(false)
+const userBarangay = ref('')
 
 // options
 const barangayOptions = ['Barangay 5', 'Barangay 6']
 const purokOptions = ['Purok 1', 'Purok 2', 'Purok 3']
+
+onMounted(async () => {
+  const { data: { user } } = await supabase.auth.getUser()
+  userBarangay.value = user?.user_metadata?.barangay || ''
+  barangay.value = userBarangay.value
+})
 
 // validate form fields
 const validateForm = () => {
@@ -186,11 +193,10 @@ const handleRegister = async () => {
                     class="text-white"
                     style="--v-theme-on-surface: white"
                   />
-                  <v-select
+                  <v-text-field
                     v-model="barangay"
-                    :error-messages="barangayError !== true ? barangayError : ''"
                     label="Barangay"
-                    :items="barangayOptions"
+                    readonly
                     variant="filled"
                     bg-color="#5b841e"
                     color="white"
