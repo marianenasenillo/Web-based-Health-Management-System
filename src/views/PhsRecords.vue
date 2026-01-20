@@ -32,7 +32,7 @@ const filteredRecords = computed(() => {
   if (q) {
     records = records.filter(r =>
       String(r.firstname).toLowerCase().includes(q.toLowerCase()) ||
-      String(r.surname).toLowerCase().includes(q.toLowerCase())
+      String(r.lastname).toLowerCase().includes(q.toLowerCase())
     )
   }
   if (selectedPurok.value) {
@@ -40,6 +40,8 @@ const filteredRecords = computed(() => {
   }
   return records
 })
+
+const sexDisplay = (sex) => sex === 'F' ? 'Female' : sex === 'M' ? 'Male' : sex
 
 const handleSearch = () => {
   // computed `filteredRecords` will react to `searchQuery`; keep placeholder for possible analytics or focus behavior
@@ -81,7 +83,7 @@ const fetchDewormingRecords = async () => {
 
 // Delete Record
 const deleteRecord = async (record) => {
-  if (!confirm(`Are you sure you want to delete the deworming record for "${record.firstname} ${record.surname}"? This action cannot be undone.`)) {
+  if (!confirm(`Are you sure you want to delete the deworming record for "${record.firstname} ${record.lastname}"? This action cannot be undone.`)) {
     return
   }
 
@@ -112,7 +114,7 @@ const saveEdit = async () => {
     const { error } = await supabase
       .from('deworming_records')
       .update({
-        surname: editRecord.value.surname,
+        lastname: editRecord.value.lastname,
         firstname: editRecord.value.firstname,
         middlename: editRecord.value.middlename,
         mother_name: editRecord.value.mother_name,
@@ -136,7 +138,7 @@ const saveEdit = async () => {
 
 // Archive Record
 const archiveRecord = async (record) => {
-  if (!confirm(`Are you sure you want to archive the deworming record for "${record.firstname} ${record.surname}"?`)) {
+  if (!confirm(`Are you sure you want to archive the deworming record for "${record.firstname} ${record.lastname}"?`)) {
     return
   }
 
@@ -210,7 +212,7 @@ const exportPdf = async () => {
           <div class="ms-auto search-box">
             <div class="input-group">
               <button class="btn btn-primary report-btn" @click="showReportModal = true">Report</button>
-              <input v-model="searchQuery" @keyup.enter="handleSearch" type="search" class="form-control search-input" placeholder="Search by Surname or First Name..." aria-label="Search by Surname or First Name">
+              <input v-model="searchQuery" @keyup.enter="handleSearch" type="search" class="form-control search-input" placeholder="Search by Lastname or First Name..." aria-label="Search by Lastname or First Name">
               <button class="btn btn-primary search-btn" @click="handleSearch">Search</button>
               <button class="btn btn-outline-secondary ms-2" v-if="searchQuery" @click="searchQuery = ''">Clear</button>
               <button v-if="userRole === 'Admin'" class="btn btn-warning report-btn" @click="router.push('/phsarchived')">Archived</button>
@@ -238,9 +240,10 @@ const exportPdf = async () => {
                 <option value="Purok 1">Purok 1</option>
                 <option value="Purok 2">Purok 2</option>
                 <option value="Purok 3">Purok 3</option>
+                <option value="Purok 4">Purok 4</option>
                 <option value="Purok 5">Purok 5</option>
               </select></th>
-                    <th>Surname</th>
+                    <th>Lastname</th>
                     <th>First Name</th>
                     <th>Middle Name</th>
                     <th>Name of Mother</th>
@@ -253,11 +256,11 @@ const exportPdf = async () => {
                 <tbody>
                   <tr v-for="record in filteredRecords" :key="record.id">
                     <td>{{ record.purok }}</td>
-                    <td>{{ record.surname }}</td>
+                    <td>{{ record.lastname }}</td>
                     <td>{{ record.firstname }}</td>
                     <td>{{ record.middlename }}</td>
                     <td>{{ record.mother_name }}</td>
-                    <td>{{ record.sex }}</td>
+                    <td>{{ sexDisplay(record.sex) }}</td>
                     <td>{{ record.birthday }}</td>
                     <td>{{ record.age }}</td>
                     <td>
@@ -281,7 +284,7 @@ const exportPdf = async () => {
           <div class="modal-dialog modal-lg">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title">Edit Deworming Record: {{ editRecord.firstname }} {{ editRecord.surname }}</h5>
+                <h5 class="modal-title">Edit Deworming Record: {{ editRecord.firstname }} {{ editRecord.lastname }}</h5>
                 <button type="button" class="btn-close" @click="showEditModal = false"></button>
               </div>
               <div class="modal-body">
@@ -290,15 +293,17 @@ const exportPdf = async () => {
                     <div class="col-md-6 mb-3">
                       <label>Purok</label>
                       <select v-model="editRecord.purok" class="form-control" required>
+                        <option value="">Select Purok</option>
                         <option value="Purok 1">Purok 1</option>
                         <option value="Purok 2">Purok 2</option>
                         <option value="Purok 3">Purok 3</option>
+                        <option value="Purok 4">Purok 4</option>
                         <option value="Purok 5">Purok 5</option>
                       </select>
                     </div>
                     <div class="col-md-6 mb-3">
-                      <label>Surname</label>
-                      <input v-model="editRecord.surname" type="text" class="form-control" required>
+                      <label>Last Name</label>
+                      <input v-model="editRecord.lastname" type="text" class="form-control" required>
                     </div>
                     <div class="col-md-6 mb-3">
                       <label>First Name</label>
@@ -315,8 +320,9 @@ const exportPdf = async () => {
                     <div class="col-md-6 mb-3">
                       <label>Sex</label>
                       <select v-model="editRecord.sex" class="form-control">
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
+                        <option value="">Select</option>
+                        <option value="F">Female</option>
+                        <option value="M">Male</option>
                       </select>
                     </div>
                     <div class="col-md-6 mb-3">

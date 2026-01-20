@@ -17,6 +17,7 @@ const motherName = ref('')
 const sex = ref('')
 const birthday = ref('')
 const age = ref('')
+const purok = ref('')
 
 // Methods
 const goPrevPage = () => router.push('/childcare')
@@ -39,7 +40,8 @@ const saveRecord = async () => {
         mother_name: motherName.value,
         sex: sex.value,
         birthday: birthday.value,
-        age: age.value
+        age: age.value,
+        purok: purok.value
       }
     ])
   
@@ -56,6 +58,7 @@ const saveRecord = async () => {
   sex.value = ''
   birthday.value = ''
   age.value = ''
+  purok.value = ''
   closeModal()
 }
 
@@ -163,6 +166,19 @@ const saveRecord = async () => {
             <div class="form-group">
               <label>Age in years:</label>
               <input type="number" v-model="age" class="input-stroke" min="0" />
+            </div>
+          </div>
+          <div class="row-fields">
+            <div class="form-group">
+              <label>Purok:</label>
+              <select v-model="purok" class="input-stroke">
+                <option value="">Select Purok</option>
+                <option value="Purok 1">Purok 1</option>
+                <option value="Purok 2">Purok 2</option>
+                <option value="Purok 3">Purok 3</option>
+                <option value="Purok 4">Purok 4</option>
+                <option value="Purok 5">Purok 5</option>
+              </select>
             </div>
           </div>
           <div class="form-actions-left">
