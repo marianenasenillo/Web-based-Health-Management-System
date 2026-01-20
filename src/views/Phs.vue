@@ -181,6 +181,12 @@ const resetForm = () => {
               <input type="text" v-model="motherName" class="input-stroke" />
             </div>
             <div class="form-group">
+              <label>Last Name:</label>
+              <input type="text" v-model="lastname" class="input-stroke" />
+            </div>
+          </div>
+          <div class="row-fields">
+            <div class="form-group">
               <label>Sex:</label>
               <select v-model="sex" class="input-stroke">
                 <option value="">Select</option>
@@ -188,8 +194,6 @@ const resetForm = () => {
                 <option value="M">Male</option>
               </select>
             </div>
-          </div>
-          <div class="row-fields">
             <div class="form-group">
               <label>Birthday:</label>
               <input type="date" v-model="birthday" class="input-stroke" />
@@ -200,10 +204,7 @@ const resetForm = () => {
             </div>
           </div>
           <div class="row-fields">
-            <div class="form-group">
-              <label>Last Name:</label>
-              <input type="text" v-model="lastname" class="input-stroke" />
-            </div>
+            
             <div class="form-group">
               <label>Purok:</label>
               <select v-model="purok" class="input-stroke">
