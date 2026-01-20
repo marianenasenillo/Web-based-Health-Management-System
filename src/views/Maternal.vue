@@ -173,7 +173,7 @@ const resetCervicalForm = () => {
         <p>Click to view and manage maternal services records efficiently.</p>
 
         <!-- View Records Button -->
-        <button class="btn view-btn mt-3" @click="toggleRecords">View Records</button>
+        <button class="btn view-btn mt-3 d-block mx-auto" @click="toggleRecords">View Records</button>
       </div>
 
       <!-- Next Arrow -->
@@ -470,7 +470,7 @@ const resetCervicalForm = () => {
   padding: 0.6rem 1.5rem;
   border-radius: 8px;
   transition: 0.3s;
-  width: 100%;
+  width: 50%;
 }
 .view-btn:hover {
   background-color: #e6b800;
