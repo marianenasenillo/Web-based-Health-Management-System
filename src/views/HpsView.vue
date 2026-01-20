@@ -341,10 +341,6 @@ const saveHousehold = async () => {
                 <input type="date" v-model="dateVisit" class="input-stroke" />
               </div>
               <div class="form-group">
-                <label>Household No.</label>
-                <input type="text" v-model="householdNo" class="input-stroke" />
-              </div>
-              <div class="form-group">
                 <label>Barangay</label>
                 <select v-model="barangay" class="input-stroke">
                   <option value="">Select Barangay</option>
