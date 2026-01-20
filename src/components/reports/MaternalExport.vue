@@ -171,7 +171,8 @@ onMounted(async () => {
           </h6>
         </div>
         <div class="col-3 text-start">
-          <img src="/images/barangaylogo.png" alt="Barangay Logo" height="80" />
+          <img v-if="userBarangay === 'Barangay 5'" src="/images/barangaylogo.png" alt="Barangay 5" style="height: 80px;" />
+          <img v-else src="/images/barangay6.png" alt="Barangay 6" style="height: 80px;" />
         </div>
       </div>
     </div>
