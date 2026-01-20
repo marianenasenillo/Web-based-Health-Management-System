@@ -202,7 +202,7 @@ const handleForgotPassword = async () => {
               </v-form>
 
               <!-- Forgot Password -->
-              <p class="text-center mt-2">
+              <p class="text-start mt-2 mx-16" >
                 <a href="#" @click.prevent="handleForgotPassword" style="color: black; text-decoration: underline; cursor: pointer;">Forgot password?</a>
               </p>
             </v-card>

@@ -32,6 +32,8 @@ const confirmPasswordError = ref('')
 const isLoading = ref(false)
 const successMessage = ref('')
 const errorMessage = ref('')
+const showSuccessSnackbar = ref(false)
+const showErrorSnackbar = ref(false)
 
 // options
 const barangayOptions = ['Barangay 5', 'Barangay 6']
@@ -99,6 +101,7 @@ const handleRegister = async () => {
 
     successMessage.value =
       '✅ Registration successful! Please check your email to confirm your account.'
+    showSuccessSnackbar.value = true
 
     // reset fields
     firstName.value = ''
@@ -116,6 +119,7 @@ const handleRegister = async () => {
   } catch (err) {
     console.error(err)
     errorMessage.value = err.message || 'Registration failed. Please try again.'
+    showErrorSnackbar.value = true
   } finally {
     isLoading.value = false
   }
@@ -280,9 +284,6 @@ const handleRegister = async () => {
                 >
                   back
                 </v-btn>
-
-                <p v-if="errorMessage" class="text-red text-center mt-2">{{ errorMessage }}</p>
-                <p v-if="successMessage" class="text-green text-center mt-2">{{ successMessage }}</p>
               </div>
             </v-card>
           </v-col>
@@ -293,6 +294,20 @@ const handleRegister = async () => {
     <v-footer app color="#5b841e" height="90" class="d-flex align-center justify-center">
       <span class="text-white text-decoration-underline">2025 All Rights Reserved</span>
     </v-footer>
+
+    <v-snackbar v-model="showSuccessSnackbar" color="success" timeout="5000" top>
+      {{ successMessage }}
+      <template v-slot:action="{ attrs }">
+        <v-btn color="white" text v-bind="attrs" @click="showSuccessSnackbar = false">Close</v-btn>
+      </template>
+    </v-snackbar>
+
+    <v-snackbar v-model="showErrorSnackbar" color="error" timeout="5000" top>
+      {{ errorMessage }}
+      <template v-slot:action="{ attrs }">
+        <v-btn color="white" text v-bind="attrs" @click="showErrorSnackbar = false">Close</v-btn>
+      </template>
+    </v-snackbar>
   </v-app>
 </template>
 
