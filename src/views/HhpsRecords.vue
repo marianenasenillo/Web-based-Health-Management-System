@@ -276,6 +276,7 @@ const exportPdf = async () => {
               <button class="btn btn-primary search-btn" @click="handleSearch">Search</button>
               <button class="btn btn-outline-secondary ms-2" v-if="searchQuery" @click="searchQuery = ''">Clear</button>
               <button  class="btn btn-warning report-btn" @click="router.push('/hhpsarchived')">Archived</button>
+              <button  class="btn btn-primary report-btn" >Report</button>
             </div>
           </div>
         </div>

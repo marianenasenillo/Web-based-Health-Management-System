@@ -256,7 +256,8 @@ const exportPdf = async () => {
               <input v-model="searchQuery" @keyup.enter="handleSearch" type="search" class="form-control search-input" placeholder="Search by Last Name or First Name..." aria-label="Search by Last Name or First Name">
               <button class="btn btn-primary search-btn" @click="handleSearch">Search</button>
               <button class="btn btn-outline-secondary ms-2" v-if="searchQuery" @click="searchQuery = ''">Clear</button>
-              <button v-if="userRole === 'Admin'" class="btn btn-warning report-btn" @click="router.push('/childcarearchived')">Archived</button>
+              <button v-if="userRole === 'BHW'" class="btn btn-warning report-btn" @click="router.push('/childcarearchived')">Archived</button>
+              <button  class="btn btn-primary report-btn" >Report</button>
             </div>
           </div>
         </div>
