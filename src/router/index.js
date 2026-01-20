@@ -26,6 +26,7 @@ import WraArchived from '@/views/WraArchived.vue'
 import ChildcareArchived from '@/views/ChildcareArchived.vue'
 import FpsArchived from '@/views/FpsArchived.vue'
 import PhsArchived from '@/views/PhsArchived.vue'
+import AdminRegister from '@/views/AdminRegister.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -164,6 +165,11 @@ const router = createRouter({
       path: '/phsarchived',
       name: 'phsarchived',
       component: PhsArchived,
+    },
+    {
+      path: '/adminregister',
+      name: 'adminregister',
+      component: AdminRegister,
     },
   ],
 })

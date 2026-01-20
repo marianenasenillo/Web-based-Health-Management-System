@@ -177,15 +177,27 @@ const handleForgotPassword = async () => {
 
                 <!-- Login Button -->
                 <div class="mx-16">
-                  <v-btn
-                    type="submit"
-                    :loading="loading"
-                    block
-                    class="text-white text-lowercase font-weight-bold"
-                    style="background-color: #5b841e"
-                  >
-                    log in
-                  </v-btn>
+                  <v-row cols="6">
+                    <v-col cols="6">
+                      <v-btn
+                        type="submit"
+                        :loading="loading"
+                        class="text-white text-lowercase font-weight-bold"
+                        style="background-color: #5b841e"
+                      >
+                        log in
+                      </v-btn>
+                    </v-col>
+                    <v-col cols="6">
+                      <v-btn
+                        @click="router.push('/adminregister')"
+                        class="text-white text-lowercase font-weight-bold"
+                        style="background-color: #5b841e"
+                      >
+                        create account
+                      </v-btn>
+                    </v-col>
+                  </v-row>
                 </div>
               </v-form>
 

@@ -14,7 +14,7 @@ const router = useRouter()
 const firstName = ref('')
 const lastName = ref('')
 const email = ref('')
-const role = ref('BHW') // fixed role
+const role = ref('Admin') // fixed role
 const barangay = ref('')
 const purok = ref('')
 const password = ref('')
@@ -69,7 +69,7 @@ const validateForm = () => {
   return isValid
 }
 
-// handle register (BHW only)
+// handle register (Admin only)
 const handleRegister = async () => {
   successMessage.value = ''
   errorMessage.value = ''
@@ -88,7 +88,7 @@ const handleRegister = async () => {
       options: {
         data: {
           full_name: `${firstName.value} ${lastName.value}`,
-          role: 'BHW',
+          role: 'Admin',
           barangay: barangay.value,
           purok: purok.value,
         },
@@ -154,7 +154,7 @@ const handleRegister = async () => {
                 USER REGISTRATION
               </h3>
               <p class="text-center mb-6" style="color: #2e4e1f">
-                Create your Buenavista HealthSync BHW account
+                Create your Buenavista HealthSync Admin account
               </p>
 
               <v-row class="mx-4 d-flex justify-center">
@@ -221,7 +221,7 @@ const handleRegister = async () => {
                     style="--v-theme-on-surface: white"
                   />
 
-                  <!-- Fixed BHW Role -->
+                  <!-- Fixed Admin Role -->
                   <v-text-field
                     v-model="role"
                     label="Role"
@@ -276,7 +276,7 @@ const handleRegister = async () => {
                   block
                   class="text-white text-lowercase font-weight-bold"
                   style="background-color: #466a17"
-                  @click="router.push('/bhw')"
+                  @click="router.push('/dashboard')"
                 >
                   back
                 </v-btn>
