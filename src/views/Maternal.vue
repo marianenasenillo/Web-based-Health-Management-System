@@ -1,6 +1,6 @@
 <script setup>
 import DashboardView from '@/components/DashboardView.vue'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { supabase } from '@/utils/supabase.js'
 
@@ -9,6 +9,7 @@ const showRecords = ref(false)
 const showModal = ref(false)
 const activeMenu = ref('')
 const modalType = ref('')
+const userRole = ref('')
 
 // WRA form fields
 const purok = ref('')
@@ -157,6 +158,11 @@ const resetCervicalForm = () => {
   cervicalBirthdate.value = ''
   cervicalScreened.value = ''
 }
+
+onMounted(async () => {
+  const { data: { user } } = await supabase.auth.getUser()
+  userRole.value = user?.user_metadata?.role || ''
+})
 </script>
 
 
@@ -203,7 +209,7 @@ const resetCervicalForm = () => {
               Women of Reproductive Age <span>⋮</span>
             </button>
             <div v-if="activeMenu === 'wra'" class="dropdown-menu">
-              <button @click="fillIn('wra')">Fill In</button>
+              <button v-if="userRole === 'BHW'" @click="fillIn('wra')">Fill In</button>
               <button @click="viewRecords('wra')">View Records</button>
             </div>
           </div>
@@ -214,7 +220,7 @@ const resetCervicalForm = () => {
               Cervical Cancer Screening <span>⋮</span>
             </button>
             <div v-if="activeMenu === 'cervical'" class="dropdown-menu">
-              <button @click="fillIn('cervical')">Fill In</button>
+              <button v-if="userRole === 'BHW'" @click="fillIn('cervical')">Fill In</button>
               <button @click="viewRecords('cervical')">View Records</button>
             </div>
           </div>

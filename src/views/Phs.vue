@@ -9,6 +9,7 @@ const showRecords = ref(false)
 const activeMenu = ref('')
 const showModal = ref(false)
 const modalType = ref('')
+const userRole = ref('')
 
 // Form fields for Deworming
 const firstname = ref('')
@@ -95,6 +96,11 @@ const resetForm = () => {
   lastname.value = ''
   purok.value = ''
 }
+
+onMounted(async () => {
+  const { data: { user } } = await supabase.auth.getUser()
+  userRole.value = user?.user_metadata?.role || ''
+})
 </script>
 
 
@@ -136,7 +142,7 @@ const resetForm = () => {
               Deworming (10–19 yrs old) <span>⋮</span>
             </button>
             <div v-if="activeMenu === 'deworming'" class="dropdown-menu">
-              <button @click="fillIn('deworming')">Fill In</button>
+              <button v-if="userRole === 'BHW'" @click="fillIn('deworming')">Fill In</button>
               <button @click="viewRecords('deworming')">View Records</button>
             </div>
           </div>

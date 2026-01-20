@@ -1,6 +1,6 @@
 <script setup>
 import DashboardView from '@/components/DashboardView.vue'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { supabase } from '@/utils/supabase.js'
 
@@ -10,6 +10,7 @@ const showRecords = ref(false)
 const activeMenu = ref('')
 const showModal = ref(false)
 const modalType = ref('')
+const userRole = ref('')
 
 // Navigation
 const goPrevPage = () => router.push('/maternalservices')
@@ -74,6 +75,11 @@ const saveVitaminaRecord = async () => {
 }
 </script>
 
+onMounted(async () => {
+  const { data: { user } } = await supabase.auth.getUser()
+  userRole.value = user?.user_metadata?.role || ''
+})
+
 
 <template>
   <DashboardView>
@@ -116,7 +122,7 @@ const saveVitaminaRecord = async () => {
               Vitamin A Supplementation <span>⋮</span>
             </button>
             <div v-if="activeMenu === 'vitamina'" class="dropdown-menu">
-              <button @click="fillIn('vitamina')">Fill In</button>
+              <button v-if="userRole === 'BHW'" @click="fillIn('vitamina')">Fill In</button>
               <button @click="viewRecords('vitamina')">View Records</button>
             </div>
           </div>
