@@ -314,8 +314,8 @@ const exportreportPdf = async () => {
               <input v-model="searchQuery" @keyup.enter="handleSearch" type="search" class="form-control search-input" placeholder="Search by Surname or First Name..." aria-label="Search by Surname or First Name">
               <button class="btn btn-primary search-btn" @click="handleSearch">Search</button>
               <button class="btn btn-outline-secondary ms-2" v-if="searchQuery" @click="searchQuery = ''">Clear</button>
-              <button v-if="userRole === 'BHW'" class="btn btn-warning report-btn" @click="router.push('/fpsarchived')">Archived</button>
-              <button  class="btn btn-primary report-btn" @click="openReport">Report</button>
+              <button v-if="userRole === 'Admin'" class="btn btn-warning report-btn" @click="router.push('/fpsarchived')">Archived</button>
+              <button v-if="userRole === 'Admin'" class="btn btn-primary report-btn" @click="openReport">Report</button>
             </div>
           </div>
         </div>
@@ -362,8 +362,8 @@ const exportreportPdf = async () => {
                     <td>{{ record.age }}</td>
                     <td>
                       <button class="btn btn-secondary btn-sm me-2" @click="editRecordFunc(record)">Edit</button>
-                      <button v-if="userRole === 'BHW'" class="btn btn-danger btn-sm me-2" @click="deleteRecord(record)">Delete</button>
-                      <button v-if="userRole === 'BHW'" class="btn btn-warning btn-sm" @click="archiveRecord(record)">Archive</button>
+                      <button v-if="userRole === 'Admin'" class="btn btn-danger btn-sm me-2" @click="deleteRecord(record)">Delete</button>
+                      <button v-if="userRole === 'Admin'" class="btn btn-warning btn-sm" @click="archiveRecord(record)">Archive</button>
                     </td>
                   </tr>
 

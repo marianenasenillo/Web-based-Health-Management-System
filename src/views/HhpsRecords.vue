@@ -349,8 +349,8 @@ const exportreportPdf = async () => {
               <input v-model="searchQuery" @keyup.enter="handleSearch" type="search" class="form-control search-input" placeholder="Search by Head ID or Last Name..." aria-label="Search by Head ID or Last Name">
               <button class="btn btn-primary search-btn" @click="handleSearch">Search</button>
               <button class="btn btn-outline-secondary ms-2" v-if="searchQuery" @click="searchQuery = ''">Clear</button>
-              <button  class="btn btn-warning report-btn" @click="router.push('/hhpsarchived')">Archived</button>
-              <button  class="btn view-btn btn-primary report-btn" @click="openReport" >Report</button>
+              <button v-if="userRole === 'Admin'" class="btn btn-warning report-btn" @click="router.push('/hhpsarchived')">Archived</button>
+              <button v-if="userRole === 'Admin'" class="btn view-btn btn-primary report-btn" @click="openReport" >Report</button>
             </div>
             <div v-if="showReport" class="records-overlay">
         <div class="records-box d-flex flex-column align-items-center">
@@ -415,8 +415,8 @@ const exportreportPdf = async () => {
                     <td>
                       <button class="btn btn-primary btn-sm me-2" @click="viewMembers(record)">View Members</button>
                       <button class="btn btn-secondary btn-sm me-2" @click="editRecord(record)">Edit</button>
-                      <button v-if="userRole === 'BHW'" class="btn btn-danger btn-sm me-2" @click="deleteRecord(record)">Delete</button>
-                      <button v-if="userRole === 'BHW'" class="btn btn-warning btn-sm" @click="archiveRecord(record)">Archive</button>
+                      <button v-if="userRole === 'Admin'" class="btn btn-danger btn-sm me-2" @click="deleteRecord(record)">Delete</button>
+                      <button v-if="userRole === 'Admin'" class="btn btn-warning btn-sm" @click="archiveRecord(record)">Archive</button>
                     </td>
                   </tr>
 
