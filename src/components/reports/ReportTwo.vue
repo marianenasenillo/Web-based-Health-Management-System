@@ -7,42 +7,39 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend,
 
 const emit = defineEmits(['prev', 'next'])
 
-const barangayBarCanvas = ref(null)
+const selectedBarangay = ref('')
+
 const genderPieCanvas = ref(null)
 const purokBarCanvas = ref(null)
+const purokPieCanvas = ref(null)
 
-const barangayChartData = ref({})
 const genderChartData = ref({})
 const purokChartData = ref({})
+const purokPieChartData = ref({})
 
 const discussionText = ref('')
 
 onMounted(async () => {
-  await fetchBarangayComparison()
+  // Get current user barangay
+  const { data: { user }, error: userError } = await supabase.auth.getUser()
+  if (userError || !user) {
+    console.error('Error getting user:', userError)
+    return
+  }
+  const userBarangay = user.user_metadata?.barangay
+  if (!userBarangay) {
+    console.error('No barangay assigned to user')
+    return
+  }
+  selectedBarangay.value = userBarangay
+
   await fetchGenderDistribution()
   await fetchPurokComparison()
+  await fetchPurokPie()
 
   generateDiscussion()
 
   // Create charts
-  if (barangayBarCanvas.value) {
-    new ChartJS(barangayBarCanvas.value, {
-      type: 'bar',
-      data: barangayChartData.value,
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { position: 'top' },
-          title: { display: true, text: 'Comparative Population: Barangay 5 vs Barangay 6' }
-        },
-        scales: {
-          y: { beginAtZero: true }
-        }
-      }
-    })
-  }
-
   if (genderPieCanvas.value) {
     new ChartJS(genderPieCanvas.value, {
       type: 'pie',
@@ -52,7 +49,7 @@ onMounted(async () => {
         maintainAspectRatio: false,
         plugins: {
           legend: { position: 'top' },
-          title: { display: true, text: 'Overall Gender Distribution' }
+          title: { display: true, text: `Gender Distribution - ${selectedBarangay.value}` }
         }
       }
     })
@@ -67,7 +64,7 @@ onMounted(async () => {
         maintainAspectRatio: false,
         plugins: {
           legend: { position: 'top' },
-          title: { display: true, text: 'Comparative Population per Purok' }
+          title: { display: true, text: `Population per Purok - ${selectedBarangay.value}` }
         },
         scales: {
           y: { beginAtZero: true }
@@ -75,44 +72,29 @@ onMounted(async () => {
       }
     })
   }
-})
 
-const fetchBarangayComparison = async () => {
-  try {
-    const { data, error } = await supabase
-      .from('household_heads')
-      .select('barangay, population')
-      .in('barangay', ['Barangay 5', 'Barangay 6'])
-      .not('population', 'is', null)
-
-    if (error) throw error
-
-    const barangayData = { 'Barangay 5': 0, 'Barangay 6': 0 }
-    data.forEach(item => {
-      barangayData[item.barangay] += item.population
+  if (purokPieCanvas.value) {
+    new ChartJS(purokPieCanvas.value, {
+      type: 'pie',
+      data: purokPieChartData.value,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top' },
+          title: { display: true, text: `Comparative Population per Purok - ${selectedBarangay.value}` }
+        }
+      }
     })
-
-    barangayChartData.value = {
-      labels: ['Barangay 5', 'Barangay 6'],
-      datasets: [{
-        label: 'Population',
-        data: [barangayData['Barangay 5'], barangayData['Barangay 6']],
-        backgroundColor: ['rgba(75, 192, 192, 0.6)', 'rgba(153, 102, 255, 0.6)'],
-        borderColor: ['rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)'],
-        borderWidth: 1
-      }]
-    }
-  } catch (err) {
-    console.error('Error fetching barangay comparison:', err)
   }
-}
+})
 
 const fetchGenderDistribution = async () => {
   try {
     const { data, error } = await supabase
       .from('household_members')
       .select('sex')
-      .in('barangay', ['Barangay 5', 'Barangay 6'])
+      .eq('barangay', selectedBarangay.value)
       .not('sex', 'is', null)
 
     if (error) throw error
@@ -149,15 +131,15 @@ const fetchPurokComparison = async () => {
   try {
     const { data, error } = await supabase
       .from('household_heads')
-      .select('barangay, purok, population')
-      .in('barangay', ['Barangay 5', 'Barangay 6'])
+      .select('purok, population')
+      .eq('barangay', selectedBarangay.value)
       .not('population', 'is', null)
 
     if (error) throw error
 
     const purokData = {}
     data.forEach(item => {
-      const key = `${item.barangay} - ${item.purok}`
+      const key = item.purok
       if (!purokData[key]) purokData[key] = 0
       purokData[key] += item.population
     })
@@ -177,24 +159,67 @@ const fetchPurokComparison = async () => {
   }
 }
 
+const fetchPurokPie = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('household_heads')
+      .select('purok, population')
+      .eq('barangay', selectedBarangay.value)
+      .not('population', 'is', null)
+
+    if (error) throw error
+
+    const purokData = {}
+    data.forEach(item => {
+      const key = item.purok
+      if (!purokData[key]) purokData[key] = 0
+      purokData[key] += item.population
+    })
+
+    purokPieChartData.value = {
+      labels: Object.keys(purokData),
+      datasets: [{
+        label: 'Population',
+        data: Object.values(purokData),
+        backgroundColor: [
+          'rgba(255, 99, 132, 0.6)',
+          'rgba(54, 162, 235, 0.6)',
+          'rgba(255, 206, 86, 0.6)',
+          'rgba(75, 192, 192, 0.6)',
+          'rgba(153, 102, 255, 0.6)'
+        ],
+        borderColor: [
+          'rgba(255, 99, 132, 1)',
+          'rgba(54, 162, 235, 1)',
+          'rgba(255, 206, 86, 1)',
+          'rgba(75, 192, 192, 1)',
+          'rgba(153, 102, 255, 1)'
+        ],
+        borderWidth: 1
+      }]
+    }
+  } catch (err) {
+    console.error('Error fetching purok pie:', err)
+  }
+}
+
 const generateDiscussion = () => {
-  const barangayData = barangayChartData.value.datasets?.[0]?.data || []
   const genderData = genderChartData.value.datasets?.[0]?.data || []
   const purokLabels = purokChartData.value.labels || []
   const purokData = purokChartData.value.datasets?.[0]?.data || []
 
   let text = `<h4>Discussion</h4>
-<p>Based on the comparative analysis, Barangay 5 has a population of ${barangayData[0] || 0}, while Barangay 6 has ${barangayData[1] || 0}. `
+<p>For ${selectedBarangay.value}, `
 
   if (genderData.length > 0) {
-    text += `The gender distribution shows ${genderData[0] || 0} males and ${genderData[1] || 0} females across both barangays. `
+    text += `the gender distribution shows ${genderData[0] || 0} males and ${genderData[1] || 0} females. `
   }
 
   if (purokLabels.length > 0) {
     text += `Population per purok varies, with the highest in ${purokLabels[purokData.indexOf(Math.max(...purokData))] || 'unknown'} (${Math.max(...purokData) || 0} residents). `
   }
 
-  text += `This data supports planning for equitable resource allocation and community development.</p>`
+  text += `This data supports planning for equitable resource allocation within the barangay.</p>`
 
   discussionText.value = text
 }
@@ -212,7 +237,7 @@ const generateDiscussion = () => {
                     <h6 class="mb-0">
                       Province of Agusan del Norte <br />
                       Municipality of Buenavista <br />
-                      <strong>Barangay Poblacion</strong>
+                      <strong>{{ selectedBarangay }}</strong>
                     </h6>
                   </div>
                   <div class="col-3 text-start">
@@ -224,33 +249,33 @@ const generateDiscussion = () => {
               <div class="text-center mb-4">
                 <h4 class="fw-bold">Comparative Report</h4>
                 <p>
-                  Barangay 5 – Municipality of Buenavista, Agusan del Norte <br />
+                  {{ selectedBarangay }} – Municipality of Buenavista, Agusan del Norte <br />
                   Reporting Period: September 2025
                 </p>
               </div>
               <div class="container py-4">
     <div class="row">
-      <!-- Barangay Comparison Chart -->
-      <div class="col-md-6 mb-4">
-        <div class="card p-3 shadow-sm">
-          <h5 class="text-center mb-3">Comparative Population: Barangay 5 vs Barangay 6</h5>
-          <canvas ref="barangayBarCanvas"></canvas>
-        </div>
-      </div>
-
       <!-- Gender Pie Chart -->
       <div class="col-md-6 mb-4">
         <div class="card p-3 shadow-sm">
-          <h5 class="text-center mb-3">Overall Gender Distribution</h5>
+          <h5 class="text-center mb-3">Gender Distribution</h5>
           <canvas ref="genderPieCanvas"></canvas>
         </div>
       </div>
 
       <!-- Purok Comparison Chart -->
-      <div class="col-md-12 mb-4">
+      <div class="col-md-6 mb-4">
+        <div class="card p-3 shadow-sm">
+          <h5 class="text-center mb-3">Population per Purok</h5>
+          <canvas ref="purokBarCanvas"></canvas>
+        </div>
+      </div>
+
+      <!-- Comparative Population per Purok Pie Chart -->
+      <div class="col-md-6 mb-4">
         <div class="card p-3 shadow-sm">
           <h5 class="text-center mb-3">Comparative Population per Purok</h5>
-          <canvas ref="purokBarCanvas"></canvas>
+          <canvas ref="purokPieCanvas"></canvas>
         </div>
       </div>
     </div>
