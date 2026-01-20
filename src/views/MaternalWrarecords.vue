@@ -253,7 +253,7 @@ const exportPdf = async () => {
           <h3 class="mb-0">Women of Reproductive Age Records</h3>
           <div class="ms-auto search-box">
             <div class="input-group">
-              <button class="btn btn-primary report-btn" @click="showReportModal = true">Report</button>
+              <button v-if="userRole === 'BHW'" class="btn btn-primary export-btn" @click="exportPdf">export</button>
               <input v-model="searchQuery" @keyup.enter="handleSearch" type="search" class="form-control search-input" placeholder="Search by Last Name or First Name..." aria-label="Search by Last Name or First Name">
               <button class="btn btn-primary search-btn" @click="handleSearch">Search</button>
               <button class="btn btn-outline-secondary ms-2" v-if="searchQuery" @click="searchQuery = ''">Clear</button>
@@ -328,8 +328,8 @@ const exportPdf = async () => {
                     <td>{{ record.changeMethod }}</td>
                     <td>
                       <button class="btn btn-secondary btn-sm me-2" @click="editRecordFunc(record)">Edit</button>
-                      <button v-if="userRole === 'Admin'" class="btn btn-danger btn-sm me-2" @click="deleteRecord(record)">Delete</button>
-                      <button v-if="userRole === 'Admin'" class="btn btn-warning btn-sm" @click="archiveRecord(record)">Archive</button>
+                      <button v-if="userRole === 'BHW'" class="btn btn-danger btn-sm me-2" @click="deleteRecord(record)">Delete</button>
+                      <button v-if="userRole === 'BHW'" class="btn btn-warning btn-sm" @click="archiveRecord(record)">Archive</button>
                     </td>
                   </tr>
 
@@ -464,7 +464,7 @@ const exportPdf = async () => {
           <div class="records-box d-flex flex-column align-items-center">
             <!-- back button (left) and a compact export button (top-right) positioned absolutely so they don't affect layout -->
             <button class="back-btn" @click="showReportModal = false">← back</button>
-            <button class="export-small-btn" @click="exportPdf" title="Export PDF">⤓</button>
+            <button v-if="userRole === 'BHW'" class="export-small-btn" @click="exportPdf" title="Export PDF">⤓</button>
             <div ref="reportRef" class="report-container py-4 bg-white shadow rounded">
               <WraExport />
             </div>
