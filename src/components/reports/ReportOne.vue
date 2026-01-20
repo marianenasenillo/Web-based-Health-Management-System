@@ -5,6 +5,7 @@ import { supabase } from '@/utils/supabase'
 const emit = defineEmits(['next'])
 
 // Data refs for findings
+const selectedBarangay = ref('')
 const stats = ref({
   householdStats: {
     totalHouseholds: 0,
@@ -45,6 +46,7 @@ const fetchDewormingStats = async () => {
     const { data: dewormingData } = await supabase
       .from('deworming_records')
       .select('*')
+      .eq('barangay', selectedBarangay.value)
 
     if (dewormingData) {
       stats.value.dewormingStats.totalDewormed = dewormingData.length
@@ -69,6 +71,7 @@ const fetchVitaminAStats = async () => {
     const { data: vitaminAData } = await supabase
       .from('childcare_vitamina_records')
       .select('*')
+      .eq('barangay', selectedBarangay.value)
 
     if (vitaminAData) {
       stats.value.vitaminAStats.totalSupplemented = vitaminAData.length
@@ -121,6 +124,7 @@ const fetchToolStats = async () => {
           name
         )
       `)
+      .eq('barangay', selectedBarangay.value)
 
     if (toolsData) {
       stats.value.toolStats.totalTools = toolsData.reduce((sum, record) => sum + record.quantity, 0)
@@ -152,6 +156,7 @@ const fetchHouseholdStats = async () => {
     const { data: householdHeads } = await supabase
       .from('household_heads')
       .select('*, household_members(*)')
+      .eq('barangay', selectedBarangay.value)
 
     if (householdHeads) {
       // Calculate total households and population
@@ -207,10 +212,27 @@ const fetchHouseholdStats = async () => {
 }
 
 onMounted(() => {
-  fetchDewormingStats()
-  fetchVitaminAStats()
-  fetchToolStats()
-  fetchHouseholdStats()
+  // Get current user barangay
+  const getUserBarangay = async () => {
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    if (userError || !user) {
+      console.error('Error getting user:', userError)
+      return
+    }
+    const userBarangay = user.user_metadata?.barangay
+    if (!userBarangay) {
+      console.error('No barangay assigned to user')
+      return
+    }
+    selectedBarangay.value = userBarangay
+  }
+
+  getUserBarangay().then(() => {
+    fetchDewormingStats()
+    fetchVitaminAStats()
+    fetchToolStats()
+    fetchHouseholdStats()
+  })
 })
 </script>
 
@@ -228,7 +250,7 @@ onMounted(() => {
           <h6 class="mb-0">
             Province of Agusan del Norte <br />
             Municipality of Buenavista <br />
-            <strong>Barangay Poblacion</strong>
+            <strong>{{ selectedBarangay }}</strong>
           </h6>
         </div>
         <div class="col-3 text-start">
@@ -242,7 +264,7 @@ onMounted(() => {
     <div class="text-center mb-4">
       <h4 class="fw-bold">Health Summary Report</h4>
       <p>
-        Barangay 5 – Municipality of Buenavista, Agusan del Norte <br />
+        {{ selectedBarangay }} – Municipality of Buenavista, Agusan del Norte <br />
         Reporting Period: September 2025
       </p>
     </div>
@@ -250,7 +272,7 @@ onMounted(() => {
     <section class="mb-4">
       <h5 class="fw-bold">Executive Summary</h5>
       <p>
-        This report presents a comprehensive summary of the household profiling, health initiatives, and community development activities conducted in Barangay 5 during the reporting period. It highlights the collective performance and participation of residents across all four puroks in various health and social programs. The findings cover key areas such as household demographics, deworming coverage, Vitamin A supplementation, and tool distribution, reflecting the barangay’s overall engagement and commitment to improving public health and community welfare.
+        This report presents a comprehensive summary of the household profiling, health initiatives, and community development activities conducted in {{ selectedBarangay }} during the reporting period. It highlights the collective performance and participation of residents across all four puroks in various health and social programs. The findings cover key areas such as household demographics, deworming coverage, Vitamin A supplementation, and tool distribution, reflecting the barangay’s overall engagement and commitment to improving public health and community welfare.
       </p>
     </section>
 
