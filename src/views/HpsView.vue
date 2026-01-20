@@ -1,7 +1,7 @@
 <script setup>
 // filepath: c:\Users\salar\OneDrive\Desktop\healths\src\views\HpsView.vue
 import DashboardView from '@/components/DashboardView.vue'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { supabase } from '@/utils/supabase.js'
 
@@ -10,6 +10,7 @@ const showRecords = ref(false)
 const activeMenu = ref('')
 const showModal = ref(false)
 const modalType = ref('')
+const userRole = ref('')
 
 // Household Profiling form fields
 const barangay = ref('')
@@ -110,6 +111,11 @@ const headFields = [
   { label: 'Middle Name:', model: 'headMiddlename', ref: headMiddlename, type: 'text' },
   { label: 'Suffix:', model: 'headSuffix', ref: headSuffix, type: 'text' },
 ]
+
+onMounted(async () => {
+  const { data: { user } } = await supabase.auth.getUser()
+  userRole.value = user?.user_metadata?.role || ''
+})
 
 const goPrevPage = () => router.push('/home')
 const goNextPage = () => router.push('/maternalservices')
@@ -293,7 +299,7 @@ const saveHousehold = async () => {
               Household Profiling <span>⋮</span>
             </button>
             <div v-if="activeMenu === 'household'" class="dropdown-menu">
-              <button @click="fillIn('household')">Fill In</button>
+              <button v-if="userRole === 'BHW'" @click="fillIn('household')">Fill In</button>
             </div>
           </div>
 
@@ -303,7 +309,7 @@ const saveHousehold = async () => {
               Household Head Profiling <span>⋮</span>
             </button>
             <div v-if="activeMenu === 'head'" class="dropdown-menu">
-              <button @click="fillIn('head')">Fill In</button>
+              <button v-if="userRole === 'BHW'" @click="fillIn('head')">Fill In</button>
               <button @click="viewRecords('head')">View Records</button>
             </div>
           </div>
