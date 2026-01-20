@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted } from 'vue'
 import { supabase } from '@/utils/supabase'
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, PieController, BarController } from 'chart.js'
 
@@ -7,7 +7,7 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend,
 
 const emit = defineEmits(['prev'])
 
-const selectedBarangay = ref('Barangay 5')
+const selectedBarangay = ref('')
 
 const barangayBarCanvas = ref(null)
 const genderPieCanvas = ref(null)
@@ -21,11 +21,19 @@ let genderChart = null
 const discussionText = ref('')
 
 onMounted(async () => {
-  await updateCharts()
-  generateDiscussion()
-})
+  // Get current user barangay
+  const { data: { user }, error: userError } = await supabase.auth.getUser()
+  if (userError || !user) {
+    console.error('Error getting user:', userError)
+    return
+  }
+  const userBarangay = user.user_metadata?.barangay
+  if (!userBarangay) {
+    console.error('No barangay assigned to user')
+    return
+  }
+  selectedBarangay.value = userBarangay
 
-watch(selectedBarangay, async () => {
   await updateCharts()
   generateDiscussion()
 })
@@ -177,7 +185,7 @@ const generateDiscussion = () => {
                     <h6 class="mb-0">
                       Province of Agusan del Norte <br />
                       Municipality of Buenavista <br />
-                      <strong>Barangay Poblacion</strong>
+                      <strong>{{ selectedBarangay }}</strong>
                     </h6>
                   </div>
                   <div class="col-3 text-start">
@@ -189,20 +197,11 @@ const generateDiscussion = () => {
               <div class="text-center mb-4">
                 <h4 class="fw-bold">Household Demographic Report</h4>
                 <p>
-                  Municipality of Buenavista, Agusan del Norte <br />
+                  {{ selectedBarangay }} – Municipality of Buenavista, Agusan del Norte <br />
                   Reporting Period: September 2025
                 </p>
               </div>
                <div class="container py-4">
-               <!-- barangay changer here for charts -->
-               <div class="mb-4">
-                 <label for="barangay-select" class="form-label">Select Barangay:</label>
-                 <select id="barangay-select" v-model="selectedBarangay" class="form-select">
-                   <option value="Barangay 5">Barangay 5</option>
-                   <option value="Barangay 6">Barangay 6</option>
-                   <!-- Add more options as needed -->
-                 </select>
-               </div>
     <div class="row">
       <!-- Barangay Comparison Chart -->
       <div class="col-md-6 mb-4">
