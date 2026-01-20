@@ -15,7 +15,7 @@ const goNextPage = () => {
     <!-- FULL BACKGROUND WRAPPER -->
     <div class="home-bg d-flex align-items-center justify-content-start">
       <div class="content text-white mb-3 text-start ms-5">
-        <h1>Buenavista Health Sync</h1>
+        <h1>Buenavista HealthSync</h1>
         <p>Securing Health Data, Transforming Healthcare for All</p>
         <button 
           class="btn footer-btn mt-2" 
@@ -40,7 +40,7 @@ const goNextPage = () => {
         <div class="modal-content shadow-lg border-0 rounded-4">
           <!-- Custom Header -->
           <div class="modal-header custom-modal-header text-white rounded-top-4">
-            <h5 class="modal-title fw-bold" id="learnMoreLabel">Buenavista Health Sync</h5>
+            <h5 class="modal-title fw-bold" id="learnMoreLabel">Buenavista HealthSync</h5>
             <button
               type="button"
               class="btn-close btn-close-white"
@@ -52,9 +52,9 @@ const goNextPage = () => {
           <div class="modal-body p-4">
             <!-- What is Section -->
             <section class="mb-4">
-              <h5 class="fw-bold">What is Buenavista Health Sync?</h5>
+              <h5 class="fw-bold">What is Buenavista HealthSync?</h5>
               <p>
-                <strong>Buenavista Health Sync (BHS)</strong> is an innovative digital health
+                <strong>Buenavista HealthSync (BHS)</strong> is an innovative digital health
                 platform aimed at transforming barangay healthcare services. It allows for the
                 secure online input and storage of community health records while archiving past
                 records for easy retrieval. Health workers gain real-time access to critical data,
