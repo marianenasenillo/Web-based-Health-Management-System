@@ -95,7 +95,7 @@ const exportPdf = async () => {
       <div class="overlay-content text-white text-start">
         <h1 class="fw-bold">Health Summary Report</h1>
         <p>Click below to view the Health Summary Report for Barangay 5.</p>
-        <button class="btn view-btn mt-3" @click="openReport">View Report</button>
+        <button class="btn view-btn mt-3 d-block mx-auto" @click="openReport">View Report</button>
       </div>
 
       <div v-if="showReport" class="records-overlay">
@@ -146,7 +146,7 @@ const exportPdf = async () => {
   padding: 0.6rem 1.5rem;
   border-radius: 8px;
   transition: 0.3s;
-  width: 100%;
+  width: 50%;
 }
 .view-btn:hover {
   background-color: #e6b800;
