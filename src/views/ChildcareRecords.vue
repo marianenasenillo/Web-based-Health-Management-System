@@ -326,7 +326,7 @@ const exportreportPdf = async () => {
           <h3 class="mb-0">Vitamin A Supplementation Records</h3>
           <div class="ms-auto search-box">
             <div class="input-group">
-              <button v-if="userRole === 'BHW'" class="btn btn-primary export-btn" @click="exportPdf">Export</button>
+              <button class="btn btn-primary export-btn" @click="exportPdf">Export</button>
               <input v-model="searchQuery" @keyup.enter="handleSearch" type="search" class="form-control search-input" placeholder="Search by Last Name or First Name..." aria-label="Search by Last Name or First Name">
               <button class="btn btn-primary search-btn" @click="handleSearch">Search</button>
               <button class="btn btn-outline-secondary ms-2" v-if="searchQuery" @click="searchQuery = ''">Clear</button>
