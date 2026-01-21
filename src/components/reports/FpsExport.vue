@@ -144,7 +144,8 @@ onMounted(async () => {
           </h6>
         </div>
         <div class="col-3 text-start">
-          <img src="/images/barangaylogo.png" alt="Barangay Logo" height="80" />
+          <img v-if="userBarangay === 'Barangay 5'" src="/images/barangaylogo.png" alt="Barangay 5" style="height: 80px;" />
+          <img v-else src="/images/barangay6.png" alt="Barangay 6" style="height: 80px;" />
         </div>
       </div>
     </div>
@@ -218,56 +219,6 @@ onMounted(async () => {
         </div>
       </div>
     </section>
-
-    <!-- TABLE SECTION -->
-    <section class="mb-4">
-      <h5 class="fw-bold mb-3">Detailed Records</h5>
-      <div class="table-responsive">
-        <table class="table table-bordered table-striped">
-          <thead class="table-light">
-            <tr>
-              <th>Purok</th>
-              <th>Surname</th>
-              <th>First Name</th>
-              <th>Name of Mother</th>
-              <th>Sex</th>
-              <th>Birthday</th>
-              <th>Age in years</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="record in familyPlanningRecords" :key="record.id">
-              <td>{{ record.purok }}</td>
-              <td>{{ record.surname }}</td>
-              <td>{{ record.firstname }}</td>
-              <td>{{ record.mother_name }}</td>
-              <td>{{ record.sex }}</td>
-              <td>{{ record.birthday }}</td>
-              <td>{{ record.age }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- FOOTER -->
-    <div class="mt-5 pt-4 border-top">
-      <div class="row">
-        <div class="col-6">
-          <p class="mb-0">
-            <strong>Prepared by:</strong><br>
-            BHW Coordinator<br>
-            Barangay {{ userBarangay }}
-          </p>
-        </div>
-        <div class="col-6 text-end">
-          <p class="mb-0">
-            <strong>Date Generated:</strong><br>
-            {{ new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) }}
-          </p>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 

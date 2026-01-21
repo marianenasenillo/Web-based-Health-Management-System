@@ -1,7 +1,7 @@
 <script setup>
 // filepath: c:\Users\salar\OneDrive\Desktop\healths\src\views\HpsView.vue
 import DashboardView from '@/components/DashboardView.vue'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { supabase } from '@/utils/supabase.js'
 
@@ -10,6 +10,8 @@ const showRecords = ref(false)
 const activeMenu = ref('')
 const showModal = ref(false)
 const modalType = ref('')
+const userRole = ref('')
+const userBarangay = ref('')
 
 // Household Profiling form fields
 const barangay = ref('')
@@ -110,6 +112,14 @@ const headFields = [
   { label: 'Middle Name:', model: 'headMiddlename', ref: headMiddlename, type: 'text' },
   { label: 'Suffix:', model: 'headSuffix', ref: headSuffix, type: 'text' },
 ]
+
+onMounted(async () => {
+  const { data: { user } } = await supabase.auth.getUser()
+  userRole.value = user?.user_metadata?.role || ''
+  userBarangay.value = user?.user_metadata?.barangay || ''
+  barangay.value = userBarangay.value
+  headBarangay.value = userBarangay.value
+})
 
 const goPrevPage = () => router.push('/home')
 const goNextPage = () => router.push('/maternalservices')
@@ -293,7 +303,7 @@ const saveHousehold = async () => {
               Household Profiling <span>⋮</span>
             </button>
             <div v-if="activeMenu === 'household'" class="dropdown-menu">
-              <button @click="fillIn('household')">Fill In</button>
+              <button v-if="userRole === 'BHW'" @click="fillIn('household')">Fill In</button>
             </div>
           </div>
 
@@ -303,7 +313,7 @@ const saveHousehold = async () => {
               Household Head Profiling <span>⋮</span>
             </button>
             <div v-if="activeMenu === 'head'" class="dropdown-menu">
-              <button @click="fillIn('head')">Fill In</button>
+              <button v-if="userRole === 'BHW'" @click="fillIn('head')">Fill In</button>
               <button @click="viewRecords('head')">View Records</button>
             </div>
           </div>
@@ -329,7 +339,8 @@ const saveHousehold = async () => {
               {{ modalType === 'household' ? 'Household Profiling' : 'Household Head Profiling' }}
             </h2>
           </div>
-          <img src="/images/barangaylogo.png" alt="Barangay Logo" style="height: 80px;" />
+          <img v-if="userBarangay === 'Barangay 5'" src="/images/barangaylogo.png" alt="Barangay 5" style="height: 80px;" />
+          <img v-else src="/images/barangay6.png" alt="Barangay 6" style="height: 80px;" />
         </div>
         <hr />
         <template v-if="modalType === 'household'">
@@ -342,11 +353,7 @@ const saveHousehold = async () => {
               </div>
               <div class="form-group">
                 <label>Barangay</label>
-                <select v-model="barangay" class="input-stroke">
-                  <option value="">Select Barangay</option>
-                  <option value="Barangay 5">Barangay 5</option>
-                  <option value="Barangay 6">Barangay 6</option>
-                </select>
+                <input type="text" v-model="barangay" class="input-stroke" readonly />
               </div>
               <div class="form-group">
                 <label>Purok</label>
@@ -541,11 +548,7 @@ const saveHousehold = async () => {
             <div class="row-fields">
               <div class="form-group">
                 <label for="head-barangay">Barangay</label>
-                <select id="head-barangay" v-model="headBarangay" class="input-stroke">
-                  <option value="">Select Barangay</option>
-                  <option value="Barangay 5">Barangay 5</option>
-                  <option value="Barangay 6">Barangay 6</option>
-                </select>
+                <input id="head-barangay" v-model="headBarangay" type="text" class="input-stroke" readonly />
               </div>
               <div class="form-group">
                 <label for="head-purok">Purok</label>

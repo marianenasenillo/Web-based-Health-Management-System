@@ -1,5 +1,6 @@
 <script setup>
 import DashboardView from '@/components/DashboardView.vue'
+import WraExport from '@/components/reports/WraExport.vue'
 import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
 import { ref, onMounted, computed } from 'vue'
@@ -18,6 +19,14 @@ const userRole = ref('')
 const selectedPurok = ref('')
 const editRecord = ref(null)
 const showEditModal = ref(false)
+
+const showReport = ref(false)
+const reportRef = ref(null)
+
+const openReport = () => {
+  showReport.value = true
+}
+const closeReport = () => (showReport.value = false)
 
 onMounted(async () => {
   await fetchWraRecords()
@@ -260,6 +269,71 @@ const exportPdf = async () => {
     alert('Error generating PDF. Please try again.')
   }
 }
+const exportreportPdf = async () => {
+  if (!reportRef.value) return
+  const element = reportRef.value
+
+  // temporarily remove max-height/overflow so entire content is captured
+  const originalOverflow = element.style.overflow
+  const originalMaxHeight = element.style.maxHeight
+  element.style.overflow = 'visible'
+  element.style.maxHeight = 'none'
+
+  // Temporarily reduce logo sizes for PDF export
+  const logos = element.querySelectorAll('img[alt="Province Logo"], img[alt="Barangay Logo"]')
+  const originalSizes = []
+  const originalMargins = []
+  logos.forEach(img => {
+    originalSizes.push(img.style.height)
+    img.style.height = '80px'
+    if (img.alt === 'Province Logo') {
+      originalMargins.push(img.style.right)
+      img.style.position = 'relative'
+      img.style.right = '-130px'
+    }
+  })
+
+  // Render element to canvas at higher scale for better quality
+  const canvas = await html2canvas(element, { scale: 2, useCORS: true })
+  const imgData = canvas.toDataURL('image/png')
+
+  // Restore logo sizes
+  logos.forEach((img, index) => {
+    img.style.height = originalSizes[index]
+    if (img.alt === 'Province Logo') {
+      img.style.right = originalMargins[index] || ''
+      img.style.position = ''
+    }
+  })
+
+  // A4 size in mm
+  const pdf = new jsPDF('p', 'mm', 'a4')
+  const pageWidth = pdf.internal.pageSize.getWidth()
+  const pageHeight = pdf.internal.pageSize.getHeight()
+
+  // Convert canvas pixel size to mm for jsPDF
+  const pxPerMm = canvas.width / (pageWidth * (window.devicePixelRatio || 1))
+  const imgWidthMm = pageWidth
+  const imgHeightMm = (canvas.height / pxPerMm) / (window.devicePixelRatio || 1)
+
+  let remainingHeight = imgHeightMm
+  let position = 0
+
+  // Add image slices per page
+  while (remainingHeight > 0) {
+    pdf.addImage(imgData, 'PNG', 0, position, imgWidthMm, imgHeightMm)
+    remainingHeight -= pageHeight
+    if (remainingHeight > 0) pdf.addPage()
+    // next page position: shift the image up by pageHeight (negative)
+    position -= pageHeight
+  }
+
+  pdf.save('report.pdf')
+
+  // restore styles
+  element.style.overflow = originalOverflow
+  element.style.maxHeight = originalMaxHeight
+}
 </script>
 
 
@@ -272,11 +346,12 @@ const exportPdf = async () => {
           <h3 class="mb-0">Women of Reproductive Age Records</h3>
           <div class="ms-auto search-box">
             <div class="input-group">
-              <button v-if="userRole === 'BHW'" class="btn btn-primary export-btn" @click="exportPdf">Export</button>
+              <button class="btn btn-primary export-btn" @click="exportPdf">Export</button>
               <input v-model="searchQuery" @keyup.enter="handleSearch" type="search" class="form-control search-input" placeholder="Search by Last Name or First Name..." aria-label="Search by Last Name or First Name">
               <button class="btn btn-primary search-btn" @click="handleSearch">Search</button>
               <button class="btn btn-outline-secondary ms-2" v-if="searchQuery" @click="searchQuery = ''">Clear</button>
               <button v-if="userRole === 'Admin'" class="btn btn-warning report-btn" @click="router.push('/wraarchived')">Archived</button>
+              <button v-if="userRole === 'Admin'" class="btn btn-primary report-btn" @click="openReport">Report</button>
             </div>
           </div>
         </div>
@@ -347,8 +422,8 @@ const exportPdf = async () => {
                     <td>{{ record.changeMethod }}</td>
                     <td>
                       <button class="btn btn-secondary btn-sm me-2" @click="editRecordFunc(record)">Edit</button>
-                      <button v-if="userRole === 'BHW'" class="btn btn-danger btn-sm me-2" @click="deleteRecord(record)">Delete</button>
-                      <button v-if="userRole === 'BHW'" class="btn btn-warning btn-sm" @click="archiveRecord(record)">Archive</button>
+                      <button v-if="userRole === 'Admin'" class="btn btn-danger btn-sm me-2" @click="deleteRecord(record)">Delete</button>
+                      <button v-if="userRole === 'Admin'" class="btn btn-warning btn-sm" @click="archiveRecord(record)">Archive</button>
                     </td>
                   </tr>
 
@@ -474,6 +549,16 @@ const exportPdf = async () => {
                   </div>
                 </form>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <div v-if="showReport" class="records-overlay">
+          <div class="records-box d-flex flex-column align-items-center">
+            <button class="back-btn align-self-start" @click="closeReport">← back</button>
+            <button class="export-small-btn" @click="exportreportPdf" title="Export PDF">⤓</button>
+            <div ref="reportRef" class="report-container py-4 bg-white shadow rounded">
+              <WraExport/>
             </div>
           </div>
         </div>
