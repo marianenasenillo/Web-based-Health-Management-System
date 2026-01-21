@@ -1,6 +1,5 @@
 <script setup>
 import DashboardView from '@/components/DashboardView.vue'
-import PhsExport from '@/components/reports/PhsExport.vue'
 import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
 import { ref, onMounted, computed } from 'vue'
@@ -19,8 +18,6 @@ const userRole = ref('')
 const selectedPurok = ref('')
 const editRecord = ref(null)
 const showEditModal = ref(false)
-const showReportModal = ref(false)
-const reportRef = ref(null)
 
 onMounted(async () => {
   await fetchDewormingRecords()
@@ -32,7 +29,7 @@ const filteredRecords = computed(() => {
   if (q) {
     records = records.filter(r =>
       String(r.firstname).toLowerCase().includes(q.toLowerCase()) ||
-      String(r.surname).toLowerCase().includes(q.toLowerCase())
+      String(r.lastname).toLowerCase().includes(q.toLowerCase())
     )
   }
   if (selectedPurok.value) {
@@ -40,6 +37,8 @@ const filteredRecords = computed(() => {
   }
   return records
 })
+
+const sexDisplay = (sex) => sex === 'F' ? 'Female' : sex === 'M' ? 'Male' : sex
 
 const handleSearch = () => {
   // computed `filteredRecords` will react to `searchQuery`; keep placeholder for possible analytics or focus behavior
@@ -81,7 +80,7 @@ const fetchDewormingRecords = async () => {
 
 // Delete Record
 const deleteRecord = async (record) => {
-  if (!confirm(`Are you sure you want to delete the deworming record for "${record.firstname} ${record.surname}"? This action cannot be undone.`)) {
+  if (!confirm(`Are you sure you want to delete the deworming record for "${record.firstname} ${record.lastname}"? This action cannot be undone.`)) {
     return
   }
 
@@ -112,7 +111,7 @@ const saveEdit = async () => {
     const { error } = await supabase
       .from('deworming_records')
       .update({
-        surname: editRecord.value.surname,
+        lastname: editRecord.value.lastname,
         firstname: editRecord.value.firstname,
         middlename: editRecord.value.middlename,
         mother_name: editRecord.value.mother_name,
@@ -136,7 +135,7 @@ const saveEdit = async () => {
 
 // Archive Record
 const archiveRecord = async (record) => {
-  if (!confirm(`Are you sure you want to archive the deworming record for "${record.firstname} ${record.surname}"?`)) {
+  if (!confirm(`Are you sure you want to archive the deworming record for "${record.firstname} ${record.lastname}"?`)) {
     return
   }
 
@@ -159,13 +158,62 @@ const archiveRecord = async (record) => {
   }
 }
 
-// Export PDF
+// Export PDF: capture the visible table and exclude the Actions column
 const exportPdf = async () => {
-  const element = reportRef.value
-  if (!element) return
+  const containerEl = document.querySelector('.large-table')
+  if (!containerEl) {
+    alert('Table not found.')
+    return
+  }
+
+  const wrapper = containerEl.closest('.table-wrapper')
+  // temporarily expand wrapper so full table is rendered
+  const originalWrapperHeight = wrapper ? wrapper.style.height : ''
+  const originalWrapperOverflow = wrapper ? wrapper.style.overflow : ''
+  if (wrapper) {
+    wrapper.style.height = 'auto'
+    wrapper.style.overflow = 'visible'
+  }
+
+  const table = containerEl.querySelector('table')
+  if (!table) {
+    if (wrapper) {
+      wrapper.style.height = originalWrapperHeight
+      wrapper.style.overflow = originalWrapperOverflow
+    }
+    alert('Table element not found for export.')
+    return
+  }
+
+  // find Actions column index and hide it during export
+  const headers = Array.from(table.querySelectorAll('thead th'))
+  let actionsIndex = -1
+  headers.forEach((th, idx) => {
+    if (th.textContent && th.textContent.trim().toLowerCase() === 'actions') actionsIndex = idx
+  })
+
+  // store original display styles to restore later
+  const hiddenElements = []
+  if (actionsIndex >= 0) {
+    const th = headers[actionsIndex]
+    hiddenElements.push({ el: th, display: th.style.display })
+    th.style.display = 'none'
+
+    const rows = Array.from(table.querySelectorAll('tbody tr'))
+    rows.forEach(row => {
+      const cells = row.querySelectorAll('td')
+      if (cells[actionsIndex]) {
+        hiddenElements.push({ el: cells[actionsIndex], display: cells[actionsIndex].style.display })
+        cells[actionsIndex].style.display = 'none'
+      }
+    })
+  }
 
   try {
-    const canvas = await html2canvas(element, {
+    // wait a moment so DOM/layout updates take effect
+    await new Promise(r => setTimeout(r, 200))
+
+    const canvas = await html2canvas(containerEl, {
       scale: 2,
       useCORS: true,
       allowTaint: true,
@@ -174,12 +222,10 @@ const exportPdf = async () => {
 
     const imgData = canvas.toDataURL('image/png')
     const pdf = new jsPDF('p', 'mm', 'a4')
-
     const imgWidth = 210
     const pageHeight = 295
     const imgHeight = (canvas.height * imgWidth) / canvas.width
     let heightLeft = imgHeight
-
     let position = 0
 
     pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight)
@@ -193,9 +239,16 @@ const exportPdf = async () => {
     }
 
     pdf.save('deworming-report.pdf')
-  } catch (error) {
-    console.error('Error generating PDF:', error)
+  } catch (err) {
+    console.error('Error generating PDF:', err)
     alert('Error generating PDF. Please try again.')
+  } finally {
+    // restore hidden elements
+    hiddenElements.forEach(({ el, display }) => { el.style.display = display || '' })
+    if (wrapper) {
+      wrapper.style.height = originalWrapperHeight
+      wrapper.style.overflow = originalWrapperOverflow
+    }
   }
 }
 </script>
@@ -209,8 +262,8 @@ const exportPdf = async () => {
           <h3 class="mb-0">Deworming (10–19 yrs old) Records</h3>
           <div class="ms-auto search-box">
             <div class="input-group">
-              <button class="btn btn-primary report-btn" @click="showReportModal = true">Report</button>
-              <input v-model="searchQuery" @keyup.enter="handleSearch" type="search" class="form-control search-input" placeholder="Search by Surname or First Name..." aria-label="Search by Surname or First Name">
+              <button v-if="userRole === 'BHW'" class="btn btn-primary export-btn" @click="exportPdf">Export</button>
+              <input v-model="searchQuery" @keyup.enter="handleSearch" type="search" class="form-control search-input" placeholder="Search by Lastname or First Name..." aria-label="Search by Lastname or First Name">
               <button class="btn btn-primary search-btn" @click="handleSearch">Search</button>
               <button class="btn btn-outline-secondary ms-2" v-if="searchQuery" @click="searchQuery = ''">Clear</button>
               <button v-if="userRole === 'Admin'" class="btn btn-warning report-btn" @click="router.push('/phsarchived')">Archived</button>
@@ -238,9 +291,10 @@ const exportPdf = async () => {
                 <option value="Purok 1">Purok 1</option>
                 <option value="Purok 2">Purok 2</option>
                 <option value="Purok 3">Purok 3</option>
+                <option value="Purok 4">Purok 4</option>
                 <option value="Purok 5">Purok 5</option>
               </select></th>
-                    <th>Surname</th>
+                    <th>Lastname</th>
                     <th>First Name</th>
                     <th>Middle Name</th>
                     <th>Name of Mother</th>
@@ -253,17 +307,17 @@ const exportPdf = async () => {
                 <tbody>
                   <tr v-for="record in filteredRecords" :key="record.id">
                     <td>{{ record.purok }}</td>
-                    <td>{{ record.surname }}</td>
+                    <td>{{ record.lastname }}</td>
                     <td>{{ record.firstname }}</td>
                     <td>{{ record.middlename }}</td>
                     <td>{{ record.mother_name }}</td>
-                    <td>{{ record.sex }}</td>
+                    <td>{{ sexDisplay(record.sex) }}</td>
                     <td>{{ record.birthday }}</td>
                     <td>{{ record.age }}</td>
                     <td>
                       <button class="btn btn-secondary btn-sm me-2" @click="editRecordFunc(record)">Edit</button>
-                      <button v-if="userRole === 'Admin'" class="btn btn-danger btn-sm me-2" @click="deleteRecord(record)">Delete</button>
-                      <button v-if="userRole === 'Admin'" class="btn btn-warning btn-sm" @click="archiveRecord(record)">Archive</button>
+                      <button v-if="userRole === 'BHW'" class="btn btn-danger btn-sm me-2" @click="deleteRecord(record)">Delete</button>
+                      <button v-if="userRole === 'BHW'" class="btn btn-warning btn-sm" @click="archiveRecord(record)">Archive</button>
                     </td>
                   </tr>
 
@@ -281,7 +335,7 @@ const exportPdf = async () => {
           <div class="modal-dialog modal-lg">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title">Edit Deworming Record: {{ editRecord.firstname }} {{ editRecord.surname }}</h5>
+                <h5 class="modal-title">Edit Deworming Record: {{ editRecord.firstname }} {{ editRecord.lastname }}</h5>
                 <button type="button" class="btn-close" @click="showEditModal = false"></button>
               </div>
               <div class="modal-body">
@@ -290,15 +344,17 @@ const exportPdf = async () => {
                     <div class="col-md-6 mb-3">
                       <label>Purok</label>
                       <select v-model="editRecord.purok" class="form-control" required>
+                        <option value="">Select Purok</option>
                         <option value="Purok 1">Purok 1</option>
                         <option value="Purok 2">Purok 2</option>
                         <option value="Purok 3">Purok 3</option>
+                        <option value="Purok 4">Purok 4</option>
                         <option value="Purok 5">Purok 5</option>
                       </select>
                     </div>
                     <div class="col-md-6 mb-3">
-                      <label>Surname</label>
-                      <input v-model="editRecord.surname" type="text" class="form-control" required>
+                      <label>Last Name</label>
+                      <input v-model="editRecord.lastname" type="text" class="form-control" required>
                     </div>
                     <div class="col-md-6 mb-3">
                       <label>First Name</label>
@@ -315,8 +371,9 @@ const exportPdf = async () => {
                     <div class="col-md-6 mb-3">
                       <label>Sex</label>
                       <select v-model="editRecord.sex" class="form-control">
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
+                        <option value="">Select</option>
+                        <option value="F">Female</option>
+                        <option value="M">Male</option>
                       </select>
                     </div>
                     <div class="col-md-6 mb-3">
@@ -338,17 +395,7 @@ const exportPdf = async () => {
           </div>
         </div>
 
-        <!-- Modal for Report -->
-        <div v-if="showReportModal" class="records-overlay">
-          <div class="records-box d-flex flex-column align-items-center">
-            <!-- back button (left) and a compact export button (top-right) positioned absolutely so they don't affect layout -->
-            <button class="back-btn" @click="showReportModal = false">← back</button>
-            <button class="export-small-btn" @click="exportPdf" title="Export PDF">⤓</button>
-            <div ref="reportRef" class="report-container py-4 bg-white shadow rounded">
-              <PhsExport />
-            </div>
-          </div>
-        </div>
+        
 
       </div>
     </div>

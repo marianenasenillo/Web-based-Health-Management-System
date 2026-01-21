@@ -1,6 +1,5 @@
 <script setup>
 import DashboardView from '@/components/DashboardView.vue'
-import FpsExport from '@/components/reports/FpsExport.vue'
 import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
 import { ref, onMounted, computed } from 'vue'
@@ -19,8 +18,6 @@ const userRole = ref('')
 const selectedPurok = ref('')
 const editRecord = ref(null)
 const showEditModal = ref(false)
-const showReportModal = ref(false)
-const reportRef = ref(null)
 
 onMounted(async () => {
   await fetchResponsibleRecords()
@@ -160,16 +157,46 @@ const archiveRecord = async (record) => {
 
 // Export PDF
 const exportPdf = async () => {
-  const element = reportRef.value
-  if (!element) return
+  const element = document.querySelector('.large-table')
+  if (!element) {
+    alert('Table not found.')
+    return
+  }
 
   try {
+    // Temporarily expand the container to show all content
+    const wrapper = element.closest('.table-wrapper')
+    let originalHeight = ''
+    let originalOverflow = ''
+    if (wrapper) {
+      originalHeight = wrapper.style.height
+      originalOverflow = wrapper.style.overflow
+      wrapper.style.height = 'auto'
+      wrapper.style.overflow = 'visible'
+    }
+
+    const table = element.querySelector('table')
+    let originalTableHeight = ''
+    if (table) {
+      originalTableHeight = table.style.height
+      table.style.height = 'auto'
+    }
+
     const canvas = await html2canvas(element, {
       scale: 2,
       useCORS: true,
       allowTaint: true,
       backgroundColor: '#ffffff'
     })
+
+    // Restore styles
+    if (wrapper) {
+      wrapper.style.height = originalHeight
+      wrapper.style.overflow = originalOverflow
+    }
+    if (table) {
+      table.style.height = originalTableHeight
+    }
 
     const imgData = canvas.toDataURL('image/png')
     const pdf = new jsPDF('p', 'mm', 'a4')
@@ -209,7 +236,7 @@ const exportPdf = async () => {
           <h3 class="mb-0">Responsible Parenthood and Planning Records</h3>
           <div class="ms-auto search-box">
             <div class="input-group">
-              <button class="btn btn-primary report-btn" @click="showReportModal = true">Report</button>
+              <button v-if="userRole === 'BHW'" class="btn btn-primary export-btn" @click="exportPdf">Export</button>
               <input v-model="searchQuery" @keyup.enter="handleSearch" type="search" class="form-control search-input" placeholder="Search by Surname or First Name..." aria-label="Search by Surname or First Name">
               <button class="btn btn-primary search-btn" @click="handleSearch">Search</button>
               <button class="btn btn-outline-secondary ms-2" v-if="searchQuery" @click="searchQuery = ''">Clear</button>
@@ -260,8 +287,8 @@ const exportPdf = async () => {
                     <td>{{ record.age }}</td>
                     <td>
                       <button class="btn btn-secondary btn-sm me-2" @click="editRecordFunc(record)">Edit</button>
-                      <button v-if="userRole === 'Admin'" class="btn btn-danger btn-sm me-2" @click="deleteRecord(record)">Delete</button>
-                      <button v-if="userRole === 'Admin'" class="btn btn-warning btn-sm" @click="archiveRecord(record)">Archive</button>
+                      <button v-if="userRole === 'BHW'" class="btn btn-danger btn-sm me-2" @click="deleteRecord(record)">Delete</button>
+                      <button v-if="userRole === 'BHW'" class="btn btn-warning btn-sm" @click="archiveRecord(record)">Archive</button>
                     </td>
                   </tr>
 
@@ -328,18 +355,6 @@ const exportPdf = async () => {
                   </div>
                 </form>
               </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Modal for Report -->
-        <div v-if="showReportModal" class="records-overlay">
-          <div class="records-box d-flex flex-column align-items-center">
-            <!-- back button (left) and a compact export button (top-right) positioned absolutely so they don't affect layout -->
-            <button class="back-btn" @click="showReportModal = false">← back</button>
-            <button class="export-small-btn" @click="exportPdf" title="Export PDF">⤓</button>
-            <div ref="reportRef" class="report-container py-4 bg-white shadow rounded">
-              <FpsExport />
             </div>
           </div>
         </div>

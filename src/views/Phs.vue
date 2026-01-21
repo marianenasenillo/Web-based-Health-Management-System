@@ -17,6 +17,8 @@ const motherName = ref('')
 const sex = ref('')
 const birthday = ref('')
 const age = ref('')
+const lastname = ref('')
+const purok = ref('')
 
 // Deworming records table
 const dewormingRecords = ref([])
@@ -70,7 +72,9 @@ const saveRecord = async () => {
         mother_name: motherName.value,
         sex: sex.value,
         birthday: birthday.value,
-        age: age.value
+        age: age.value,
+        lastname: lastname.value,
+        purok: purok.value
       }
     ])
   if (error) return console.error('Error saving record:', error)
@@ -88,6 +92,8 @@ const resetForm = () => {
   sex.value = ''
   birthday.value = ''
   age.value = ''
+  lastname.value = ''
+  purok.value = ''
 }
 </script>
 
@@ -104,7 +110,7 @@ const resetForm = () => {
         <p>Click to view and manage Preventive Health Services records efficiently.</p>
 
         <!-- View Records Button -->
-        <button class="btn view-btn mt-3" @click="toggleRecords">View Records</button>
+        <button class="btn view-btn mt-3 d-block mx-auto" @click="toggleRecords">View Records</button>
       </div>
     </div>
 
@@ -175,6 +181,12 @@ const resetForm = () => {
               <input type="text" v-model="motherName" class="input-stroke" />
             </div>
             <div class="form-group">
+              <label>Last Name:</label>
+              <input type="text" v-model="lastname" class="input-stroke" />
+            </div>
+          </div>
+          <div class="row-fields">
+            <div class="form-group">
               <label>Sex:</label>
               <select v-model="sex" class="input-stroke">
                 <option value="">Select</option>
@@ -182,8 +194,6 @@ const resetForm = () => {
                 <option value="M">Male</option>
               </select>
             </div>
-          </div>
-          <div class="row-fields">
             <div class="form-group">
               <label>Birthday:</label>
               <input type="date" v-model="birthday" class="input-stroke" />
@@ -191,6 +201,20 @@ const resetForm = () => {
             <div class="form-group">
               <label>Age:</label>
               <input type="number" v-model="age" class="input-stroke" min="0" />
+            </div>
+          </div>
+          <div class="row-fields">
+            
+            <div class="form-group">
+              <label>Purok:</label>
+              <select v-model="purok" class="input-stroke">
+                <option value="">Select Purok</option>
+                <option value="Purok 1">Purok 1</option>
+                <option value="Purok 2">Purok 2</option>
+                <option value="Purok 3">Purok 3</option>
+                <option value="Purok 4">Purok 4</option>
+                <option value="Purok 5">Purok 5</option>
+              </select>
             </div>
           </div>
           <div class="form-actions-left">
@@ -246,7 +270,7 @@ const resetForm = () => {
   padding: 0.6rem 1.5rem;
   border-radius: 8px;
   transition: 0.3s;
-  width: 100%;
+  width: 50%;
 }
 .view-btn:hover {
   background-color: #e6b800;

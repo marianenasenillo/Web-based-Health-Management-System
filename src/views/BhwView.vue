@@ -123,7 +123,6 @@ onMounted(async () => {
     if (!response.ok) throw new Error(`HTTP ${response.status}`)
 
     const users = await response.json()
-    console.log('Fetched users:', JSON.stringify(users, null, 2)) // 👀 see structure
 
     // ✅ use user_metadata (same as your profile fetch)
     bhwList.value = users.map(u => ({
@@ -134,8 +133,15 @@ onMounted(async () => {
   purok: u.purok || 'N/A',
   schedule: u.schedule || 'N/A',
   photo: u.photo || '/images/default-avatar.png',
-  role: u.role || 'N/A'
+  role: u.role || 'N/A',
+  barangay: u.barangay || 'N/A'
 }))
+
+    // Filter BHW list based on current user's barangay
+    const userBarangay = currentUser.value?.user_metadata?.barangay
+    if (userBarangay) {
+      bhwList.value = bhwList.value.filter(u => u.barangay === userBarangay)
+    }
 
 
 

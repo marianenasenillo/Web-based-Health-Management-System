@@ -187,7 +187,7 @@ async function saveProfile() {
 
           <v-card
             elevation="8"
-            color="#fff9c56"
+            color="#fff9c4"
             class="pa-5"
             style="width: 350px; border-radius: 16px;"
           >

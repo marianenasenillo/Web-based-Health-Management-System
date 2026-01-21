@@ -264,7 +264,7 @@ const saveHousehold = async () => {
         <p>Click to view and manage household records efficiently.</p>
 
         <!-- View Records Button -->
-        <button class="btn view-btn mt-3" @click="toggleRecords">View Records</button>
+        <button class="btn view-btn mt-3 d-block mx-auto" @click="toggleRecords">View Records</button>
       </div>
 
       <!-- Next Arrow -->
@@ -339,10 +339,6 @@ const saveHousehold = async () => {
               <div class="form-group">
                 <label>Date of Visit</label>
                 <input type="date" v-model="dateVisit" class="input-stroke" />
-              </div>
-              <div class="form-group">
-                <label>Household No.</label>
-                <input type="text" v-model="householdNo" class="input-stroke" />
               </div>
               <div class="form-group">
                 <label>Barangay</label>
@@ -649,7 +645,8 @@ const saveHousehold = async () => {
   padding: 0.6rem 1.5rem;
   border-radius: 8px;
   transition: 0.3s;
-  width: 100%;
+  width: 50%;
+  
 }
 .view-btn:hover {
   background-color: #e6b800;
